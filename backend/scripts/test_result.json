@@ -1,0 +1,14 @@
+{
+  "recipient": "vaideedeepu@gmail.com",
+  "subRes": {
+    "success": true,
+    "messageId": "<202607300826.32178596896@smtp-relay.mailin.fr>",
+    "provider": "brevo-api"
+  },
+  "kycRes": {
+    "success": true,
+    "messageId": "<202607300826.99496512089@smtp-relay.mailin.fr>",
+    "provider": "brevo-api"
+  },
+  "timestamp": "2026-07-30T08:26:42.275Z"
+}

@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="960" viewBox="0 0 1440 960">
+  <defs>
+    <linearGradient id="hero" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#081326"/><stop offset=".56" stop-color="#102a4d"/><stop offset="1" stop-color="#183f6d"/></linearGradient>
+    <linearGradient id="blue" x1="0" x2="1"><stop stop-color="#2563eb"/><stop offset="1" stop-color="#4f8cff"/></linearGradient>
+    <filter id="shadow"><feDropShadow dx="0" dy="14" stdDeviation="20" flood-color="#0f172a" flood-opacity=".15"/></filter>
+  </defs>
+  <rect width="1440" height="960" fill="#edf3fa"/>
+  <rect x="78" y="42" width="1284" height="876" rx="20" fill="#fff" filter="url(#shadow)"/>
+  <rect x="78" y="42" width="1284" height="58" rx="20" fill="#fff"/>
+  <circle cx="111" cy="71" r="6" fill="#fb7185"/><circle cx="132" cy="71" r="6" fill="#fbbf24"/><circle cx="153" cy="71" r="6" fill="#34d399"/>
+  <rect x="190" y="59" width="990" height="24" rx="12" fill="#f1f5f9"/>
+  <text x="119" y="143" font-family="Arial, sans-serif" font-size="26" font-weight="800" fill="#0f172a">RentOS <tspan fill="#2563eb">AI</tspan></text>
+  <text x="830" y="143" font-family="Arial, sans-serif" font-size="14" font-weight="600" fill="#475569">Home</text><text x="890" y="143" font-family="Arial, sans-serif" font-size="14" font-weight="600" fill="#475569">How it works</text><text x="1005" y="143" font-family="Arial, sans-serif" font-size="14" font-weight="600" fill="#475569">Driver portal</text>
+  <rect x="1125" y="118" width="120" height="42" rx="9" fill="#2563eb"/><text x="1155" y="144" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#fff">Sign in</text>
+  <rect x="78" y="182" width="1284" height="320" fill="url(#hero)"/>
+  <circle cx="1195" cy="270" r="185" fill="#3b82f6" opacity=".18"/><circle cx="1110" cy="370" r="135" fill="#60a5fa" opacity=".12"/>
+  <path d="M1010 405 C1040 335 1120 315 1200 335 L1260 380 L1288 388 C1308 392 1320 408 1320 431 L1320 454 L1000 454 L1000 426 C1000 416 1004 409 1010 405Z" fill="#101827" opacity=".95"/>
+  <path d="M1050 356 L1115 343 L1188 350 L1230 384 L1060 384Z" fill="#93c5fd" opacity=".75"/>
+  <circle cx="1070" cy="453" r="31" fill="#080d16"/><circle cx="1070" cy="453" r="14" fill="#94a3b8"/><circle cx="1250" cy="453" r="31" fill="#080d16"/><circle cx="1250" cy="453" r="14" fill="#94a3b8"/>
+  <rect x="165" y="231" width="166" height="28" rx="14" fill="#19385f" stroke="#71a8ff"/><text x="184" y="250" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#dbeafe">✦ SIMPLE CAR RENTAL</text>
+  <text x="165" y="306" font-family="Arial, sans-serif" font-size="42" font-weight="800" fill="#fff">Rent a car in minutes.</text>
+  <text x="165" y="353" font-family="Arial, sans-serif" font-size="42" font-weight="800" fill="#93c5fd">Drive with confidence.</text>
+  <text x="165" y="393" font-family="Arial, sans-serif" font-size="17" fill="#cbd5e1">Clear pricing, trusted rental partners, and booking in three easy steps.</text>
+  <rect x="165" y="420" width="142" height="48" rx="9" fill="url(#blue)"/><text x="200" y="450" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#fff">Find a car</text>
+  <rect x="190" y="463" width="1060" height="104" rx="15" fill="#fff" filter="url(#shadow)"/>
+  <g font-family="Arial, sans-serif"><text x="226" y="501" font-size="13" font-weight="800" fill="#2563eb">01</text><text x="262" y="501" font-size="16" font-weight="800" fill="#0f172a">Choose location</text><text x="262" y="526" font-size="13" fill="#64748b">Tell us where and when you need a car.</text><line x1="540" y1="486" x2="540" y2="545" stroke="#e2e8f0"/><text x="574" y="501" font-size="13" font-weight="800" fill="#2563eb">02</text><text x="610" y="501" font-size="16" font-weight="800" fill="#0f172a">Compare vehicles</text><text x="610" y="526" font-size="13" fill="#64748b">Check features and the final price.</text><line x1="900" y1="486" x2="900" y2="545" stroke="#e2e8f0"/><text x="934" y="501" font-size="13" font-weight="800" fill="#2563eb">03</text><text x="970" y="501" font-size="16" font-weight="800" fill="#0f172a">Book and drive</text><text x="970" y="526" font-size="13" fill="#64748b">Confirm your trip and get on the road.</text></g>
+  <rect x="135" y="611" width="1170" height="246" rx="16" fill="#fff" stroke="#dbe4ef"/>
+  <text x="170" y="654" font-family="Arial, sans-serif" font-size="23" font-weight="800" fill="#0f172a">Find your perfect car</text><text x="170" y="680" font-family="Arial, sans-serif" font-size="13" fill="#64748b">Search, compare, and book from trusted rental companies.</text>
+  <rect x="170" y="705" width="220" height="38" rx="8" fill="#eef4ff"/><rect x="173" y="708" width="104" height="32" rx="6" fill="#2563eb"/><text x="192" y="729" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#fff">Self drive</text><text x="297" y="729" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#64748b">With driver</text>
+  <text x="170" y="778" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#475569">PICKUP LOCATION</text><rect x="170" y="790" width="270" height="43" rx="8" fill="#f8fafc" stroke="#dbe4ef"/><text x="188" y="817" font-family="Arial, sans-serif" font-size="14" fill="#334155">●  Chennai, Tamil Nadu</text>
+  <text x="462" y="778" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#475569">PICKUP &amp; RETURN</text><rect x="462" y="790" width="240" height="43" rx="8" fill="#f8fafc" stroke="#dbe4ef"/><text x="480" y="817" font-family="Arial, sans-serif" font-size="14" fill="#334155">24 Jul — 27 Jul</text>
+  <rect x="730" y="790" width="148" height="43" rx="8" fill="url(#blue)"/><text x="757" y="817" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#fff">Search cars</text>
+  <rect x="920" y="638" width="348" height="184" rx="10" fill="#eaf2f8"/><path d="M945 680 C1000 657 1040 697 1082 665 S1163 680 1240 648 M940 748 C1005 702 1050 770 1114 722 S1190 748 1250 698" fill="none" stroke="#b7cadc" stroke-width="5"/><path d="M966 649 L1045 810 M1120 640 L1185 814 M938 715 L1252 712" stroke="#c6d8e8" stroke-width="3"/><circle cx="1110" cy="705" r="16" fill="#2563eb"/><circle cx="1110" cy="705" r="6" fill="#fff"/><text x="1080" y="746" font-family="Arial, sans-serif" font-size="13" font-weight="700" fill="#1e3a5f">Chennai</text>
+</svg>
