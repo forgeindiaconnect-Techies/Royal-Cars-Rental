@@ -8,30 +8,47 @@ export default function CarOwnerDashboard() {
   const [notice, setNotice] = useState('');
 
   // Sample Car Owner Data
-  const [vehicles, setVehicles] = useState([
-    {
-      id: 'ov_1',
-      name: 'Hyundai Creta SX',
-      plate: 'TN29AZ7788',
-      category: 'SUV',
-      pricePerDay: 2200,
-      status: 'Active',
-      rcVerified: true,
-      insuranceValid: true,
-      image: 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=600&q=80'
-    },
-    {
-      id: 'ov_2',
-      name: 'Maruti Suzuki Swift ZXi',
-      plate: 'TN29BC4455',
-      category: 'Hatchback',
-      pricePerDay: 1400,
-      status: 'Rented',
-      rcVerified: true,
-      insuranceValid: true,
-      image: 'https://images.unsplash.com/photo-1590362891991-f776e747a588?auto=format&fit=crop&w=600&q=80'
-    }
-  ]);
+  const [vehicles, setVehicles] = useState(() => {
+    try {
+      const saved = localStorage.getItem('company_vehicles_list');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.length > 0) return parsed;
+      }
+    } catch (e) {}
+    return [
+      {
+        id: 'ov_1',
+        name: 'Hyundai Creta SX',
+        plate: 'TN29AZ7788',
+        category: 'SUV',
+        pricePerDay: 2200,
+        status: 'Active',
+        rcVerified: true,
+        insuranceValid: true,
+        image: 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=600&q=80',
+        imageUrl: 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=600&q=80',
+        make: 'Hyundai',
+        model: 'Creta SX',
+        companyName: user?.name || 'Sathya'
+      },
+      {
+        id: 'ov_2',
+        name: 'Maruti Suzuki Swift ZXi',
+        plate: 'TN29BC4455',
+        category: 'Hatchback',
+        pricePerDay: 1400,
+        status: 'Rented',
+        rcVerified: true,
+        insuranceValid: true,
+        image: 'https://images.unsplash.com/photo-1590362891991-f776e747a588?auto=format&fit=crop&w=600&q=80',
+        imageUrl: 'https://images.unsplash.com/photo-1590362891991-f776e747a588?auto=format&fit=crop&w=600&q=80',
+        make: 'Maruti Suzuki',
+        model: 'Swift ZXi',
+        companyName: user?.name || 'Sathya'
+      }
+    ];
+  });
 
   const [newVehicle, setNewVehicle] = useState({
     name: '', plate: '', category: 'SUV', pricePerDay: 2000, rcNumber: '', image: ''
@@ -136,22 +153,39 @@ export default function CarOwnerDashboard() {
     e.preventDefault();
     if (!newVehicle.name || !newVehicle.plate) return;
 
+    const parts = newVehicle.name.split(' ');
+    const make = parts[0] || 'Unknown';
+    const model = parts.slice(1).join(' ') || 'Model';
+
     const v = {
       id: 'ov_' + Date.now(),
+      _id: 'ov_' + Date.now(),
       name: newVehicle.name,
+      make: make,
+      model: model,
+      year: new Date().getFullYear(),
+      transmission: 'Automatic',
+      fuelType: 'Petrol',
+      seats: 5,
+      location: 'Head Office',
+      companyName: user?.name || profileData?.name || 'Owner',
       plate: newVehicle.plate,
       category: newVehicle.category,
       pricePerDay: Number(newVehicle.pricePerDay),
-      status: 'Pending Verification',
+      status: 'Active', // Auto-active for demonstration
       rcVerified: false,
       insuranceValid: true,
-      image: newVehicle.image || 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=600&q=80'
+      image: newVehicle.image || 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=600&q=80',
+      imageUrl: newVehicle.image || 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=600&q=80'
     };
 
-    setVehicles([v, ...vehicles]);
+    const updatedVehicles = [v, ...vehicles];
+    setVehicles(updatedVehicles);
+    localStorage.setItem('company_vehicles_list', JSON.stringify(updatedVehicles));
+    
     setShowAddVehicleModal(false);
     setNewVehicle({ name: '', plate: '', category: 'SUV', pricePerDay: 2000, rcNumber: '', image: '' });
-    showToast('Car submitted! Pending Super Admin verification.');
+    showToast('Car successfully added and published!');
   };
 
   const handleRequestPayout = () => {

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import LiveTrackingComponent from '../components/LiveTrackingComponent';
+import LocationsManager from '../components/LocationsManager';
 
 /* ─────────────────────────────────────────────────────────────────
    SIDEBAR NAV ITEMS
@@ -8,6 +9,7 @@ import LiveTrackingComponent from '../components/LiveTrackingComponent';
 const NAV_ITEMS = [
   { id: 'dashboard',        label: 'Dashboard' },
   { id: 'rental-companies', label: 'Rental Companies' },
+  { id: 'locations',        label: 'Popular Locations' },
   { id: 'car-owners',       label: 'Car Owners Queue' },
   { id: 'payout-requests',   label: 'Payout Requests' },
   { id: 'drivers-queue',    label: 'Drivers Queue' },
@@ -4687,6 +4689,10 @@ export default function SuperAdminDashboard() {
         );
       }
 
+      if (activeNav === 'locations') {
+        return <LocationsManager />;
+      }
+
       if (activeNav === 'drivers-queue') {
         const pendingDrivers = (() => {
           try { return JSON.parse(localStorage.getItem('pending_drivers') || '[]'); } catch { return []; }
@@ -4783,7 +4789,7 @@ export default function SuperAdminDashboard() {
                         <td style={{ padding: '0.75rem 1rem' }}>{drv.phone}<br/><span style={{ fontSize: '0.75rem', color: '#64748b' }}>{drv.email}</span></td>
                         <td style={{ padding: '0.75rem 1rem', fontWeight: 700, fontFamily: 'monospace' }}>{drv.licenceNo}</td>
                         <td style={{ padding: '0.75rem 1rem' }}>{drv.experience}</td>
-                        <td style={{ padding: '0.75rem 1rem', fontWeight: 700, color: '#2563eb' }}>📍 {drv.location}</td>
+                        <td style={{ padding: '0.75rem 1rem', fontWeight: 700, color: '#2563eb' }}>{drv.location}</td>
                         <td style={{ padding: '0.75rem 1rem' }}>
                           <span style={{
                             fontSize: '0.72rem', fontWeight: 800, padding: '0.25rem 0.65rem', borderRadius: '12px',
@@ -5000,7 +5006,7 @@ function KycDetailsModal({ item, onClose, onApprove, onReject }) {
               <div style={{ fontSize: '1.1rem', fontWeight: 900, color: '#38bdf8' }}>{data.name}</div>
               <div style={{ fontSize: '0.85rem', color: '#94a3b8', marginTop: '0.2rem' }}>📞 {data.phone} • ✉️ {data.email}</div>
               <div style={{ fontSize: '0.85rem', color: '#cbd5e1', marginTop: '0.4rem' }}>
-                Experience: <strong>{data.experience || '5 Years'}</strong> • Base Location: <strong>📍 {data.location}</strong>
+                Experience: <strong>{data.experience || '5 Years'}</strong> • Base Location: <strong>{data.location}</strong>
               </div>
             </div>
 

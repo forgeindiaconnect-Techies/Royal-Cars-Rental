@@ -16,6 +16,7 @@ app.use(express.urlencoded({ extended: true, limit: '20mb' }));
 
 // Serve uploaded KYC documents statically
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/brain-assets', express.static('C:/Users/Forgeindiaconnect/.gemini/antigravity-ide/brain/0691647b-4c11-4fe4-8142-bb31dd99e0d1'));
 
 
 // Routes
@@ -27,6 +28,7 @@ app.use('/api/customer', require('./routes/customerRoutes'));
 app.use('/api/ai', require('./routes/aiRoutes'));
 app.use('/api/notifications', require('./routes/notificationRoutes'));
 app.use('/api/chat', require('./routes/chatRoutes'));
+app.use('/api/locations', require('./routes/locationRoutes'));
 
 // Root / Health check Route
 app.get('/', (req, res) => {
@@ -46,6 +48,8 @@ app.use((err, req, res, next) => {
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+  console.log('Restart triggered to apply Location schema updates');
   console.log(`Server running on port ${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
   
   // Start Automated Daily Subscription Expiry Check Cron Job

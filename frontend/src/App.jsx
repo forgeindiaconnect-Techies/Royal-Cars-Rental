@@ -12,6 +12,10 @@ import CarOwnerDashboard from './pages/CarOwnerDashboard';
 import SubscriptionPayPage from './pages/SubscriptionPayPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import DriverAuthModal from './components/DriverAuthModal';
+import CarsPage from './pages/CarsPage';
+import ContactPage from './pages/ContactPage';
+import AboutSupportPage from './pages/AboutSupportPage';
+import FeatureDetailsPage from './pages/FeatureDetailsPage';
 
 // Custom Navbar Component
 function Navbar() {
@@ -134,10 +138,10 @@ function Navbar() {
             <a href="#services" onClick={(e) => handleNavClick(e, '#services')} style={{ fontSize: '0.95rem', fontWeight: 700, color: '#ffffff', textDecoration: 'none' }}>Services</a>
           </li>
           <li>
-            <a href="#about" onClick={(e) => handleNavClick(e, '#about')} style={{ fontSize: '0.95rem', fontWeight: 700, color: '#ffffff', textDecoration: 'none' }}>About Us</a>
+            <a href="#" onClick={(e) => { e.preventDefault(); navigate('/about'); }} style={{ fontSize: '0.95rem', fontWeight: 700, color: '#ffffff', textDecoration: 'none' }}>About Us</a>
           </li>
           <li>
-            <a href="#contact" onClick={(e) => handleNavClick(e, '#contact')} style={{ fontSize: '0.95rem', fontWeight: 700, color: '#ffffff', textDecoration: 'none' }}>Contact Us</a>
+            <a href="#" onClick={(e) => { e.preventDefault(); navigate('/contact'); }} style={{ fontSize: '0.95rem', fontWeight: 700, color: '#ffffff', textDecoration: 'none' }}>Contact Us</a>
           </li>
         </ul>
 
@@ -278,6 +282,9 @@ function AppContent() {
           {/* Public Routes */}
           <Route path="/" element={<LandingPage />} />
           <Route path="/auth" element={<AuthPage />} />
+          <Route path="/contact" element={<ContactPage />} />
+          <Route path="/info" element={<AboutSupportPage />} />
+          <Route path="/feature/:id" element={<FeatureDetailsPage />} />
           <Route path="/subscription/pay" element={<SubscriptionPayPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
 
@@ -341,6 +348,9 @@ function AppContent() {
               </ProtectedRoute>
             } 
           />
+
+          {/* Cars Catalog Page */}
+          <Route path="/cars" element={<CarsPage />} />
 
           {/* Redirect all unmatched routes to home */}
           <Route path="*" element={<Navigate to="/" replace />} />

@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import FaceScanModal from '../components/FaceScanModal';
+import BookingChatModal from '../components/BookingChatModal';
 import { getValidImageUrl, handleImageError, fileToDataURL } from '../utils/imageUtils';
 import { detectFace, compareFaces } from '../utils/faceVerificationUtil';
 import { processDrivingLicenseOCR } from '../utils/dlOcrUtil';
@@ -1076,6 +1077,16 @@ function CompanyAdminDashboard() {
         } catch { return []; }
       });
 
+      // Reactive local-storage bookings: re-reads every time Bookings tab opens or every 3 s
+      const readLocalBookings = () => {
+        try {
+          const compBookings = JSON.parse(localStorage.getItem('company_bookings_list') || '[]');
+          const custBookings = JSON.parse(localStorage.getItem('customer_bookings_list') || '[]');
+          return [...compBookings, ...custBookings];
+        } catch { return []; }
+      };
+      const [localBookingsList, setLocalBookingsList] = useState(readLocalBookings);
+
       const [staffList, setStaffList] = useState(() => {
         try {
           const email = user?.email || localStorage.getItem('company_owner_email') || 'pooja@gmail.com';
@@ -1297,6 +1308,7 @@ function CompanyAdminDashboard() {
       const [chatMessages, setChatMessages] = useState([]);
       const [playingVoiceId, setPlayingVoiceId] = useState(null);
       const [companyDocPreviewModal, setCompanyDocPreviewModal] = useState(null);
+      const [bookingChatModalItem, setBookingChatModalItem] = useState(null);
 
       const handlePlayVoiceAudioMsg = (msgId, messageText) => {
         if (playingVoiceId === msgId) {
@@ -2188,6 +2200,21 @@ function CompanyAdminDashboard() {
       return () => clearInterval(interval);
     }
   }, [activeNav, token]);
+
+  // Refresh localBookingsList from localStorage whenever Bookings tab is opened
+  useEffect(() => {
+    if (activeNav === 'bookings') {
+      setLocalBookingsList(readLocalBookings());
+    }
+  }, [activeNav]);
+
+  // Also poll every 3 seconds to catch bookings placed in Customer Dashboard
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setLocalBookingsList(readLocalBookings());
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
 
   const handleVehicleSaved = (savedVehicle, isNewParam) => {
     const email = user?.email || companyInfo?.ownerEmail || localStorage.getItem('company_owner_email') || 'pooja@gmail.com';
@@ -3777,8 +3804,8 @@ function CompanyAdminDashboard() {
                 }
               ];
 
-              const localCustomerBookings = JSON.parse(localStorage.getItem('customer_bookings_list') || '[]');
-              const baseList = [...(bookings || []), ...localCustomerBookings, ...defaultCompanyBookings];
+              const localCustomerBookings = localBookingsList;
+              const baseList = [...localCustomerBookings, ...(bookings || []), ...defaultCompanyBookings];
 
               const seenKeys = new Set();
               const allBookings = baseList.filter(b => {
@@ -3872,18 +3899,18 @@ function CompanyAdminDashboard() {
                         <tbody>
                           {allBookings
                             .filter(b => {
-                              if (bookingFilter === 'self') return !b.hasDriver || b.bookingType === 'self-drive' || (b.driverAssigned && b.driverAssigned.includes('Self'));
-                              if (bookingFilter === 'driver') return b.hasDriver || b.bookingType === 'with-driver' || (b.driverAssigned && b.driverAssigned.includes('Driver'));
+                              if (bookingFilter === 'self') return !b.hasDriver || String(b.bookingType || '').toLowerCase().includes('self') || (b.driverAssigned && String(b.driverAssigned).toLowerCase().includes('self')) || (b.driverOption && String(b.driverOption).toLowerCase().includes('self'));
+                              if (bookingFilter === 'driver') return b.hasDriver || String(b.bookingType || '').toLowerCase().includes('driver') || (b.driverAssigned && String(b.driverAssigned).toLowerCase().includes('driver')) || (b.driverOption && String(b.driverOption).toLowerCase().includes('driver'));
                               if (bookingFilter === 'pending') return String(b.status || '').toLowerCase().includes('pend');
                               return true;
                             })
                             .map(b => {
-                              const custName = b.customerName || (typeof b.customerId === 'object' ? b.customerId?.name : 'Deepu');
-                              const custPhone = b.customerPhone || (typeof b.customerId === 'object' ? b.customerId?.mobile || b.customerId?.email : '+91 98765 43210');
-                              const vehName = b.vehicleName || (typeof b.vehicleId === 'object' ? `${b.vehicleId?.make} ${b.vehicleId?.model}` : 'Toyota Fortuner');
-                              const price = b.totalPrice || b.totalAmount || 10;
-                              const driverMode = b.driverAssigned || (b.hasDriver ? '👨‍✈️ Driver + Car' : '🚗 Self Drive');
-                              const isApproved = String(b.status).toLowerCase() === 'confirmed' || String(b.status).toLowerCase() === 'active';
+                              const custName = b.customerName || (typeof b.customerId === 'object' ? b.customerId?.name : null) || b.user?.name || 'Deepu';
+                              const custPhone = b.customerPhone || (typeof b.customerId === 'object' ? b.customerId?.mobile || b.customerId?.email : null) || b.user?.mobile || '+91 98765 43210';
+                              const vehName = b.vehicleName || (typeof b.vehicleId === 'object' ? `${b.vehicleId?.make} ${b.vehicleId?.model}` : null) || (b.vehicle ? `${b.vehicle.make} ${b.vehicle.model}` : 'Toyota Fortuner');
+                              const price = b.totalPrice || b.totalAmount || (b.vehicle ? b.vehicle.pricePerDay * 2 : 5000);
+                              const driverMode = b.driverOption || b.driverAssigned || (b.hasDriver ? '👨‍✈️ Driver + Car' : '🚗 Self Drive');
+                              const isApproved = String(b.status).toLowerCase() === 'confirmed' || String(b.status).toLowerCase() === 'active' || String(b.status).toLowerCase().includes('approved');
 
                               let dateText = `${b.startDate} to ${b.endDate}`;
                               try {
@@ -3963,7 +3990,7 @@ function CompanyAdminDashboard() {
                                       </button>
                                     )}
 
-                                    <button className="btn" style={{ fontSize: '0.72rem', padding: '0.2rem 0.55rem', background: '#0284c7', color: '#fff', border: 'none', borderRadius: '4px', fontWeight: 700 }} onClick={() => setSelectedCustomerDocsBooking({ ...b, customerName: custName, customerPhone: custPhone, vehicleName: vehName, totalPrice: price })}>
+                                    <button className="btn" style={{ fontSize: '0.72rem', padding: '0.2rem 0.55rem', background: 'linear-gradient(135deg, #10b981, #059669)', color: '#fff', border: 'none', borderRadius: '4px', fontWeight: 700, marginRight: '0.25rem' }} onClick={() => setBookingChatModalItem({ ...b, customerName: custName, customerPhone: custPhone, vehicleName: vehName, totalPrice: price })}>💬 Chat</button> <button className="btn" style={{ fontSize: '0.72rem', padding: '0.2rem 0.55rem', background: '#0284c7', color: '#fff', border: 'none', borderRadius: '4px', fontWeight: 700 }} onClick={() => setSelectedCustomerDocsBooking({ ...b, customerName: custName, customerPhone: custPhone, vehicleName: vehName, totalPrice: price })}>
                                       📄 View Documents
                                     </button>
 
@@ -7270,9 +7297,20 @@ function CompanyAdminDashboard() {
           </div>
         )}
 
+        {/* BOOKING CHAT & LIVE LOCATION MODAL */}
+        {bookingChatModalItem && (
+          <BookingChatModal
+            booking={bookingChatModalItem}
+            currentUser={user}
+            role="company-admin"
+            onClose={() => setBookingChatModalItem(null)}
+          />
+        )}
+
       </div>
       );
 }
+
 
 
 

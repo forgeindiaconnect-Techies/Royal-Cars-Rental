@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import BookingChatModal from '../components/BookingChatModal';
 
 export default function CustomerDashboard() {
   const { token, logout, user } = useAuth();
   const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedChatBooking, setSelectedChatBooking] = useState(null);
 
   // 10 ACTIVE DASHBOARD TABS:
   // 1. dashboard, 2. browse, 3. bookings, 4. live-tracking, 5. payments, 6. kyc, 7. reviews, 8. notifications, 9. profile, 10. settings
@@ -174,10 +176,16 @@ export default function CustomerDashboard() {
       }
     } catch (e) {}
 
+    const realName = user?.name || 'Customer';
+    const realPhone = user?.mobile || user?.phone || '+91 98765 43210';
     return [
       {
         _id: 'BK-2026-6234',
+        id: 'BK-2026-6234',
         bookingId: 'BK-2026-6234',
+        customerName: realName,
+        customerPhone: realPhone,
+        vehicleName: 'KIA 2026',
         vehicle: {
           make: 'KIA',
           model: '2026',
@@ -189,7 +197,9 @@ export default function CustomerDashboard() {
         status: 'Pending Admin Approval (Blocked)',
         paymentStatus: 'Paid Online',
         totalPrice: 5000,
-        bookingType: 'Car Only (Self-Drive) 🔑',
+        totalAmount: 5000,
+        bookingType: 'self-drive',
+        driverOption: '🚗 Self Drive',
         hasDriver: false,
         selfDriveVerified: true,
         verificationDetails: {
@@ -201,7 +211,11 @@ export default function CustomerDashboard() {
       },
       {
         _id: 'b_selfdrive_default',
+        id: 'BK-2026-9042',
         bookingId: 'BK-2026-9042',
+        customerName: realName,
+        customerPhone: realPhone,
+        vehicleName: 'Toyota Fortuner Legender',
         vehicle: {
           make: 'Toyota',
           model: 'Fortuner Legender',
@@ -213,7 +227,9 @@ export default function CustomerDashboard() {
         status: 'Pending Admin Approval (Blocked)',
         paymentStatus: 'Paid Online',
         totalPrice: 9000,
-        bookingType: 'Car Only (Self-Drive) 🔑',
+        totalAmount: 9000,
+        bookingType: 'self-drive',
+        driverOption: '🚗 Self Drive',
         hasDriver: false,
         selfDriveVerified: false,
         verificationDetails: {
@@ -226,8 +242,18 @@ export default function CustomerDashboard() {
     ];
   });
 
+  // Persist all bookings to localStorage so Company Admin sees them immediately
   useEffect(() => {
     localStorage.setItem('customer_bookings_list', JSON.stringify(demoBookingsList));
+    // Also push to company_bookings_list for instant admin pickup
+    try {
+      const existingComp = JSON.parse(localStorage.getItem('company_bookings_list') || '[]');
+      const existingIds = new Set(existingComp.map(b => b._id || b.bookingId || b.id));
+      const newEntries = demoBookingsList.filter(b => !existingIds.has(b._id) && !existingIds.has(b.bookingId) && !existingIds.has(b.id));
+      if (newEntries.length > 0) {
+        localStorage.setItem('company_bookings_list', JSON.stringify([...newEntries, ...existingComp]));
+      }
+    } catch (e) {}
   }, [demoBookingsList]);
 
   const fetchCustomerData = async () => {
@@ -736,8 +762,8 @@ export default function CustomerDashboard() {
                 {(() => {
                   const filtered = demoBookingsList.filter(b => {
                     if (bookingFilterTab === 'all') return true;
-                    if (bookingFilterTab === 'Self Drive') return b.bookingType === 'self-drive' || b.bookingType === 'self_drive' || !b.hasDriver;
-                    if (bookingFilterTab === 'Chauffeur Drive') return b.bookingType === 'with_driver' || b.hasDriver || b.driverAssigned;
+                    if (bookingFilterTab === 'Self Drive') return !b.hasDriver || b.bookingType === 'self-drive' || b.bookingType === 'self_drive' || (b.bookingType && b.bookingType.toLowerCase().includes('self'));
+                    if (bookingFilterTab === 'Chauffeur Drive') return b.hasDriver || b.bookingType === 'with-driver' || b.bookingType === 'with_driver' || (b.bookingType && b.bookingType.toLowerCase().includes('driver')) || b.driverAssigned;
                     if (bookingFilterTab === 'Pending Approval') return b.status && b.status.includes('Pending');
                     return b.status === bookingFilterTab;
                   });
@@ -761,7 +787,9 @@ export default function CustomerDashboard() {
                         <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', marginBottom: '0.35rem', flexWrap: 'wrap' }}>
                           <span style={{ fontWeight: 900, fontSize: '1.15rem', color: '#0f172a' }}>{b.vehicle.make} {b.vehicle.model}</span>
                           <span style={{ fontSize: '0.72rem', background: '#eff6ff', color: '#2563eb', padding: '0.2rem 0.5rem', borderRadius: '6px', fontWeight: 800 }}>ID: {b.bookingId}</span>
-                          <span style={{ fontSize: '0.72rem', background: '#f1f5f9', color: '#475569', padding: '0.2rem 0.5rem', borderRadius: '6px', fontWeight: 800 }}>{b.bookingType}</span>
+                          <span style={{ fontSize: '0.72rem', background: '#f1f5f9', color: '#475569', padding: '0.2rem 0.5rem', borderRadius: '6px', fontWeight: 800 }}>
+                            {b.bookingType === 'self-drive' || b.bookingType === 'self_drive' || (!b.hasDriver && b.bookingType) ? 'Car Only (Self-Drive) 🔑' : b.bookingType === 'with-driver' || b.bookingType === 'with_driver' || b.hasDriver ? 'Car + Chauffeur 👨‍✈️' : (b.bookingType || 'Self-Drive')}
+                          </span>
                         </div>
 
                         {/* CUSTOMER NAME & COMPANY LOGO DISPLAY */}
@@ -809,9 +837,22 @@ export default function CustomerDashboard() {
                           📡 Track Car (Traccar GPS)
                         </button>
 
+                        <button
+                          onClick={() => setSelectedChatBooking(b)}
+                          style={{
+                            background: 'linear-gradient(135deg, #10b981, #059669)', color: '#fff',
+                            border: 'none', padding: '0.5rem', borderRadius: '6px', fontWeight: 800,
+                            fontSize: '0.78rem', cursor: 'pointer', display: 'flex', alignItems: 'center',
+                            justifyContent: 'center', gap: '0.35rem', boxShadow: '0 2px 8px rgba(16, 185, 129, 0.25)'
+                          }}
+                        >
+                          💬 {!b.hasDriver ? 'Chat with Admin' : 'Chat with Driver'}
+                        </button>
+
                         <button onClick={() => setInvoiceBooking(b)} style={{ background: '#f1f5f9', color: '#0f172a', border: '1px solid #cbd5e1', padding: '0.45rem', borderRadius: '6px', fontWeight: 700, fontSize: '0.75rem', cursor: 'pointer' }}>
                           📄 View Invoice
                         </button>
+
 
                         {b.status === 'Confirmed' && (
                           <button 
@@ -1196,22 +1237,39 @@ export default function CustomerDashboard() {
                   }
 
                   const calcPrice = (detailVehicle.pricePerDay + 1000) * 2;
+                  const genBookingId = 'BK-2026-' + Math.floor(1000 + Math.random() * 9000);
                   const newBookingObj = {
                     _id: 'b_' + Date.now(),
-                    bookingId: 'BK-2026-' + Math.floor(1000 + Math.random() * 9000),
+                    id: genBookingId,
+                    bookingId: genBookingId,
                     vehicle: detailVehicle,
+                    vehicleName: `${detailVehicle.make} ${detailVehicle.model}`,
+                    customerName: profileData?.name || user?.name || 'Customer',
+                    customerPhone: profileData?.mobile || user?.mobile || '+91 98765 43210',
                     startDate: pickupDate || '2026-07-28',
                     endDate: returnDate || '2026-07-30',
                     status: 'Confirmed',
                     paymentStatus: 'Paid Online',
                     totalPrice: calcPrice,
-                    bookingType: 'Car + Chauffeur 👨‍✈️',
+                    totalAmount: calcPrice,
+                    bookingType: 'with-driver',
+                    driverOption: '👨‍✈️ Driver + Car',
                     hasDriver: true,
-                    driver: { name: 'Ramesh Singh', phone: '+91 98765 99999', rating: 4.9, photo: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400' }
+                    driver: { name: 'Ramesh Singh', phone: '+91 98765 99999', rating: 4.9, photo: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400' },
+                    createdAt: new Date().toISOString()
                   };
 
                   // 1. Add to bookings list so it immediately appears in My Bookings tab!
                   setDemoBookingsList(prev => [newBookingObj, ...prev]);
+
+                  // Sync to registries so Company Admin & Staff receive it immediately
+                  try {
+                    const existingCust = JSON.parse(localStorage.getItem('customer_bookings_list') || '[]');
+                    localStorage.setItem('customer_bookings_list', JSON.stringify([newBookingObj, ...existingCust]));
+
+                    const existingComp = JSON.parse(localStorage.getItem('company_bookings_list') || '[]');
+                    localStorage.setItem('company_bookings_list', JSON.stringify([newBookingObj, ...existingComp]));
+                  } catch (e) {}
 
                   // 2. Optional backend API call
                   try {
@@ -1661,16 +1719,23 @@ export default function CustomerDashboard() {
                   }
 
                   const calcPrice = pendingSelfDriveVehicle.pricePerDay * 2;
+                  const genBookingId = 'BK-2026-' + Math.floor(1000 + Math.random() * 9000);
                   const newBookingObj = {
                     _id: 'b_' + Date.now(),
-                    bookingId: 'BK-2026-' + Math.floor(1000 + Math.random() * 9000),
+                    id: genBookingId,
+                    bookingId: genBookingId,
                     vehicle: pendingSelfDriveVehicle,
+                    vehicleName: `${pendingSelfDriveVehicle.make} ${pendingSelfDriveVehicle.model}`,
+                    customerName: profileData?.name || user?.name || 'Customer',
+                    customerPhone: profileData?.mobile || user?.mobile || '+91 98765 43210',
                     startDate: pickupDate || '2026-07-28',
                     endDate: returnDate || '2026-07-30',
                     status: 'Pending Admin Approval (Blocked)',
                     paymentStatus: 'Paid Online',
                     totalPrice: calcPrice,
-                    bookingType: 'Car Only (Self-Drive) 🔑',
+                    totalAmount: calcPrice,
+                    bookingType: 'self-drive',
+                    driverOption: '🚗 Self Drive',
                     hasDriver: false,
                     selfDriveVerified: false,
                     verificationDetails: {
@@ -1678,10 +1743,20 @@ export default function CustomerDashboard() {
                       aadhaarNumber: selfDriveProofData.aadhaarNumber,
                       panNumber: selfDriveProofData.panNumber,
                       faceAuthScanned: true
-                    }
+                    },
+                    createdAt: new Date().toISOString()
                   };
 
                   setDemoBookingsList(prev => [newBookingObj, ...prev]);
+
+                  // Sync to registries so Company Admin & Staff receive it immediately
+                  try {
+                    const existingCust = JSON.parse(localStorage.getItem('customer_bookings_list') || '[]');
+                    localStorage.setItem('customer_bookings_list', JSON.stringify([newBookingObj, ...existingCust]));
+
+                    const existingComp = JSON.parse(localStorage.getItem('company_bookings_list') || '[]');
+                    localStorage.setItem('company_bookings_list', JSON.stringify([newBookingObj, ...existingComp]));
+                  } catch (e) {}
 
                   // Sync to company_customer_verifications for Company Admin & Staff review
                   try {
@@ -1725,6 +1800,17 @@ export default function CustomerDashboard() {
 
 
 
+      {/* BOOKING LIVE CHAT & LOCATION MODAL */}
+      {selectedChatBooking && (
+        <BookingChatModal
+          booking={selectedChatBooking}
+          currentUser={user}
+          role="customer"
+          onClose={() => setSelectedChatBooking(null)}
+        />
+      )}
+
     </div>
   );
 }
+
