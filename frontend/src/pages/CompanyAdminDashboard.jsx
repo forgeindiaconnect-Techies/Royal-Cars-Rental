@@ -5361,7 +5361,7 @@ function CompanyAdminDashboard() {
                   <div className="card" style={{ padding: '1.15rem', borderLeft: '4px solid #10b981' }}>
                     <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 700 }}>ACTIVE OFFERS</div>
                     <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#059669', marginTop: '4px' }}>
-                      {offers.filter(o => o.status === 'active').length + 2}
+                      {offers.filter(o => o.status === 'active').length}
                     </div>
                     <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '2px' }}>Live on search page</div>
                   </div>
@@ -5369,14 +5369,16 @@ function CompanyAdminDashboard() {
                   <div className="card" style={{ padding: '1.15rem', borderLeft: '4px solid #2563eb' }}>
                     <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 700 }}>SCHEDULED OFFERS</div>
                     <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#1d4ed8', marginTop: '4px' }}>
-                      {offers.filter(o => o.status === 'inactive' || o.status === 'draft').length + 2}
+                      {offers.filter(o => o.status === 'inactive' || o.status === 'scheduled' || o.status === 'draft').length}
                     </div>
                     <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '2px' }}>Pending activation</div>
                   </div>
 
                   <div className="card" style={{ padding: '1.15rem', borderLeft: '4px solid #f59e0b' }}>
                     <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 700 }}>EXPIRED OFFERS</div>
-                    <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#d97706', marginTop: '4px' }}>10</div>
+                    <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#d97706', marginTop: '4px' }}>
+                      {offers.filter(o => o.status === 'expired').length}
+                    </div>
                     <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '2px' }}>Past campaigns</div>
                   </div>
 
@@ -5386,8 +5388,8 @@ function CompanyAdminDashboard() {
                       {offers.reduce((acc, curr) => {
                         let p = {};
                         try { p = JSON.parse(curr.description); } catch (e) { }
-                        return acc + (p.used || 0);
-                      }, 245)}
+                        return acc + (p.used || curr.usedCount || curr.redemptionsCount || 0);
+                      }, 0)}
                     </div>
                     <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '2px' }}>Total promo usage</div>
                   </div>

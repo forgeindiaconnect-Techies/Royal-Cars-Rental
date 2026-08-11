@@ -308,6 +308,7 @@ export default function CarOwnerDashboard() {
     e.preventDefault();
     if (!supportInput.trim()) return;
 
+    const userText = supportInput.trim();
     const timeStr = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
     const userEmail = (profileData?.email || user?.email || 'sathya@gmail.com').toLowerCase().trim();
 
@@ -317,24 +318,57 @@ export default function CarOwnerDashboard() {
       senderRole: 'car-owner',
       senderName: profileData?.name || 'Sathya',
       ownerEmail: userEmail,
-      text: supportInput.trim(),
-      message: supportInput.trim(),
+      text: userText,
+      message: userText,
       time: timeStr,
       timestamp: Date.now()
     };
 
+    const currentMaster = getMergedChatMessages();
+    const updatedMaster = [...currentMaster, newMsg];
+    
     try {
-      const currentMaster = getMergedChatMessages();
-      const updatedMaster = [...currentMaster, newMsg];
-      
       localStorage.setItem('rentos_unified_chat_store', JSON.stringify(updatedMaster));
       localStorage.setItem('rentos_live_chat_store', JSON.stringify(updatedMaster));
       localStorage.setItem('owner_support_messages', JSON.stringify(updatedMaster));
-      
-      setSupportMessages(updatedMaster);
     } catch {}
 
+    setSupportMessages(updatedMaster);
     setSupportInput('');
+
+    // Instant Super Admin response
+    setTimeout(() => {
+      let replyText = '';
+      const q = userText.toLowerCase();
+
+      if (q.includes('price') || q.includes('payout') || q.includes('earning') || q.includes('money')) {
+        replyText = `Hello! Super Admin team received your query regarding earnings/payouts. Fixed ₹500/day partner payouts are processed daily at 6:00 PM.`;
+      } else if (q.includes('document') || q.includes('verify') || q.includes('approval') || q.includes('status')) {
+        replyText = `Hello! Super Admin verification desk is currently reviewing your uploaded vehicle RC & insurance documents.`;
+      } else {
+        replyText = `Hello! Super Admin Support has received your message: "${userText}". An agent will respond to your query shortly.`;
+      }
+
+      const adminMsg = {
+        id: 'msg_reply_' + Date.now(),
+        sender: 'admin',
+        senderRole: 'super-admin',
+        senderName: 'RentOS Super Admin',
+        ownerEmail: userEmail,
+        text: replyText,
+        message: replyText,
+        time: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }),
+        timestamp: Date.now()
+      };
+
+      const finalList = [...updatedMaster, adminMsg];
+      try {
+        localStorage.setItem('rentos_unified_chat_store', JSON.stringify(finalList));
+        localStorage.setItem('rentos_live_chat_store', JSON.stringify(finalList));
+        localStorage.setItem('owner_support_messages', JSON.stringify(finalList));
+      } catch {}
+      setSupportMessages(finalList);
+    }, 800);
   };
 
   // Calculate Balances
@@ -1413,7 +1447,7 @@ export default function CarOwnerDashboard() {
                     </div>
                   ) : (
                     supportMessages.map((msg, idx) => {
-                      const isMe = msg.sender === 'owner' || msg.senderRole === 'car-owner';
+                      const isMe = msg.sender === 'owner' || msg.sender === 'user' || msg.sender === 'customer' || msg.senderRole === 'car-owner' || msg.senderRole === 'owner' || msg.senderRole === 'customer';
                       return (
                         <div key={msg.id || idx} style={{ alignSelf: isMe ? 'flex-end' : 'flex-start', maxWidth: '82%' }}>
                           <div style={{
