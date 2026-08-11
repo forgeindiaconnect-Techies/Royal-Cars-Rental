@@ -450,7 +450,14 @@ export default function DriverDashboard() {
     }
   };
 
-  // Chat states & Multi-Channel Selector
+  // Customer Renter List for Driver Direct Messaging
+  const AVAILABLE_CUSTOMERS = [
+    { id: 'cust_shanu', name: 'Shanu', phone: '+91 98765 12345', tripId: '#BK-7890', car: 'Hyundai Creta SX', location: 'Dharmapuri Hub', status: 'Active Trip' },
+    { id: 'cust_deepu', name: 'Deepu', phone: '+91 98765 67890', tripId: '#BK-7891', car: 'Maruti Suzuki Swift', location: 'Collectorate Junction', status: 'Upcoming Trip' },
+    { id: 'cust_priya', name: 'Priya Sharma', phone: '+91 97890 12345', tripId: '#BK-7892', car: 'Mahindra Thar 4x4', location: 'Palanpur Checkpost', status: 'Scheduled' }
+  ];
+
+  const [selectedCustomer, setSelectedCustomer] = useState(AVAILABLE_CUSTOMERS[0]);
   const [chatMessages, setChatMessages] = useState([]);
   const [chatInput, setChatInput] = useState('');
   const [driverChatChannel, setDriverChatChannel] = useState('company-admin');
@@ -540,28 +547,70 @@ export default function DriverDashboard() {
     if (!text || !text.trim()) return;
 
     const messageText = text.trim();
+    const isCustomerChannel = driverChatChannel === 'customer';
+    const targetReceiverId = isCustomerChannel ? selectedCustomer.id : driverChatChannel;
+    const targetReceiverName = isCustomerChannel ? selectedCustomer.name : (driverChatChannel === 'super-admin' ? 'Super Admin Support' : 'Company Manager');
+
     const newMsg = {
       _id: 'chat_' + Date.now(),
       senderId: user?._id || user?.id || 'drv_' + (user?.email || 'driver').replace(/[^a-z0-9]/gi, '_'),
       senderName: user?.name || 'Driver',
       senderEmail: user?.email || 'driver@company.com',
       senderRole: 'driver',
-      receiverId: driverChatChannel,
-      receiverRole: driverChatChannel,
-      receiverName: driverChatChannel === 'super-admin' ? 'Super Admin Support' : driverChatChannel === 'customer' ? 'Assigned Passenger' : 'Company Manager',
+      receiverId: targetReceiverId,
+      receiverRole: isCustomerChannel ? 'customer' : driverChatChannel,
+      receiverName: targetReceiverName,
       message: messageText,
       createdAt: new Date().toISOString(),
       status: 'sent'
     };
 
+    let updatedLogs = [];
     try {
       const currentLogs = JSON.parse(localStorage.getItem('company_support_chats') || '[]');
-      const updated = [...currentLogs, newMsg];
-      localStorage.setItem('company_support_chats', JSON.stringify(updated));
-      setChatMessages(updated);
+      updatedLogs = [...currentLogs, newMsg];
+      localStorage.setItem('company_support_chats', JSON.stringify(updatedLogs));
+      setChatMessages(updatedLogs);
     } catch (e) {}
 
     setChatInput('');
+
+    // Trigger instant Customer auto-reply when messaging Shanu/Deepu/Priya
+    if (isCustomerChannel) {
+      setTimeout(() => {
+        let replyText = '';
+        const q = messageText.toLowerCase();
+
+        if (q.includes('location') || q.includes('where') || q.includes('reaching') || q.includes('time')) {
+          replyText = `Hi Driver! ${selectedCustomer.name} here. I am waiting near ${selectedCustomer.location}. Please let me know when you arrive.`;
+        } else if (q.includes('delay') || q.includes('traffic') || q.includes('late')) {
+          replyText = `No problem at all! Thanks for letting me know. See you shortly.`;
+        } else {
+          replyText = `Hello Driver! ${selectedCustomer.name} here regarding trip ${selectedCustomer.tripId}. Received your message!`;
+        }
+
+        const customerReplyMsg = {
+          _id: 'chat_cust_' + Date.now(),
+          senderId: selectedCustomer.id,
+          senderName: selectedCustomer.name,
+          senderEmail: `${selectedCustomer.name.toLowerCase()}@customer.com`,
+          senderRole: 'customer',
+          receiverId: user?._id || 'driver',
+          receiverRole: 'driver',
+          receiverName: user?.name || 'Driver',
+          message: replyText,
+          createdAt: new Date().toISOString(),
+          status: 'sent'
+        };
+
+        try {
+          const currentLogs = JSON.parse(localStorage.getItem('company_support_chats') || '[]');
+          const withReply = [...currentLogs, customerReplyMsg];
+          localStorage.setItem('company_support_chats', JSON.stringify(withReply));
+          setChatMessages(withReply);
+        } catch (e) {}
+      }, 800);
+    }
 
     try {
       const headers = {
@@ -575,8 +624,9 @@ export default function DriverDashboard() {
         method: 'POST',
         headers,
         body: JSON.stringify({
-          receiverId: driverChatChannel,
-          receiverRole: driverChatChannel,
+          receiverId: targetReceiverId,
+          receiverRole: isCustomerChannel ? 'customer' : driverChatChannel,
+          receiverName: targetReceiverName,
           message: messageText
         })
       });
@@ -2157,7 +2207,7 @@ export default function DriverDashboard() {
                     </div>
                     <div>
                       <div style={{ fontSize: '0.88rem', fontWeight: 800, color: '#1e3a8a' }}>
-                        {driverChatChannel === 'super-admin' ? 'Super Admin Support Desk' : driverChatChannel === 'customer' ? 'Assigned Passenger / Renter' : 'Company Operations Manager'}
+                        {driverChatChannel === 'super-admin' ? 'Super Admin Support Desk' : driverChatChannel === 'customer' ? `Chatting with ${selectedCustomer.name} (${selectedCustomer.tripId})` : 'Company Operations Manager'}
                       </div>
                       <div style={{ fontSize: '0.72rem', color: '#16a34a', display: 'flex', alignItems: 'center', gap: '3px' }}>
                         <span style={{ display: 'inline-block', width: '6px', height: '6px', borderRadius: '50%', background: '#16a34a' }}></span> Connected & Online
@@ -2191,6 +2241,43 @@ export default function DriverDashboard() {
                   </div>
                 </div>
 
+                {/* Customer Selector Toolbar when Customer Channel is active */}
+                {driverChatChannel === 'customer' && (
+                  <div style={{ background: '#f1f5f9', padding: '0.55rem 1.25rem', borderBottom: '1px solid #cbd5e1', display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                    <span style={{ fontSize: '0.76rem', fontWeight: 800, color: '#334155' }}>
+                      👥 Assigned Renters:
+                    </span>
+                    {AVAILABLE_CUSTOMERS.map((cust) => {
+                      const isSelected = selectedCustomer.id === cust.id;
+                      return (
+                        <button
+                          key={cust.id}
+                          type="button"
+                          onClick={() => setSelectedCustomer(cust)}
+                          style={{
+                            background: isSelected ? '#059669' : '#ffffff',
+                            color: isSelected ? '#ffffff' : '#0f172a',
+                            border: isSelected ? '1px solid #047857' : '1px solid #cbd5e1',
+                            padding: '0.35rem 0.85rem',
+                            borderRadius: '20px',
+                            fontSize: '0.78rem',
+                            fontWeight: 800,
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '5px',
+                            boxShadow: isSelected ? '0 2px 6px rgba(5,150,105,0.3)' : '0 1px 2px rgba(0,0,0,0.05)',
+                            transition: 'all 0.15s ease'
+                          }}
+                        >
+                          <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: isSelected ? '#ffffff' : '#10b981', display: 'inline-block' }}></span>
+                          👤 {cust.name} ({cust.tripId})
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+
                 {/* Messages stream */}
                 <div style={{ flex: 1, overflowY: 'auto', padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.75rem', background: '#efeae2' }}>
                   {(() => {
@@ -2199,7 +2286,10 @@ export default function DriverDashboard() {
                         return msg.receiverRole === 'super-admin' || msg.senderRole === 'super-admin';
                       }
                       if (driverChatChannel === 'customer') {
-                        return msg.receiverRole === 'customer' || msg.senderRole === 'customer';
+                        return (
+                          (msg.receiverRole === 'customer' || msg.senderRole === 'customer') &&
+                          (msg.senderName === selectedCustomer.name || msg.receiverName === selectedCustomer.name || msg.senderId === selectedCustomer.id || msg.receiverId === selectedCustomer.id || !msg.receiverId || msg.receiverId === 'customer')
+                        );
                       }
                       return msg.receiverRole === 'company-admin' || msg.senderRole === 'company-admin' || msg.senderRole === 'driver';
                     });
@@ -2209,7 +2299,7 @@ export default function DriverDashboard() {
                         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#667781', gap: '0.5rem', padding: '3rem 1rem' }}>
                           <span style={{ fontSize: '2.5rem' }}>💬</span>
                           <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#0f172a' }}>
-                            No messages with {driverChatChannel === 'super-admin' ? 'Super Admin' : driverChatChannel === 'customer' ? 'Customer' : 'Company Manager'} yet.
+                            No messages with {driverChatChannel === 'super-admin' ? 'Super Admin' : driverChatChannel === 'customer' ? selectedCustomer.name : 'Company Manager'} yet.
                           </div>
                           <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
                             Type your support message below and click Send 🚀.
@@ -2243,7 +2333,7 @@ export default function DriverDashboard() {
                           }}>
                             {!isMe && (
                               <div style={{ fontSize: '0.68rem', fontWeight: 800, color: '#00a884', marginBottom: '0.15rem' }}>
-                                {msg.senderName || (driverChatChannel === 'super-admin' ? '👑 Super Admin' : driverChatChannel === 'customer' ? '👤 Customer' : '🏢 Company Operations Desk')}
+                                {msg.senderName || (driverChatChannel === 'super-admin' ? '👑 Super Admin' : driverChatChannel === 'customer' ? `👤 ${selectedCustomer.name}` : '🏢 Company Operations Desk')}
                               </div>
                             )}
                             <div style={{ fontSize: '0.85rem', lineHeight: '1.4', wordBreak: 'break-word' }}>
@@ -2323,7 +2413,13 @@ export default function DriverDashboard() {
 
                     <input 
                       type="text" 
-                      placeholder="Type support message to Operations Manager..."
+                      placeholder={
+                        driverChatChannel === 'super-admin'
+                          ? 'Type support message to Super Admin...'
+                          : driverChatChannel === 'customer'
+                          ? `Type direct message to ${selectedCustomer.name}...`
+                          : 'Type support message to Operations Manager...'
+                      }
                       value={chatInput}
                       onChange={(e) => setChatInput(e.target.value)}
                       style={{ flex: 1, padding: '0.6rem 0.85rem', borderRadius: '24px', border: '1px solid #e2e8f0', fontSize: '0.85rem', outline: 'none' }}
