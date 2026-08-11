@@ -5180,7 +5180,6 @@ export default function SuperAdminDashboard() {
                                 width: '115px',
                                 padding: '0.35rem 0.5rem',
                                 borderRadius: '12px',
-                                border: 'none',
                                 fontWeight: 800,
                                 fontSize: '0.75rem',
                                 cursor: 'pointer',
