@@ -4281,7 +4281,8 @@ export default function SuperAdminDashboard() {
       const res = await fetch('/api/notifications', {
         headers: { Authorization: `Bearer ${token}` }
       });
-      if (res.ok) {
+      const cType = res.headers.get('content-type') || '';
+      if (res.ok && cType.includes('application/json')) {
         const data = await res.json();
         if (data.success) {
           const merged = [...localNotifs, ...(data.notifications || [])];
@@ -4317,11 +4318,13 @@ export default function SuperAdminDashboard() {
         fetch('/api/super-admin/dashboard', { headers: { Authorization: `Bearer ${token}` } }),
         fetch('/api/super-admin/companies',  { headers: { Authorization: `Bearer ${token}` } }),
       ]);
-      if (sRes.ok) {
+      const sType = sRes.headers.get('content-type') || '';
+      if (sRes.ok && sType.includes('application/json')) {
         const sData = await sRes.json();
         if (sData.success) { setStats(sData.stats); setTransactions(sData.recentTransactions || []); }
       }
-      if (cRes.ok) {
+      const cType = cRes.headers.get('content-type') || '';
+      if (cRes.ok && cType.includes('application/json')) {
         const cData = await cRes.json();
         if (cData.success) setCompanies(Array.isArray(cData.companies) ? cData.companies : []);
       }
