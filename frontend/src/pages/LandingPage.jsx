@@ -967,8 +967,8 @@ export default function LandingPage() {
   return (
     <div style={{ background: '#ffffff', color: '#1c1917', fontFamily: 'Inter, system-ui, sans-serif', minHeight: '100vh', overflowX: 'hidden' }}>
 
-      {/* STICKY TOP NAVBAR HEADER (V2 FLEETMIND) */}
-      <nav className="fleet-v2-nav">
+      {/* STICKY TOP NAVBAR HEADER (RentOS Design System) */}
+      <nav className="fleet-v2-nav" style={{ background: '#ffffff', borderBottom: '1px solid #F5EFE6', padding: '0.85rem 5%', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <button 
           className="fleet-v2-mobile-hamburger"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -978,25 +978,35 @@ export default function LandingPage() {
         </button>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', cursor: 'pointer' }} className="fleet-v2-nav-brand" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-          <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: '#4a2c11', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '1.2rem', boxShadow: '0 4px 12px rgba(74, 44, 17, 0.3)' }}>R</div>
+          <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: '#8B5E3C', color: '#FFF7EF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '1.3rem', boxShadow: '0 4px 14px rgba(139, 94, 60, 0.35)' }}>
+            ⚙️
+          </div>
           <div>
-            <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#1f140b', letterSpacing: '-0.3px' }}>Royal Rent <span style={{ color: '#b48555' }}>Cars</span></div>
-            <div style={{ fontSize: '0.6rem', letterSpacing: '2px', textTransform: 'uppercase', color: '#6b5a4b', fontWeight: 700, marginTop: '-2px' }}>PREMIUM CAR RENTALS</div>
+            <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#3E2723', letterSpacing: '-0.4px', fontFamily: 'var(--font-heading)' }}>Rent<span style={{ color: '#8B5E3C' }}>OS</span></div>
+            <div style={{ fontSize: '0.62rem', letterSpacing: '1.8px', textTransform: 'uppercase', color: '#616161', fontWeight: 700, marginTop: '-3px' }}>CAR RENTALS</div>
           </div>
         </div>
 
-        <div className="fleet-v2-nav-links">
-          <a href="#home" style={{ color: '#4a2c11', fontWeight: 800 }}>Home</a>
-          <a href="#fleets">Cars</a>
-          <a href="/about" onClick={(e) => { e.preventDefault(); navigate('/about'); }}>About Us</a>
+        <div className="fleet-v2-nav-links" style={{ display: 'flex', gap: '2rem', alignItems: 'center' }}>
+          <a href="#home" style={{ color: '#8B5E3C', fontWeight: 800, textDecoration: 'none' }}>Home</a>
+          <a href="#fleets" style={{ color: '#212121', fontWeight: 600, textDecoration: 'none' }}>Cars</a>
+          <a href="#how-it-works" style={{ color: '#212121', fontWeight: 600, textDecoration: 'none' }}>How It Works</a>
+          <a href="/about" onClick={(e) => { e.preventDefault(); navigate('/about'); }} style={{ color: '#212121', fontWeight: 600, textDecoration: 'none' }}>About Us</a>
+          <a href="/contact" onClick={(e) => { e.preventDefault(); navigate('/contact'); }} style={{ color: '#212121', fontWeight: 600, textDecoration: 'none' }}>Contact</a>
         </div>
 
-        <div className="fleet-v2-nav-actions" style={{ display: 'flex', gap: '0.8rem', alignItems: 'center' }}>
-          <button className="fleet-v2-btn-outline fleet-v2-user-btn" onClick={() => navigate('/auth')}>
-            👤 <span className="fleet-v2-user-name">{user ? user.name.split(' ')[0] : 'Login'}</span>
+        <div className="fleet-v2-nav-actions" style={{ display: 'flex', gap: '0.85rem', alignItems: 'center' }}>
+          <button
+            onClick={() => navigate('/auth')}
+            style={{ background: 'transparent', color: '#3E2723', border: '1.5px solid #3E2723', padding: '0.5rem 1.25rem', borderRadius: '10px', fontWeight: 700, fontSize: '0.88rem', cursor: 'pointer' }}
+          >
+            Login
           </button>
-          <button className="fleet-v2-btn-solid fleet-v2-partner-btn" onClick={() => setShowMultiRoleRegModal(true)}>
-            🔥 Register / Partner
+          <button
+            onClick={() => setShowMultiRoleRegModal(true)}
+            style={{ background: '#3E2723', color: '#ffffff', border: 'none', padding: '0.55rem 1.4rem', borderRadius: '10px', fontWeight: 800, fontSize: '0.88rem', cursor: 'pointer', boxShadow: '0 4px 12px rgba(62, 39, 35, 0.3)' }}
+          >
+            Sign Up
           </button>
         </div>
 
@@ -1005,10 +1015,11 @@ export default function LandingPage() {
           <div className="fleet-v2-mobile-menu-drawer">
             <a href="#home" onClick={() => setMobileMenuOpen(false)}>🏠 Home</a>
             <a href="#fleets" onClick={() => setMobileMenuOpen(false)}>🏎️ Cars & Fleet</a>
+            <a href="#how-it-works" onClick={() => setMobileMenuOpen(false)}>⚙️ How It Works</a>
             <a href="/about" onClick={(e) => { e.preventDefault(); navigate('/about'); setMobileMenuOpen(false); }}>ℹ️ About Us</a>
             <a href="/contact" onClick={(e) => { e.preventDefault(); navigate('/contact'); setMobileMenuOpen(false); }}>📞 Contact Us</a>
             <hr style={{ border: 'none', borderTop: '1px solid #e2d7c5', margin: '0.5rem 0' }} />
-            <button className="fleet-v2-btn-solid" onClick={() => { setShowMultiRoleRegModal(true); setMobileMenuOpen(false); }}>
+            <button className="fleet-v2-btn-solid" onClick={() => { setShowMultiRoleRegModal(true); setMobileMenuOpen(false); }} style={{ background: '#8B5E3C' }}>
               🔥 Register / Partner
             </button>
             <button className="fleet-v2-btn-outline" onClick={() => { navigate('/auth'); setMobileMenuOpen(false); }}>
@@ -1036,31 +1047,24 @@ export default function LandingPage() {
 
           {/* Left Text Column */}
           <div className="fleet-v2-hero-left">
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: '#fdfbf7', color: '#b48555', padding: '0.45rem 1.1rem', borderRadius: '20px', fontSize: '0.82rem', fontWeight: 700, marginBottom: '1.5rem', border: '1px solid #f2eadf', boxShadow: '0 2px 8px rgba(0,0,0,0.03)' }}>
-              <span>✨</span> AI-Powered Smart Car Rental Platform
-            </div>
-
-            <h1 className="fleet-v2-hero-title">
-              Rent the <span>Perfect Car.</span><br />Every Time.
+            <h1 className="fleet-v2-hero-title" style={{ fontSize: '3.2rem', fontWeight: 900, lineHeight: 1.1, color: '#212121', fontFamily: 'var(--font-heading)' }}>
+              Rent the <span style={{ color: '#8B5E3C' }}>Perfect Car,</span><br />Every Time.
             </h1>
 
-            <p className="fleet-v2-hero-subtitle">
-              Find, book, and drive your ideal car with instant AI recommendations, real-time tracking, and transparent pricing.
+            <p className="fleet-v2-hero-subtitle" style={{ fontSize: '1rem', color: '#616161', marginTop: '1rem', marginBottom: '1.75rem', maxWidth: '480px' }}>
+              Find the best car for your journey at the best price
             </p>
 
             <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginBottom: '2.5rem' }}>
-              <a href="#fleets" className="fleet-v2-btn-solid" style={{ textDecoration: 'none', padding: '0.85rem 1.8rem' }}>
-                🚗 Rent a Car
+              <a href="#fleets" style={{ background: '#8B5E3C', color: '#ffffff', textDecoration: 'none', padding: '0.85rem 2.2rem', borderRadius: '12px', fontWeight: 800, fontSize: '0.95rem', boxShadow: '0 4px 14px rgba(139, 94, 60, 0.35)', display: 'inline-block' }}>
+                Book Now
               </a>
-              <button className="fleet-v2-btn-outline" onClick={() => setShowMultiRoleRegModal(true)} style={{ padding: '0.85rem 1.8rem' }}>
-                🏢 List Your Car
-              </button>
             </div>
 
-            <div className="fleet-v2-trust-badges">
-              <span>🛡️ Best Price Guarantee</span>
-              <span>📞 24/7 Customer Support</span>
-              <span>🔒 100% Secure & Trusted</span>
+            <div className="fleet-v2-trust-badges" style={{ display: 'flex', gap: '1.25rem', flexWrap: 'wrap', fontSize: '0.82rem', color: '#616161', fontWeight: 700 }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>🏷️ Best Price Guaranteed</span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>🔄 Flexible Booking</span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>🎧 24/7 Support</span>
             </div>
           </div>
 
@@ -1206,19 +1210,22 @@ export default function LandingPage() {
                   <option value="Electric">Electric</option>
                 </select>
               </div>
+
+              <button
+                type="submit"
+                style={{ width: '100%', padding: '0.85rem', background: '#3E2723', color: '#ffffff', border: 'none', borderRadius: '10px', fontWeight: 800, fontSize: '0.95rem', cursor: 'pointer', marginTop: '0.5rem', boxShadow: '0 4px 14px rgba(62, 39, 35, 0.3)' }}
+              >
+                Search Cars
+              </button>
             </form>
 
-            <div style={{ textAlign: 'center', marginTop: '1.5rem' }}>
-              <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#1f140b', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                AI Rental Assistant
-              </div>
-              <p style={{ color: '#6b5a4b', fontSize: '0.75rem', marginBottom: '0.5rem', marginTop: '0.2rem' }}>Let AI find your perfect car</p>
+            <div style={{ textAlign: 'center', marginTop: '1.25rem' }}>
               <button 
                 onClick={(e) => { e.preventDefault(); setShowAiModal(true); }} 
                 type="button"
-                style={{ width: '100%', padding: '0.85rem', background: '#4E311B', color: '#fff', border: 'none', borderRadius: '10px', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxShadow: '0 4px 15px rgba(78, 49, 27, 0.3)' }}
+                style={{ width: '100%', padding: '0.75rem', background: '#8B5E3C', color: '#fff', border: 'none', borderRadius: '10px', fontWeight: 700, fontSize: '0.88rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxShadow: '0 4px 12px rgba(139, 94, 60, 0.25)' }}
               >
-                Find My Perfect Car
+                ✨ Find My Perfect Car with AI
               </button>
             </div>
           </div>
@@ -1655,89 +1662,172 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* 7. FOOTER (EXACT MATCH TO SCREENSHOT 401) */}
-      <footer id="contact" style={{ background: '#3b2313', color: '#e5e7eb', padding: '3rem 5%', fontFamily: "'Inter', sans-serif" }}>
-        <div className="fleet-v2-footer-grid" style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr 1fr 1fr 1.2fr', gap: '2rem', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '2rem', marginBottom: '1.5rem' }}>
-          
-          {/* Logo Column */}
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '1rem' }}>
-              <div style={{ color: '#d4af37', fontSize: '2rem' }}>👑</div>
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <span style={{ color: '#d4af37', fontSize: '1.2rem', fontWeight: 900, letterSpacing: '1px', lineHeight: 1 }}>ROYAL</span>
-                <span style={{ color: '#fff', fontSize: '0.65rem', fontWeight: 700, letterSpacing: '1px' }}>RENTAL CARS</span>
+      {/* HOW IT WORKS SECTION (RENTOS MOCKUP DESIGN MATCH) */}
+      <section id="how-it-works" style={{ background: '#3E2723', color: '#ffffff', padding: '4rem 5%', textAlign: 'center' }}>
+        <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
+          <h2 style={{ fontSize: '2.2rem', fontWeight: 900, color: '#ffffff', fontFamily: 'var(--font-heading)', marginBottom: '0.4rem' }}>
+            How It Works
+          </h2>
+          <p style={{ color: '#EADCCF', fontSize: '0.95rem', marginBottom: '3rem' }}>
+            Rent a car in 3 simple steps
+          </p>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem' }}>
+            {/* Step 1 */}
+            <div style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '18px', padding: '2rem 1.5rem', textAlign: 'left' }}>
+              <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: 'rgba(212,160,23,0.15)', color: '#D4A017', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.6rem', marginBottom: '1.25rem' }}>
+                📍
               </div>
+              <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#ffffff', marginBottom: '0.5rem' }}>
+                1. Choose Location
+              </h3>
+              <p style={{ fontSize: '0.85rem', color: '#D1D5DB', lineHeight: '1.5', margin: 0 }}>
+                Select your pick-up and drop-off location
+              </p>
             </div>
-            <p style={{ fontSize: '0.85rem', color: '#d1d5db', lineHeight: 1.6, marginBottom: '1.5rem', maxWidth: '280px' }}>
-              We are committed to giving you the best car rental experience with transparency, safety and trust.
+
+            {/* Step 2 */}
+            <div style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '18px', padding: '2rem 1.5rem', textAlign: 'left' }}>
+              <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: 'rgba(212,160,23,0.15)', color: '#D4A017', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.6rem', marginBottom: '1.25rem' }}>
+                🚘
+              </div>
+              <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#ffffff', marginBottom: '0.5rem' }}>
+                2. Select Car
+              </h3>
+              <p style={{ fontSize: '0.85rem', color: '#D1D5DB', lineHeight: '1.5', margin: 0 }}>
+                Choose your favorite car from available options
+              </p>
+            </div>
+
+            {/* Step 3 */}
+            <div style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '18px', padding: '2rem 1.5rem', textAlign: 'left' }}>
+              <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: 'rgba(212,160,23,0.15)', color: '#D4A017', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.6rem', marginBottom: '1.25rem' }}>
+                🔑
+              </div>
+              <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#ffffff', marginBottom: '0.5rem' }}>
+                3. Book & Drive
+              </h3>
+              <p style={{ fontSize: '0.85rem', color: '#D1D5DB', lineHeight: '1.5', margin: 0 }}>
+                Book your car and enjoy your ride
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* DRIVE YOUR DREAM CAR PROMO BANNER (EXACT MOCKUP MATCH) */}
+      <section style={{ padding: '3rem 5%' }}>
+        <div style={{ background: '#FFF7EF', border: '1px solid #EADCCF', borderRadius: '24px', padding: '2.5rem 3rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '2rem' }}>
+          <div style={{ maxWidth: '450px' }}>
+            <h2 style={{ fontSize: '2.2rem', fontWeight: 900, color: '#212121', fontFamily: 'var(--font-heading)', marginBottom: '0.5rem' }}>
+              Drive Your Dream Car
+            </h2>
+            <p style={{ fontSize: '0.95rem', color: '#616161', marginBottom: '1.75rem' }}>
+              Explore our premium collection
             </p>
-            <div style={{ display: 'flex', gap: '0.8rem' }}>
-              <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: '0.9rem' }}>f</div>
-              <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: '0.9rem' }}>📷</div>
-              <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: '0.9rem' }}>🐦</div>
-              <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: '0.9rem' }}>in</div>
+            <button
+              onClick={() => {
+                const el = document.getElementById('fleets');
+                if (el) el.scrollIntoView({ behavior: 'smooth' });
+              }}
+              style={{ background: '#8B5E3C', color: '#ffffff', border: 'none', padding: '0.85rem 2rem', borderRadius: '12px', fontWeight: 800, fontSize: '0.92rem', cursor: 'pointer', boxShadow: '0 4px 14px rgba(139, 94, 60, 0.3)' }}
+            >
+              Explore Now
+            </button>
+          </div>
+
+          <div style={{ flex: '1 1 350px', display: 'flex', justifyContent: 'center' }}>
+            <img
+              src="https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&q=80&w=700"
+              alt="Drive Your Dream Car"
+              style={{ width: '100%', maxHeight: '220px', objectFit: 'cover', borderRadius: '16px', boxShadow: '0 10px 25px rgba(0,0,0,0.1)' }}
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* OUR TRUSTED PARTNERS */}
+      <section style={{ padding: '1.5rem 5% 3rem 5%', textAlign: 'center' }}>
+        <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#212121', marginBottom: '1.5rem' }}>
+          Our Trusted Partners
+        </h3>
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '3rem', flexWrap: 'wrap', opacity: 0.85 }}>
+          <span style={{ fontSize: '1.6rem', fontWeight: 900, color: '#dc2626', letterSpacing: '1px' }}>AVIS</span>
+          <span style={{ fontSize: '1.6rem', fontWeight: 900, color: '#eab308', letterSpacing: '1px' }}>Hertz</span>
+          <span style={{ fontSize: '1.6rem', fontWeight: 900, color: '#ea580c', letterSpacing: '1px' }}>SIXT</span>
+          <span style={{ fontSize: '1.6rem', fontWeight: 900, color: '#0284c7', letterSpacing: '1px' }}>dollar.</span>
+          <span style={{ fontSize: '1.6rem', fontWeight: 900, color: '#ea580c', letterSpacing: '1px' }}>Budget</span>
+        </div>
+      </section>
+
+      {/* FOOTER (MATCHING MOCKUP DESIGN) */}
+      <footer style={{ background: '#3E2723', color: '#ffffff', padding: '3.5rem 5% 1.5rem 5%', fontFamily: 'Inter, sans-serif' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '2.5rem', borderBottom: '1px solid rgba(255,255,255,0.12)', paddingBottom: '2.5rem', marginBottom: '1.5rem' }}>
+          {/* RentOS Brand Column */}
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1rem' }}>
+              <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: '#8B5E3C', color: '#FFF7EF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '1.1rem' }}>
+                ⚙️
+              </div>
+              <span style={{ fontSize: '1.4rem', fontWeight: 900, color: '#ffffff', fontFamily: 'var(--font-heading)' }}>Rent<span style={{ color: '#D4A017' }}>OS</span></span>
+            </div>
+            <p style={{ fontSize: '0.85rem', color: '#EADCCF', lineHeight: 1.6, marginBottom: '1.25rem' }}>
+              Your trusted partner for car rentals.
+            </p>
+            <div style={{ display: 'flex', gap: '0.75rem' }}>
+              {['f', '📷', '🐦', 'in'].map((social, i) => (
+                <div key={i} style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(255,255,255,0.1)', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: '0.85rem' }}>
+                  {social}
+                </div>
+              ))}
             </div>
           </div>
 
-          {/* Col 1 */}
+          {/* Company Column */}
           <div>
-            <h4 style={{ color: '#fff', fontSize: '0.9rem', fontWeight: 700, marginBottom: '1.2rem' }}>For Customers</h4>
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.8rem', fontSize: '0.85rem', color: '#d1d5db' }}>
-              <li style={{ cursor: 'pointer' }} onClick={() => navigate('/info')}>Browse Cars</li>
-              <li style={{ cursor: 'pointer' }} onClick={() => navigate('/info')}>How It Works</li>
-              <li style={{ cursor: 'pointer' }} onClick={() => navigate('/info')}>Pricing</li>
-              <li style={{ cursor: 'pointer' }} onClick={() => navigate('/info')}>FAQs</li>
+            <h4 style={{ color: '#D4A017', fontSize: '0.9rem', fontWeight: 800, marginBottom: '1rem' }}>Company</h4>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.65rem', fontSize: '0.85rem', color: '#EADCCF' }}>
+              <li style={{ cursor: 'pointer' }} onClick={() => navigate('/about')}>About Us</li>
+              <li style={{ cursor: 'pointer' }}>Careers</li>
+              <li style={{ cursor: 'pointer' }}>Blog</li>
+              <li style={{ cursor: 'pointer' }}>Press</li>
             </ul>
           </div>
 
-          {/* Col 2 */}
+          {/* Support Column */}
           <div>
-            <h4 style={{ color: '#fff', fontSize: '0.9rem', fontWeight: 700, marginBottom: '1.2rem' }}>For Companies</h4>
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.8rem', fontSize: '0.85rem', color: '#d1d5db' }}>
-              <li style={{ cursor: 'pointer' }} onClick={() => navigate('/info')}>List Your Car</li>
-              <li style={{ cursor: 'pointer' }} onClick={() => navigate('/auth')}>Company Login</li>
-              <li style={{ cursor: 'pointer' }} onClick={() => navigate('/info')}>Partner With Us</li>
+            <h4 style={{ color: '#D4A017', fontSize: '0.9rem', fontWeight: 800, marginBottom: '1rem' }}>Support</h4>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.65rem', fontSize: '0.85rem', color: '#EADCCF' }}>
+              <li style={{ cursor: 'pointer' }}>Help Center</li>
+              <li style={{ cursor: 'pointer' }}>Cancellation</li>
+              <li style={{ cursor: 'pointer' }}>FAQ</li>
+              <li style={{ cursor: 'pointer' }} onClick={() => navigate('/contact')}>Contact Us</li>
             </ul>
           </div>
 
-          {/* Col 3 */}
+          {/* Terms Column */}
           <div>
-            <h4 style={{ color: '#fff', fontSize: '0.9rem', fontWeight: 700, marginBottom: '1.2rem' }}>Support</h4>
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.8rem', fontSize: '0.85rem', color: '#d1d5db' }}>
-              <li style={{ cursor: 'pointer' }} onClick={() => navigate('/info')}>Help Center</li>
-              <li style={{ cursor: 'pointer' }} onClick={() => navigate('/info')}>Contact Support</li>
-              <li style={{ cursor: 'pointer' }} onClick={() => navigate('/info')}>Cancellation Policy</li>
-              <li style={{ cursor: 'pointer' }} onClick={() => navigate('/info')}>Refund Policy</li>
+            <h4 style={{ color: '#D4A017', fontSize: '0.9rem', fontWeight: 800, marginBottom: '1rem' }}>Terms</h4>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.65rem', fontSize: '0.85rem', color: '#EADCCF' }}>
+              <li style={{ cursor: 'pointer' }}>Terms & Conditions</li>
+              <li style={{ cursor: 'pointer' }}>Privacy Policy</li>
+              <li style={{ cursor: 'pointer' }}>Cookie Policy</li>
             </ul>
           </div>
 
-          {/* Col 4 */}
+          {/* Contact Us Column */}
           <div>
-            <h4 style={{ color: '#fff', fontSize: '0.9rem', fontWeight: 700, marginBottom: '1.2rem' }}>Contact Us</h4>
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '1rem', fontSize: '0.85rem', color: '#d1d5db' }}>
-              <li style={{ display: 'flex', gap: '0.8rem', alignItems: 'flex-start' }}>
-                <span style={{ color: '#d4af37' }}>📞</span>
-                <span>+91 98765 43210</span>
-              </li>
-              <li style={{ display: 'flex', gap: '0.8rem', alignItems: 'flex-start' }}>
-                <span style={{ color: '#d4af37' }}>✉️</span>
-                <span>support@royalrentcars.com</span>
-              </li>
-              <li style={{ display: 'flex', gap: '0.8rem', alignItems: 'flex-start' }}>
-                <span style={{ color: '#d4af37' }}>🏠</span>
-                <span>123, Royal Street, Chennai,<br/>Tamil Nadu - 600001</span>
-              </li>
+            <h4 style={{ color: '#D4A017', fontSize: '0.9rem', fontWeight: 800, marginBottom: '1rem' }}>Contact Us</h4>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.65rem', fontSize: '0.85rem', color: '#EADCCF' }}>
+              <li>+91 98765 43210</li>
+              <li>support@rentos.com</li>
+              <li>Bangalore, India</li>
             </ul>
           </div>
         </div>
 
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8rem', color: '#9ca3af' }}>
-          <div>© 2024 Royal Rental Cars. All rights reserved.</div>
-          <div style={{ display: 'flex', gap: '1rem' }}>
-            <span style={{ cursor: 'pointer' }} onClick={() => navigate('/info')}>Terms & Conditions</span>
-            <span>|</span>
-            <span style={{ cursor: 'pointer' }} onClick={() => navigate('/info')}>Privacy Policy</span>
-          </div>
+        <div style={{ textAlign: 'center', fontSize: '0.78rem', color: '#9E9E9E' }}>
+          © 2025 RentOS. All rights reserved.
         </div>
       </footer>
 

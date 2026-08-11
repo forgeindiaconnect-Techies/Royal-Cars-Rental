@@ -3,54 +3,34 @@
    ========================================================================== */
 
 :root {
-  /* Warm Espresso & Soft Beige Luxury Theme Tokens */
-  --bg-primary: #fdfbf7;
-  --bg-secondary: #faf4ee;
-  --bg-card: #faf4ee;
-  --bg-card-inner: #f6ede4;
-  --bg-input: #ffffff;
-  
-  --border-color: #e8d8c8;
-  --border-focus: #4e311b;
-  --border-dashed: #d9c5b2;
-  --border-input: #eadccf;
+  /* Warm Espresso & RentOS Color Guide Palette */
+  --primary-bronze: #8B5E3C;
+  --primary-bronze-hover: #724A2E;
+  --secondary-cocoa: #3E2723;
+  --accent-gold: #D4A017;
+  --bg-cream: #FFF7EF;
+  --bg-beige: #F5EFE6;
+  --bg-white: #FFFFFF;
+  --text-heading: #212121;
+  --text-paragraph: #616161;
+  --text-muted: #9E9E9E;
 
-  --text-primary: #3c2415;
-  --text-secondary: #7c6959;
-  --text-muted: #9c8a7b;
+  /* Legacy Fallbacks */
+  --bg-primary: #FFF7EF;
+  --bg-secondary: #F5EFE6;
+  --bg-card: #FFFFFF;
+  --border-color: #EADCCF;
+  --text-primary: #212121;
+  --text-secondary: #616161;
+  --accent-espresso: #8B5E3C;
+  --accent-gold-legacy: #D4A017;
 
-  /* Accent Colors */
-  --accent-espresso: #4e311b;
-  --accent-espresso-hover: #3c2414;
-  --accent-gold: #d49b4b;
-  --accent-badge: #efe4d6;
-  --accent-blue: #4e311b;
-  --accent-purple: #4e311b;
-  --accent-emerald: #10b981;
-  --accent-rose: #f43f5e;
-  --accent-amber: #d49b4b;
-
-  /* Gradients */
-  --grad-primary: linear-gradient(135deg, #4e311b 0%, #3c2414 100%);
-  --grad-gold: linear-gradient(135deg, #d49b4b 0%, #b88235 100%);
-  --grad-cream: linear-gradient(180deg, #fdfbf7 0%, #faf4ee 100%);
-  --grad-dark: linear-gradient(180deg, #3c2415 0%, #29180d 100%);
-  
   /* Typography */
   --font-heading: 'Outfit', sans-serif;
   --font-body: 'Inter', sans-serif;
-
-  /* Shadows & Glows */
-  --glow-espresso: 0 4px 14px rgba(78, 49, 27, 0.25);
-  --glow-gold: 0 4px 14px rgba(212, 155, 75, 0.2);
-  --glow-blue: 0 4px 14px rgba(78, 49, 27, 0.25);
-  --shadow-sm: 0 2px 8px rgba(60, 36, 21, 0.04);
-  --shadow-md: 0 10px 25px rgba(60, 36, 21, 0.08);
-  
-  /* Borders & Radius */
   --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 20px;
+  --radius-md: 14px;
+  --radius-lg: 24px;
   --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
