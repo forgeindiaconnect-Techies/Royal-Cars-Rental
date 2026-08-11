@@ -1,5 +1,5 @@
 {
-  "buildCommand": "[ -d \"frontend\" ] && (cd frontend && npm run build) || npm run build",
+  "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "rewrites": [
     {
