@@ -391,12 +391,7 @@ export default function LandingPage() {
   useEffect(() => {
     const fetchLocations = async () => {
       try {
-        const res = await fetch(`/api/locations?t=${Date.now()}`, {
-          headers: {
-            'Cache-Control': 'no-cache',
-            'Pragma': 'no-cache'
-          }
-        });
+        const res = await fetch(`/api/locations?t=${Date.now()}`);
         const cType = res.headers.get('content-type') || '';
         if (res.ok && cType.includes('application/json')) {
           const data = await res.json();
