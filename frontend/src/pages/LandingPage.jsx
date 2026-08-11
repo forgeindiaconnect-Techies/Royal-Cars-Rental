@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { getValidImageUrl, handleImageError } from '../utils/imageUtils';
+import aiHeroGraphic from '../assets/ai-hero-graphic.png';
 import {
   Step1Illustration,
   Step2Illustration,
