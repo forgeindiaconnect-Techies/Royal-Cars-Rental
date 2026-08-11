@@ -1,3 +1,8 @@
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './App.jsx';
+import './index.css';
+
 // Automatically direct relative /api requests on Vercel directly to live Render backend
 if (typeof window !== 'undefined') {
   const originalFetch = window.fetch;
