@@ -227,30 +227,57 @@ export default function LiveTrackingComponent() {
 
   const selectedVehicle = ACTIVE_VEHICLES.find(v => v.id === selectedVehicleId) || ACTIVE_VEHICLES[0];
 
-  // Open Chat Handler
+  // Open Chat Handler for Tracked Driver
   const handleOpenChat = () => {
+    const driverName = selectedVehicle?.customer?.name || 'Sathya';
+    const vehicleName = selectedVehicle?.name || 'Hyundai Creta SX';
+    const code = selectedVehicle?.code || '#CO-101';
+    const lastAct = selectedVehicle?.activities ? selectedVehicle.activities[selectedVehicle.activities.length - 1] : null;
+    const locationName = lastAct?.title || 'Pidamaneri Main Road';
+
     setChatMessages([
-      { sender: 'customer', text: `Hello Admin! I am currently operating ${selectedVehicle.name} (${selectedVehicle.code}) near ${selectedVehicle.activities[selectedVehicle.activities.length - 1]?.title || 'my destination'}.` },
-      { sender: 'admin', text: `Hello ${selectedVehicle.customer.name}! We can see your live GPS tracking is active. Is everything going smoothly with your trip?` }
+      { sender: 'customer', text: `Hello Admin! I am currently operating ${vehicleName} (${code}) near ${locationName}.` },
+      { sender: 'admin', text: `Hello ${driverName}! We can see your live GPS tracking is active. Is everything going smoothly with your trip?` }
     ]);
     setShowChatModal(true);
   };
 
-  // Send Chat Message Handler
+  // Send Chat Message Handler (Driver Reply)
   const handleSendMessage = (e) => {
     if (e) e.preventDefault();
     if (!chatInputText.trim()) return;
 
-    const newMsg = { sender: 'admin', text: chatInputText.trim() };
+    const userText = chatInputText.trim();
+    const newMsg = { sender: 'admin', text: userText };
     setChatMessages(prev => [...prev, newMsg]);
     setChatInputText('');
 
+    const driverName = selectedVehicle?.customer?.name || 'Sathya';
+    const vehicleName = selectedVehicle?.name || 'Hyundai Creta SX';
+    const code = selectedVehicle?.code || '#CO-101';
+    const lastAct = selectedVehicle?.activities ? selectedVehicle.activities[selectedVehicle.activities.length - 1] : null;
+    const locationName = lastAct?.title || 'Pidamaneri Main Road';
+    const speed = lastAct?.speed || '35 km/h';
+
     setTimeout(() => {
+      let driverReply = '';
+      const q = userText.toLowerCase();
+
+      if (q.includes('location') || q.includes('where') || q.includes('place') || q.includes('near')) {
+        driverReply = `Hello Admin! ${driverName} here. I am currently operating ${vehicleName} (${code}) near ${locationName}.`;
+      } else if (q.includes('speed') || q.includes('fast') || q.includes('km')) {
+        driverReply = `My current driving speed is ${speed} near ${locationName}. All safety telemetry parameters are optimal.`;
+      } else if (q.includes('status') || q.includes('how') || q.includes('fine') || q.includes('good') || q.includes('smooth')) {
+        driverReply = `Everything is clear and driving smoothly! Reaching ${locationName} as scheduled.`;
+      } else {
+        driverReply = `Thanks for the response! ${driverName} here operating ${vehicleName} (${code}) near ${locationName}. Everything is clear and driving smoothly.`;
+      }
+
       setChatMessages(prev => [
         ...prev,
-        { sender: 'customer', text: `Thanks for the response! Everything is clear and driving smoothly.` }
+        { sender: 'customer', text: driverReply }
       ]);
-    }, 1000);
+    }, 800);
   };
 
   // Click Activity Item Handler (Centers map & opens location inspector)
