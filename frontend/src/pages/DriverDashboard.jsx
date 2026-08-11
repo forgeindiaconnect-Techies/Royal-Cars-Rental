@@ -54,6 +54,10 @@ export default function DriverDashboard() {
     return localStorage.getItem(`driver_gps_sharing_${driverEmailKey}`) === 'true';
   });
 
+  const [isGpsPaused, setIsGpsPaused] = useState(false);
+  const [show12HrShiftModal, setShow12HrShiftModal] = useState(false);
+  const [showProfileInspectorModal, setShowProfileInspectorModal] = useState(false);
+
   const [attendanceLogs, setAttendanceLogs] = useState(() => {
     try {
       const saved = localStorage.getItem(`driver_attendance_logs_${driverEmailKey}`);
@@ -86,6 +90,28 @@ export default function DriverDashboard() {
       } catch (err) {}
     }
   }, [attendanceLogs, driverEmailKey]);
+
+  // Attendance Check-in Persistence & 12-Hour Shift Timer
+  useEffect(() => {
+    localStorage.setItem(`driver_checked_in_${driverEmailKey}`, isCheckedIn ? 'true' : 'false');
+    localStorage.setItem(`driver_on_duty_${driverEmailKey}`, isOnDuty ? 'true' : 'false');
+    localStorage.setItem(`driver_gps_sharing_${driverEmailKey}`, isGpsSharing ? 'true' : 'false');
+  }, [isCheckedIn, isOnDuty, isGpsSharing, driverEmailKey]);
+
+  useEffect(() => {
+    if (isCheckedIn && isOnDuty) {
+      const clockInTs = Number(localStorage.getItem(`driver_clock_in_ts_${driverEmailKey}`) || Date.now());
+      const checkShift = () => {
+        const hoursPassed = (Date.now() - clockInTs) / (1000 * 60 * 60);
+        if (hoursPassed >= 12) {
+          setShow12HrShiftModal(true);
+        }
+      };
+      checkShift();
+      const interval = setInterval(checkShift, 60000);
+      return () => clearInterval(interval);
+    }
+  }, [isCheckedIn, isOnDuty, driverEmailKey]);
   // GPS & Map Telemetry States & Refs
   const [gpsCoords, setGpsCoords] = useState({ lat: 13.0827, lng: 80.2707 });
   const [gpsPermissionStatus, setGpsPermissionStatus] = useState('prompt');
@@ -182,18 +208,26 @@ export default function DriverDashboard() {
           
           mapRef.current = map;
 
+          const markerLabel = isGpsPaused 
+            ? '📍 Current Location (Stationary)' 
+            : (isOnDuty ? '🚗 Live Driving (ON DUTY)' : '🔴 Current Location (OFF DUTY)');
+
+          const markerBg = isGpsPaused 
+            ? '#f59e0b' 
+            : (isOnDuty ? '#2563eb' : '#dc2626');
+
           const carIcon = window.L.divIcon({
             className: 'custom-driver-marker',
             html: `
               <div style="display: flex; flex-direction: column; align-items: center;">
-                <div style="background: ${isOnDuty ? '#2563eb' : '#dc2626'}; color: #fff; padding: 3px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; white-space: nowrap; box-shadow: 0 2px 4px rgba(0,0,0,0.15); margin-bottom: 2px;">
-                  🚗 Current Location (${isOnDuty ? 'ON DUTY' : 'OFF DUTY'})
+                <div style="background: ${markerBg}; color: #fff; padding: 3px 8px; border-radius: 6px; font-size: 10px; font-weight: bold; white-space: nowrap; box-shadow: 0 2px 6px rgba(0,0,0,0.2); margin-bottom: 2px;">
+                  ${markerLabel}
                 </div>
-                <div style="width: 12px; height: 12px; background: ${isOnDuty ? '#2563eb' : '#dc2626'}; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 8px ${isOnDuty ? '#2563eb' : '#dc2626'};"></div>
+                <div style="width: 14px; height: 14px; background: ${markerBg}; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 10px ${markerBg};"></div>
               </div>
             `,
-            iconSize: [80, 40],
-            iconAnchor: [40, 40]
+            iconSize: [120, 40],
+            iconAnchor: [60, 40]
           });
 
           markerRef.current = window.L.marker([gpsCoords.lat, gpsCoords.lng], { icon: carIcon }).addTo(map);
@@ -216,18 +250,26 @@ export default function DriverDashboard() {
       const { lat, lng } = gpsCoords;
       mapRef.current.setView([lat, lng]);
 
+      const markerLabel = isGpsPaused 
+        ? '📍 Current Location (Stationary)' 
+        : (isOnDuty ? '🚗 Live Driving (ON DUTY)' : '🔴 Current Location (OFF DUTY)');
+
+      const markerBg = isGpsPaused 
+        ? '#f59e0b' 
+        : (isOnDuty ? '#2563eb' : '#dc2626');
+
       const carIcon = window.L.divIcon({
         className: 'custom-driver-marker',
         html: `
           <div style="display: flex; flex-direction: column; align-items: center;">
-            <div style="background: ${isOnDuty ? '#2563eb' : '#dc2626'}; color: #fff; padding: 3px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; white-space: nowrap; box-shadow: 0 2px 4px rgba(0,0,0,0.15); margin-bottom: 2px;">
-              🚗 Current Location (${isOnDuty ? 'ON DUTY' : 'OFF DUTY'})
+            <div style="background: ${markerBg}; color: #fff; padding: 3px 8px; border-radius: 6px; font-size: 10px; font-weight: bold; white-space: nowrap; box-shadow: 0 2px 6px rgba(0,0,0,0.2); margin-bottom: 2px;">
+              ${markerLabel}
             </div>
-            <div style="width: 12px; height: 12px; background: ${isOnDuty ? '#2563eb' : '#dc2626'}; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 8px ${isOnDuty ? '#2563eb' : '#dc2626'};"></div>
+            <div style="width: 14px; height: 14px; background: ${markerBg}; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 10px ${markerBg};"></div>
           </div>
         `,
-        iconSize: [80, 40],
-        iconAnchor: [40, 40]
+        iconSize: [120, 40],
+        iconAnchor: [60, 40]
       });
 
       if (markerRef.current) {
@@ -237,7 +279,7 @@ export default function DriverDashboard() {
         markerRef.current = window.L.marker([lat, lng], { icon: carIcon }).addTo(mapRef.current);
       }
     }
-  }, [gpsCoords, isOnDuty]);
+  }, [gpsCoords, isOnDuty, isGpsPaused]);
 
   const sendTelemetryUpdate = async (lat, lng, speedVal, status) => {
     try {
@@ -1262,11 +1304,178 @@ export default function DriverDashboard() {
             )}
           </div>
 
+          {/* Clickable Profile Identity Badge */}
+          <div
+            onClick={() => setShowProfileInspectorModal(true)}
+            title="Click to view Driver Profile & Role Access"
+            style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', borderLeft: '1px solid #e2e8f0', paddingLeft: '1rem', cursor: 'pointer' }}
+          >
+            <img src={driverFacePhoto} alt="Driver" style={{ width: '34px', height: '34px', borderRadius: '50%', objectFit: 'cover', border: '2px solid #2563eb' }} />
+            <div style={{ display: 'flex', flexDirection: 'column', lineHeight: '1.2' }}>
+              <span style={{ fontSize: '0.78rem', fontWeight: 800, color: '#0f172a' }}>{driverProfile.name}</span>
+              <span style={{ fontSize: '0.65rem', color: '#2563eb', fontWeight: 700 }}>Chauffeur Driver ⚙️</span>
+            </div>
+          </div>
+
           <button onClick={handleDriverLogout} className="btn" style={{ fontSize: '0.78rem', padding: '0.35rem 0.75rem', background: 'rgba(244,63,94,0.08)', color: '#f43f5e', border: '1px solid rgba(244,63,94,0.2)', borderRadius: '6px', fontWeight: 700 }}>
             Sign Out
           </button>
         </div>
       </header>
+
+      {/* PROFILE INSPECTOR MODAL */}
+      {showProfileInspectorModal && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          background: 'rgba(15,23,42,0.65)',
+          backdropFilter: 'blur(4px)',
+          zIndex: 9999,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '1rem'
+        }}>
+          <div style={{
+            maxWidth: '480px',
+            width: '100%',
+            background: '#ffffff',
+            borderRadius: '24px',
+            padding: '2rem',
+            boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)',
+            border: '1px solid #e2e8f0',
+            animation: 'fadeIn 0.2s ease-out'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+              <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 900, color: '#0f172a' }}>👤 Driver Profile & Role Inspector</h3>
+              <button onClick={() => setShowProfileInspectorModal(false)} style={{ background: 'none', border: 'none', fontSize: '1.2rem', cursor: 'pointer', color: '#64748b' }}>✕</button>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', background: '#f8fafc', padding: '1.25rem', borderRadius: '16px', border: '1px solid #e2e8f0', marginBottom: '1.25rem' }}>
+              <img src={driverFacePhoto} alt="Profile" style={{ width: '60px', height: '60px', borderRadius: '50%', objectFit: 'cover', border: '3px solid #2563eb' }} />
+              <div>
+                <div style={{ fontSize: '1.1rem', fontWeight: 900, color: '#0f172a' }}>{driverProfile.name}</div>
+                <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#2563eb' }}>Role: Registered Chauffeur Driver</div>
+                <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '2px' }}>Active Console: Driver Attendance & Duty Portal</div>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.85rem', marginBottom: '1.5rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.5rem 0', borderBottom: '1px solid #f1f5f9' }}>
+                <span style={{ color: '#64748b', fontWeight: 600 }}>Email Address:</span>
+                <span style={{ fontWeight: 800, color: '#0f172a' }}>{user?.email || 'sathya@gmail.com'}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.5rem 0', borderBottom: '1px solid #f1f5f9' }}>
+                <span style={{ color: '#64748b', fontWeight: 600 }}>Phone Number:</span>
+                <span style={{ fontWeight: 800, color: '#0f172a' }}>{driverProfile.phone || '+91 98765 43210'}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.5rem 0', borderBottom: '1px solid #f1f5f9' }}>
+                <span style={{ color: '#64748b', fontWeight: 600 }}>Verification Badge:</span>
+                <span style={{ color: '#16a34a', fontWeight: 800, background: '#dcfce7', padding: '2px 8px', borderRadius: '12px', fontSize: '0.75rem' }}>✓ Verified Chauffeur</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.5rem 0' }}>
+                <span style={{ color: '#64748b', fontWeight: 600 }}>Shift Status:</span>
+                <span style={{ color: isOnDuty ? '#2563eb' : '#64748b', fontWeight: 800 }}>{isOnDuty ? '🟢 On Duty (GPS Active)' : '🔴 Off Duty'}</span>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: '0.75rem' }}>
+              <button
+                onClick={() => {
+                  setShowProfileInspectorModal(false);
+                  setActiveNav('profile');
+                }}
+                style={{ flex: 1, background: '#2563eb', color: '#ffffff', border: 'none', padding: '0.75rem', borderRadius: '12px', fontWeight: 800, cursor: 'pointer' }}
+              >
+                ⚙️ Manage Profile Settings
+              </button>
+              <button
+                onClick={() => setShowProfileInspectorModal(false)}
+                style={{ background: '#f1f5f9', color: '#334155', border: '1px solid #cbd5e1', padding: '0.75rem 1.25rem', borderRadius: '12px', fontWeight: 700, cursor: 'pointer' }}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 12-HOUR SHIFT FINISHED POPUP MODAL */}
+      {show12HrShiftModal && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          background: 'rgba(15,23,42,0.75)',
+          backdropFilter: 'blur(4px)',
+          zIndex: 9999,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '1rem'
+        }}>
+          <div style={{
+            maxWidth: '460px',
+            width: '100%',
+            background: '#ffffff',
+            borderRadius: '24px',
+            padding: '2rem',
+            boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)',
+            textAlign: 'center',
+            border: '2px solid #2563eb',
+            animation: 'fadeIn 0.25s ease-out'
+          }}>
+            <div style={{ width: '70px', height: '70px', borderRadius: '50%', background: '#dbeafe', color: '#2563eb', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2.5rem', margin: '0 auto 1rem auto' }}>
+              ⏰
+            </div>
+            <h2 style={{ fontSize: '1.4rem', fontWeight: 900, color: '#0f172a', marginBottom: '0.5rem' }}>
+              12-Hour Work Shift Finished!
+            </h2>
+            <p style={{ color: '#64748b', fontSize: '0.9rem', lineHeight: '1.5', marginBottom: '1.5rem' }}>
+              You have completed your 12-hour work shift today! Kindly click <strong>Clock Out</strong> below to record your biometric checkout log & finalize earnings.
+            </p>
+            <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center' }}>
+              <button
+                type="button"
+                onClick={() => {
+                  setShow12HrShiftModal(false);
+                  setActiveNav('attendance');
+                  setPunchActionType('out');
+                  setIsScanningFace(true);
+                }}
+                style={{
+                  background: '#dc2626',
+                  color: '#ffffff',
+                  border: 'none',
+                  padding: '0.75rem 1.5rem',
+                  borderRadius: '12px',
+                  fontWeight: 900,
+                  fontSize: '0.9rem',
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 12px rgba(220,38,38,0.3)'
+                }}
+              >
+                🔴 Clock Out Now
+              </button>
+              <button
+                type="button"
+                onClick={() => setShow12HrShiftModal(false)}
+                style={{
+                  background: '#f1f5f9',
+                  color: '#475569',
+                  border: '1px solid #cbd5e1',
+                  padding: '0.75rem 1.25rem',
+                  borderRadius: '12px',
+                  fontWeight: 700,
+                  fontSize: '0.88rem',
+                  cursor: 'pointer'
+                }}
+              >
+                Dismiss
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* NOTIFICATION NOTICE TOAST */}
       {notice && (

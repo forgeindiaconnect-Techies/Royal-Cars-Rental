@@ -68,7 +68,7 @@ const SUB_SECTIONS = {
 /* ─────────────────────────────────────────────────────────────────
    TOP HEADER BAR WITH USER BADGE
 ───────────────────────────────────────────────────────────────── */
-function TopHeader({ activeNav, notifications = [], unreadCount = 0, showNotificationsDropdown = false, onToggleNotifications }) {
+function TopHeader({ activeNav, notifications = [], unreadCount = 0, showNotificationsDropdown = false, onToggleNotifications, onOpenProfile }) {
   const currentNav = NAV_ITEMS.find(n => n.id === activeNav);
   
   // Strip icon prefix from label if present
@@ -137,13 +137,17 @@ function TopHeader({ activeNav, notifications = [], unreadCount = 0, showNotific
         </div>
 
         {/* Super Admin Identity Badge */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', borderLeft: '1px solid #EADCCF', paddingLeft: '1.25rem' }}>
+        <div 
+          onClick={() => onOpenProfile && onOpenProfile()} 
+          title="Click to view Super Admin Profile & System Access"
+          style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', borderLeft: '1px solid #EADCCF', paddingLeft: '1.25rem', cursor: 'pointer' }}
+        >
           <div style={{ width: '34px', height: '34px', borderRadius: '50%', background: '#D49B4B', color: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '0.85rem', boxShadow: '0 2px 8px rgba(212, 155, 75, 0.4)' }}>
             SA
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', lineHeight: '1.2' }}>
             <span style={{ fontSize: '0.78rem', fontWeight: 800, color: '#3C2415' }}>Super Admin</span>
-            <span style={{ fontSize: '0.65rem', color: '#7C6959', fontWeight: 600 }}>Administrator</span>
+            <span style={{ fontSize: '0.65rem', color: '#7C6959', fontWeight: 600 }}>Administrator ⚙️</span>
           </div>
         </div>
       </div>
@@ -5719,6 +5723,7 @@ export default function SuperAdminDashboard() {
         notifications={notifications}
         unreadCount={unreadCount}
         showNotificationsDropdown={showNotificationsDropdown}
+        onOpenProfile={() => setActiveNav('profile')}
         onToggleNotifications={() => {
           setShowNotificationsDropdown(!showNotificationsDropdown);
           if (!showNotificationsDropdown) {
