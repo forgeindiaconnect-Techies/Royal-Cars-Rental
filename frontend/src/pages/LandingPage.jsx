@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { getValidImageUrl, handleImageError } from '../utils/imageUtils';
-import aiHeroGraphic from 'C:/Users/Forgeindiaconnect/.gemini/antigravity-ide/brain/a6abd9b4-7b52-4fa0-a4d6-6d9510c90894/media__1786340422015.png';
 import {
   Step1Illustration,
   Step2Illustration,
