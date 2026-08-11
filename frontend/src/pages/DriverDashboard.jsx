@@ -1060,7 +1060,7 @@ export default function DriverDashboard() {
 
   const NAV_ITEMS = [
     { id: 'dashboard', label: 'Dashboard' },
-    { id: 'dispatch-requests', label: '📢 Available Dispatch Requests' },
+    { id: 'dispatch-requests', label: 'Available Dispatch Requests' },
     { id: 'attendance', label: 'Attendance Logs' },
     { id: 'gps', label: 'GPS Tracking Sync' },
     { id: 'my-bookings', label: 'My Bookings' },
@@ -1618,7 +1618,7 @@ export default function DriverDashboard() {
               </button>
 
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
-                <span style={{ fontSize: '1.8rem' }}>📢</span>
+                <span style={{ fontSize: '1.8rem' }}>🚗</span>
                 <div>
                   <div style={{ fontSize: '1.15rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.5px' }}>New Chauffeur Trip Request Available!</div>
                   <div style={{ fontSize: '0.82rem', color: '#bfdbfe' }}>An unassigned customer booking is looking for an available driver. Click accept to claim this trip!</div>
@@ -1803,7 +1803,7 @@ export default function DriverDashboard() {
               <div style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
                   <h2 style={{ fontSize: '1.6rem', fontFamily: 'var(--font-heading)', color: '#0f172a', fontWeight: 900, marginBottom: '0.2rem' }}>
-                    📢 Available Chauffeur Dispatch Requests
+                    Available Chauffeur Dispatch Requests
                   </h2>
                   <p style={{ color: '#64748b', fontSize: '0.88rem' }}>Unassigned customer bookings open for available on-duty drivers to claim</p>
                 </div>
