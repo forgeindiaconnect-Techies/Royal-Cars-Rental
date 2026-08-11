@@ -397,12 +397,15 @@ export default function LandingPage() {
             'Pragma': 'no-cache'
           }
         });
-        const data = await res.json();
-        if (data.success) {
-          setPopularLocations(data.data.filter(loc => loc.status === 'active'));
+        const cType = res.headers.get('content-type') || '';
+        if (res.ok && cType.includes('application/json')) {
+          const data = await res.json();
+          if (data.success) {
+            setPopularLocations(data.data.filter(loc => loc.status === 'active'));
+          }
         }
       } catch (err) {
-        console.error('Failed to fetch popular locations', err);
+        console.warn('Notice fetching popular locations:', err.message);
       }
     };
     fetchLocations();
@@ -492,7 +495,8 @@ export default function LandingPage() {
     const fetchPartnersAndFleet = async () => {
       try {
         const res = await fetch('/api/customer/companies');
-        if (res.ok) {
+        const cType = res.headers.get('content-type') || '';
+        if (res.ok && cType.includes('application/json')) {
           const data = await res.json();
           if (data.success) {
             // Filter out suspended or inactive companies strictly
@@ -506,7 +510,8 @@ export default function LandingPage() {
 
       try {
         const vRes = await fetch('/api/customer/vehicles');
-        if (vRes.ok) {
+        const vCType = vRes.headers.get('content-type') || '';
+        if (vRes.ok && vCType.includes('application/json')) {
           const vData = await vRes.json();
           if (vData.success) {
             const activeVehicles = (vData.vehicles || []).filter(v => {
