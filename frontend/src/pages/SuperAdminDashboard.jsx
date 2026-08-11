@@ -325,6 +325,10 @@ function CompanyDetailModal({ company, token, onClose, onRefresh, onUpdateCompan
   const [panNum, setPanNum]       = useState(company.panNumber || '');
   const [gstNum, setGstNum]       = useState(company.gstNumber || '');
 
+  const [subPeriodType, setSubPeriodType]   = useState(company.subscriptionPeriodType || 'days');
+  const [subPeriodValue, setSubPeriodValue] = useState(company.subscriptionPeriodValue || 39);
+  const [sendNotifEmail, setSendNotifEmail] = useState(true);
+
   const [editAadharFile, setEditAadharFile] = useState(null);
   const [editPanFile,    setEditPanFile]    = useState(null);
   const [editGstFile,    setEditGstFile]    = useState(null);
@@ -338,6 +342,8 @@ function CompanyDetailModal({ company, token, onClose, onRefresh, onUpdateCompan
     setStatus(company.status || 'active');
     setCommRate(company.commissionRate ?? 10);
     setSubPrice(company.subscriptionPrice ?? 2999);
+    setSubPeriodType(company.subscriptionPeriodType || 'days');
+    setSubPeriodValue(company.subscriptionPeriodValue || 39);
     setAddress(company.address || '');
     setCity(company.city || '');
     setState(company.state || '');
@@ -364,6 +370,15 @@ function CompanyDetailModal({ company, token, onClose, onRefresh, onUpdateCompan
     fetchStats();
   }, [currentCompany._id, token]);
 
+  const calcExpiryPreview = (pType, pVal) => {
+    const d = new Date();
+    const v = Number(pVal) || 30;
+    if (pType === 'years') d.setFullYear(d.getFullYear() + v);
+    else if (pType === 'months') d.setMonth(d.getMonth() + v);
+    else d.setDate(d.getDate() + v);
+    return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+  };
+
   const statItems = [
     { label: 'Total Vehicles',   value: stats?.totalVehicles  ?? 1, color: '#2563eb', icon: '🚗' },
     { label: 'Total Drivers',    value: stats?.totalDrivers   ?? 1, color: '#7c3aed', icon: '👤' },
@@ -376,20 +391,23 @@ function CompanyDetailModal({ company, token, onClose, onRefresh, onUpdateCompan
     setMsg({ text: '', type: '' });
     try {
       const fd = new FormData();
-      fd.append('name',              name);
-      fd.append('ownerEmail',        ownerEmail);
-      fd.append('ownerName',         ownerName);
-      fd.append('mobile',            mobile);
-      fd.append('status',            status);
-      fd.append('commissionRate',    commRate);
-      fd.append('subscriptionPrice', subPrice);
-      fd.append('address',           address);
-      fd.append('city',              city);
-      fd.append('state',             state);
-      fd.append('pincode',           pincode);
-      fd.append('aadharNumber',      aadharNum);
-      fd.append('panNumber',         panNum);
-      fd.append('gstNumber',         gstNum);
+      fd.append('name',                    name);
+      fd.append('ownerEmail',              ownerEmail);
+      fd.append('ownerName',               ownerName);
+      fd.append('mobile',                  mobile);
+      fd.append('status',                  status);
+      fd.append('commissionRate',          commRate);
+      fd.append('subscriptionPrice',       subPrice);
+      fd.append('subscriptionPeriodType',  subPeriodType);
+      fd.append('subscriptionPeriodValue', subPeriodValue);
+      if (sendNotifEmail) fd.append('sendNotificationEmail', 'true');
+      fd.append('address',                 address);
+      fd.append('city',                    city);
+      fd.append('state',                   state);
+      fd.append('pincode',                 pincode);
+      fd.append('aadharNumber',            aadharNum);
+      fd.append('panNumber',               panNum);
+      fd.append('gstNumber',               gstNum);
 
       if (editAadharFile) fd.append('aadharDoc', editAadharFile);
       if (editPanFile)    fd.append('panDoc',    editPanFile);
@@ -521,10 +539,59 @@ function CompanyDetailModal({ company, token, onClose, onRefresh, onUpdateCompan
               <div className="form-group"><label className="form-label" style={{ fontSize: '0.8rem' }}>Mobile</label><input type="text" className="form-control" value={mobile} onChange={e => setMobile(e.target.value)} /></div>
               <div className="form-group"><label className="form-label" style={{ fontSize: '0.8rem' }}>Commission Rate (%)</label><input type="number" className="form-control" value={commRate} onChange={e => setCommRate(e.target.value)} required /></div>
               <div className="form-group"><label className="form-label" style={{ fontSize: '0.8rem' }}>Subscription Price (₹)</label><input type="number" className="form-control" value={subPrice} onChange={e => setSubPrice(e.target.value)} required /></div>
-              <div className="form-group"><label className="form-label" style={{ fontSize: '0.8rem' }}>City</label><input type="text" className="form-control" value={city} onChange={e => setCity(e.target.value)} /></div>
+              
+              <div className="form-group">
+                <label className="form-label" style={{ fontSize: '0.8rem' }}>Subscription Period / Duration</label>
+                <select
+                  className="form-control"
+                  value={
+                    subPeriodType === 'years'
+                      ? (Number(subPeriodValue) === 1 ? '1_year' : Number(subPeriodValue) === 2 ? '2_years' : 'custom_years')
+                      : (Number(subPeriodValue) === 30 ? '30_days' : Number(subPeriodValue) === 39 ? '39_days' : Number(subPeriodValue) === 90 ? '90_days' : 'custom_days')
+                  }
+                  onChange={e => {
+                    const v = e.target.value;
+                    if (v === '30_days') { setSubPeriodType('days'); setSubPeriodValue(30); }
+                    else if (v === '39_days') { setSubPeriodType('days'); setSubPeriodValue(39); }
+                    else if (v === '90_days') { setSubPeriodType('days'); setSubPeriodValue(90); }
+                    else if (v === '1_year') { setSubPeriodType('years'); setSubPeriodValue(1); }
+                    else if (v === '2_years') { setSubPeriodType('years'); setSubPeriodValue(2); }
+                    else if (v === 'custom_days') { setSubPeriodType('days'); if (Number(subPeriodValue) === 30 || Number(subPeriodValue) === 39 || Number(subPeriodValue) === 90 || !subPeriodValue) setSubPeriodValue(45); }
+                    else if (v === 'custom_years') { setSubPeriodType('years'); if (Number(subPeriodValue) === 1 || Number(subPeriodValue) === 2 || !subPeriodValue) setSubPeriodValue(3); }
+                  }}
+                >
+                  <option value="30_days">30 Days (1 Month)</option>
+                  <option value="39_days">39 Days (Special Period)</option>
+                  <option value="90_days">90 Days (Quarterly)</option>
+                  <option value="1_year">1 Year (12 Months)</option>
+                  <option value="2_years">2 Years (24 Months)</option>
+                  <option value="custom_days">⚡ Custom Days (Enter custom count below)...</option>
+                  <option value="custom_years">⚡ Custom Years (Enter custom count below)...</option>
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label" style={{ fontSize: '0.8rem' }}>Period Count ({subPeriodType === 'years' ? 'Years' : 'Days'})</label>
+                <input type="number" className="form-control" value={subPeriodValue} onChange={e => setSubPeriodValue(e.target.value)} min="1" required />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label" style={{ fontSize: '0.8rem' }}>City</label>
+                <input type="text" className="form-control" value={city} onChange={e => setCity(e.target.value)} />
+              </div>
               <div className="form-group"><label className="form-label" style={{ fontSize: '0.8rem' }}>State</label><input type="text" className="form-control" value={state} onChange={e => setState(e.target.value)} /></div>
               <div className="form-group"><label className="form-label" style={{ fontSize: '0.8rem' }}>Pincode</label><input type="text" className="form-control" value={pincode} onChange={e => setPincode(e.target.value)} /></div>
               <div className="form-group" style={{ gridColumn: '1 / -1' }}><label className="form-label" style={{ fontSize: '0.8rem' }}>Address</label><input type="text" className="form-control" value={address} onChange={e => setAddress(e.target.value)} /></div>
+
+              <div className="form-group" style={{ gridColumn: '1 / -1', background: 'rgba(37,99,235,0.05)', padding: '0.65rem 0.85rem', borderRadius: '6px', border: '1px border-color' }}>
+                <label style={{ fontSize: '0.8rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 600, color: '#1e40af' }}>
+                  <input type="checkbox" checked={sendNotifEmail} onChange={e => setSendNotifEmail(e.target.checked)} />
+                  <span>✉️ Automatically send updated subscription email to owner on save</span>
+                </label>
+                <div style={{ fontSize: '0.73rem', color: '#3b82f6', marginTop: '3px' }}>
+                  Calculated New Expiration Date: <strong>{calcExpiryPreview(subPeriodType, subPeriodValue)}</strong>
+                </div>
+              </div>
 
               <div className="form-group"><label className="form-label" style={{ fontSize: '0.8rem' }}>Aadhaar Number</label><input type="text" className="form-control" value={aadharNum} onChange={e => setAadharNum(e.target.value)} /></div>
               <div className="form-group"><label className="form-label" style={{ fontSize: '0.8rem' }}>Aadhaar Doc</label><input type="file" accept=".jpg,.jpeg,.png,.pdf" className="form-control" style={{ fontSize: '0.78rem' }} onChange={e => setEditAadharFile(e.target.files[0] || null)} /></div>
@@ -545,7 +612,9 @@ function CompanyDetailModal({ company, token, onClose, onRefresh, onUpdateCompan
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
               {[
                 ['Commission Rate', `${currentCompany.commissionRate}%`],
-                ['Subscription Plan', `₹${currentCompany.subscriptionPrice}/mo`],
+                ['Subscription Amount', `₹${currentCompany.subscriptionPrice}`],
+                ['Subscription Duration', `${currentCompany.subscriptionPeriodValue || 39} ${currentCompany.subscriptionPeriodType || 'days'}`],
+                ['Subscription Expiry', currentCompany.subscriptionExpiry ? new Date(currentCompany.subscriptionExpiry).toLocaleDateString('en-GB') : 'Active'],
                 ['Status', currentCompany.status],
                 ['Owner Email', currentCompany.ownerEmail],
                 ['Owner Name', currentCompany.ownerName || '—'],
@@ -675,22 +744,24 @@ function RentalCompaniesPanel({ subId, subLabel, companies, token, onRefresh, on
   const [ownerName,   setOwnerName]   = useState('');
   const [ownerEmail,  setOwnerEmail]  = useState('');
   const [password,    setPassword]    = useState('');
-  const [subPrice,    setSubPrice]    = useState(99);
-  const [commRate,    setCommRate]    = useState(10);
-  const [mobile,      setMobile]      = useState('');
-  const [address,     setAddress]     = useState('');
-  const [city,        setCity]        = useState('');
-  const [state,       setState]       = useState('');
-  const [pincode,     setPincode]     = useState('');
-  const [aadharNum,   setAadharNum]   = useState('');
-  const [panNum,      setPanNum]      = useState('');
-  const [gstNum,      setGstNum]      = useState('');
-  const [aadharFile,  setAadharFile]  = useState(null);
-  const [panFile,     setPanFile]     = useState(null);
-  const [gstFile,     setGstFile]     = useState(null);
-  const [formError,   setFormError]   = useState('');
-  const [formSuccess, setFormSuccess] = useState('');
-  const [submitting,  setSubmitting]  = useState(false);
+  const [subPrice,       setSubPrice]       = useState(2999);
+  const [subPeriodType,  setSubPeriodType]  = useState('days');
+  const [subPeriodValue, setSubPeriodValue] = useState(39);
+  const [commRate,       setCommRate]       = useState(10);
+  const [mobile,         setMobile]         = useState('');
+  const [address,        setAddress]        = useState('');
+  const [city,           setCity]           = useState('');
+  const [state,          setState]          = useState('');
+  const [pincode,        setPincode]        = useState('');
+  const [aadharNum,      setAadharNum]      = useState('');
+  const [panNum,         setPanNum]         = useState('');
+  const [gstNum,         setGstNum]         = useState('');
+  const [aadharFile,     setAadharFile]     = useState(null);
+  const [panFile,        setPanFile]        = useState(null);
+  const [gstFile,        setGstFile]        = useState(null);
+  const [formError,      setFormError]      = useState('');
+  const [formSuccess,    setFormSuccess]    = useState('');
+  const [submitting,     setSubmitting]     = useState(false);
 
   const displayLabel = typeof subLabel === 'string' ? subLabel : (subLabel?.label || subLabel?.name || 'Companies');
 
@@ -726,7 +797,7 @@ function RentalCompaniesPanel({ subId, subLabel, companies, token, onRefresh, on
 
   const resetForm = () => {
     setCompanyName(''); setOwnerName(''); setOwnerEmail(''); setPassword('');
-    setSubPrice(99); setCommRate(10); setMobile(''); setAddress('');
+    setSubPrice(2999); setSubPeriodType('days'); setSubPeriodValue(39); setCommRate(10); setMobile(''); setAddress('');
     setCity(''); setState(''); setPincode('');
     setAadharNum(''); setPanNum(''); setGstNum('');
     setAadharFile(null); setPanFile(null); setGstFile(null);
@@ -737,12 +808,14 @@ function RentalCompaniesPanel({ subId, subLabel, companies, token, onRefresh, on
     e.preventDefault(); setFormError(''); setFormSuccess(''); setSubmitting(true);
     try {
       const fd = new FormData();
-      fd.append('name',              companyName);
-      fd.append('ownerName',         ownerName);
-      fd.append('ownerEmail',        ownerEmail);
-      fd.append('password',          password);
-      fd.append('subscriptionPrice', subPrice);
-      fd.append('commissionRate',    commRate);
+      fd.append('name',                    companyName);
+      fd.append('ownerName',               ownerName);
+      fd.append('ownerEmail',              ownerEmail);
+      fd.append('password',                password);
+      fd.append('subscriptionPrice',       subPrice);
+      fd.append('subscriptionPeriodType',  subPeriodType);
+      fd.append('subscriptionPeriodValue', subPeriodValue);
+      fd.append('commissionRate',          commRate);
       fd.append('mobile',            mobile);
       fd.append('address',           address);
       fd.append('city',              city);
@@ -1002,10 +1075,64 @@ function RentalCompaniesPanel({ subId, subLabel, companies, token, onRefresh, on
               </div>
 
               <div style={{ background: 'var(--bg-primary)', borderRadius: 'var(--radius-sm)', padding: '1rem', marginBottom: '1rem', border: '1px solid var(--border-color)' }}>
-                <div style={{ fontWeight: 700, fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-secondary)', marginBottom: '0.75rem' }}>Billing Settings</div>
+                <div style={{ fontWeight: 700, fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-secondary)', marginBottom: '0.75rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span>Billing & Subscription Settings</span>
+                  <span style={{ fontSize: '0.72rem', color: '#10b981', background: 'rgba(16,185,129,0.1)', padding: '2px 8px', borderRadius: '12px', fontWeight: 600 }}>✉️ Auto Email Active</span>
+                </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
-                  <div className="form-group"><label className="form-label" style={{ fontSize: '0.8rem' }}>Monthly Subscription (₹)</label><input type="number" className="form-control" value={subPrice} onChange={e => setSubPrice(e.target.value)} required /></div>
-                  <div className="form-group"><label className="form-label" style={{ fontSize: '0.8rem' }}>Commission Rate (%)</label><input type="number" className="form-control" value={commRate} onChange={e => setCommRate(e.target.value)} required /></div>
+                  <div className="form-group">
+                    <label className="form-label" style={{ fontSize: '0.8rem' }}>Subscription Price (₹)</label>
+                    <input type="number" className="form-control" value={subPrice} onChange={e => setSubPrice(e.target.value)} required />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label" style={{ fontSize: '0.8rem' }}>Validity Period</label>
+                    <select
+                      className="form-control"
+                      value={
+                        subPeriodType === 'years'
+                          ? (Number(subPeriodValue) === 1 ? '1_year' : Number(subPeriodValue) === 2 ? '2_years' : 'custom_years')
+                          : (Number(subPeriodValue) === 30 ? '30_days' : Number(subPeriodValue) === 39 ? '39_days' : Number(subPeriodValue) === 90 ? '90_days' : 'custom_days')
+                      }
+                      onChange={e => {
+                        const v = e.target.value;
+                        if (v === '30_days') { setSubPeriodType('days'); setSubPeriodValue(30); }
+                        else if (v === '39_days') { setSubPeriodType('days'); setSubPeriodValue(39); }
+                        else if (v === '90_days') { setSubPeriodType('days'); setSubPeriodValue(90); }
+                        else if (v === '1_year') { setSubPeriodType('years'); setSubPeriodValue(1); }
+                        else if (v === '2_years') { setSubPeriodType('years'); setSubPeriodValue(2); }
+                        else if (v === 'custom_days') { setSubPeriodType('days'); if (Number(subPeriodValue) === 30 || Number(subPeriodValue) === 39 || Number(subPeriodValue) === 90 || !subPeriodValue) setSubPeriodValue(45); }
+                        else if (v === 'custom_years') { setSubPeriodType('years'); if (Number(subPeriodValue) === 1 || Number(subPeriodValue) === 2 || !subPeriodValue) setSubPeriodValue(3); }
+                      }}
+                    >
+                      <option value="30_days">30 Days (1 Month)</option>
+                      <option value="39_days">39 Days (Special Period)</option>
+                      <option value="90_days">90 Days (Quarterly)</option>
+                      <option value="1_year">1 Year (12 Months)</option>
+                      <option value="2_years">2 Years (24 Months)</option>
+                      <option value="custom_days">⚡ Custom Days (Enter custom count below)...</option>
+                      <option value="custom_years">⚡ Custom Years (Enter custom count below)...</option>
+                    </select>
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label" style={{ fontSize: '0.8rem' }}>Period Count ({subPeriodType === 'years' ? 'Years' : 'Days'})</label>
+                    <input type="number" className="form-control" value={subPeriodValue} onChange={e => setSubPeriodValue(e.target.value)} min="1" required />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label" style={{ fontSize: '0.8rem' }}>Commission Rate (%)</label>
+                    <input type="number" className="form-control" value={commRate} onChange={e => setCommRate(e.target.value)} required />
+                  </div>
+                </div>
+                <div style={{ marginTop: '0.75rem', padding: '0.5rem 0.85rem', background: 'rgba(37,99,235,0.06)', border: '1px dashed rgba(37,99,235,0.3)', borderRadius: '6px', fontSize: '0.78rem', color: '#2563eb', fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <span>📅 Calculated Expiry Date Preview:</span>
+                  <span style={{ color: '#1d4ed8', fontWeight: 800, fontSize: '0.85rem' }}>
+                    {(() => {
+                      const d = new Date();
+                      const val = Number(subPeriodValue) || 30;
+                      if (subPeriodType === 'years') d.setFullYear(d.getFullYear() + val);
+                      else d.setDate(d.getDate() + val);
+                      return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+                    })()}
+                  </span>
                 </div>
               </div>
 

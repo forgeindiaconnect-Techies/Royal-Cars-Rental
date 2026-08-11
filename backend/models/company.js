@@ -39,10 +39,19 @@ const companySchema = new mongoose.Schema({
     required: true,
     default: 2999,
   },
+  subscriptionPeriodType: {
+    type: String,
+    enum: ['days', 'months', 'years', 'custom_days'],
+    default: 'days',
+  },
+  subscriptionPeriodValue: {
+    type: Number,
+    default: 30,
+  },
   subscriptionExpiry: {
     type: Date,
     required: true,
-    default: () => { const d = new Date(); d.setMonth(d.getMonth() + 1); return d; },
+    default: () => { const d = new Date(); d.setDate(d.getDate() + 30); return d; },
   },
   commissionRate: {
     type: Number,

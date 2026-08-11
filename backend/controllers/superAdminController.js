@@ -52,6 +52,7 @@ exports.onboardCompany = async (req, res) => {
     const {
       name, ownerEmail, ownerName, password,
       subscriptionPrice, commissionRate,
+      subscriptionPeriodType, subscriptionPeriodValue,
       mobile, address, city, state, pincode,
       aadharNumber, panNumber, gstNumber,
     } = req.body;
@@ -61,8 +62,17 @@ exports.onboardCompany = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Owner email already registered' });
     }
 
+    const pType = subscriptionPeriodType || 'days';
+    const pVal = Number(subscriptionPeriodValue) || 30;
+
     const expiry = new Date();
-    expiry.setMonth(expiry.getMonth() + 1);
+    if (pType === 'years') {
+      expiry.setFullYear(expiry.getFullYear() + pVal);
+    } else if (pType === 'months') {
+      expiry.setMonth(expiry.getMonth() + pVal);
+    } else {
+      expiry.setDate(expiry.getDate() + pVal);
+    }
 
     const files = req.files || {};
     const aadharDoc = files.aadharDoc?.[0]?.filename
@@ -74,8 +84,10 @@ exports.onboardCompany = async (req, res) => {
 
     const company = await Company.create({
       name, ownerEmail, ownerName: ownerName || '',
-      subscriptionPrice: Number(subscriptionPrice) || 99,
+      subscriptionPrice: Number(subscriptionPrice) || 2999,
       commissionRate:    Number(commissionRate)    || 10,
+      subscriptionPeriodType: pType,
+      subscriptionPeriodValue: pVal,
       subscriptionExpiry: expiry,
       mobile:  mobile  || '',
       address: address || '',
@@ -102,11 +114,41 @@ exports.onboardCompany = async (req, res) => {
     await Transaction.create({
       companyId: company._id,
       type: 'subscription',
-      amount: Number(subscriptionPrice) || 99,
+      amount: Number(subscriptionPrice) || 2999,
       status: 'success',
     });
 
-    res.status(201).json({ success: true, message: 'Company onboarded successfully', company });
+    // Send automatic welcome email with subscription details
+    const expiryFormatted = expiry.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+    const periodDisplay = pType === 'years' ? `${pVal} Year(s)` : `${pVal} Day(s)`;
+
+    try {
+      await sendEmail({
+        to: ownerEmail,
+        subject: `👑 Royal Car Rentals — Subscription Activated for ${name}`,
+        html: `
+          <div style="font-family: Arial, sans-serif; padding: 24px; color: #0f172a; max-width: 600px; border: 1px solid #e2e8f0; border-radius: 12px; background: #ffffff;">
+            <h2 style="color: #2563eb; margin-top: 0;">🎉 Welcome to Royal Car Rentals Platform!</h2>
+            <p>Dear <strong>${ownerName || name}</strong>,</p>
+            <p>Your rental company account <strong>${name}</strong> has been onboarded and activated successfully.</p>
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 16px; border-radius: 8px; margin: 16px 0;">
+              <h3 style="margin-top: 0; color: #1e293b;">📋 Subscription & Billing Details</h3>
+              <ul style="padding-left: 20px; margin: 0; color: #475569;">
+                <li><strong>Subscription Price:</strong> ₹${company.subscriptionPrice}</li>
+                <li><strong>Validity Period:</strong> ${periodDisplay}</li>
+                <li><strong>Expiration Date:</strong> <span style="color: #2563eb; font-weight: bold;">${expiryFormatted}</span></li>
+                <li><strong>Commission Rate:</strong> ${company.commissionRate}%</li>
+              </ul>
+            </div>
+            <p>You can log into your Company Admin panel using your email (<strong>${ownerEmail}</strong>) to manage your fleet and drivers.</p>
+          </div>
+        `
+      });
+    } catch (eErr) {
+      console.error('[ONBOARD EMAIL ERROR]', eErr.message);
+    }
+
+    res.status(201).json({ success: true, message: 'Company onboarded successfully! Welcome email sent to owner.', company });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -177,6 +219,8 @@ exports.updateCompany = async (req, res) => {
     const {
       name, ownerEmail, ownerName, mobile, status,
       commissionRate, subscriptionPrice,
+      subscriptionPeriodType, subscriptionPeriodValue,
+      sendNotificationEmail,
       address, city, state, pincode,
       aadharNumber, panNumber, gstNumber,
     } = req.body;
@@ -190,6 +234,24 @@ exports.updateCompany = async (req, res) => {
     if (mobile)            company.mobile            = mobile;
     if (commissionRate !== undefined) company.commissionRate = Number(commissionRate);
     if (subscriptionPrice !== undefined) company.subscriptionPrice = Number(subscriptionPrice);
+    
+    if (subscriptionPeriodType || subscriptionPeriodValue !== undefined) {
+      const pType = subscriptionPeriodType || company.subscriptionPeriodType || 'days';
+      const pVal = subscriptionPeriodValue !== undefined ? Number(subscriptionPeriodValue) : (company.subscriptionPeriodValue || 30);
+      company.subscriptionPeriodType = pType;
+      company.subscriptionPeriodValue = pVal;
+
+      const newExpiry = new Date();
+      if (pType === 'years') {
+        newExpiry.setFullYear(newExpiry.getFullYear() + pVal);
+      } else if (pType === 'months') {
+        newExpiry.setMonth(newExpiry.getMonth() + pVal);
+      } else {
+        newExpiry.setDate(newExpiry.getDate() + pVal);
+      }
+      company.subscriptionExpiry = newExpiry;
+    }
+
     if (address !== undefined)  company.address      = address;
     if (city !== undefined)     company.city         = city;
     if (state !== undefined)    company.state        = state;
@@ -218,6 +280,38 @@ exports.updateCompany = async (req, res) => {
     }
 
     await company.save();
+
+    if (sendNotificationEmail) {
+      const expiryFormatted = company.subscriptionExpiry ? new Date(company.subscriptionExpiry).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A';
+      const pType = company.subscriptionPeriodType || 'days';
+      const pVal = company.subscriptionPeriodValue || 30;
+      const periodDisplay = pType === 'years' ? `${pVal} Year(s)` : `${pVal} Day(s)`;
+
+      try {
+        await sendEmail({
+          to: company.ownerEmail,
+          subject: `👑 Royal Car Rentals — Subscription Updated for ${company.name}`,
+          html: `
+            <div style="font-family: Arial, sans-serif; padding: 24px; color: #0f172a; max-width: 600px; border: 1px solid #e2e8f0; border-radius: 12px; background: #ffffff;">
+              <h2 style="color: #2563eb; margin-top: 0;">Subscription Terms Updated</h2>
+              <p>Dear <strong>${company.ownerName || company.name}</strong>,</p>
+              <p>Your subscription details for <strong>${company.name}</strong> have been updated by Super Admin.</p>
+              <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 16px; border-radius: 8px; margin: 16px 0;">
+                <h3 style="margin-top: 0; color: #1e293b;">📋 Updated Billing Details</h3>
+                <ul style="padding-left: 20px; margin: 0; color: #475569;">
+                  <li><strong>Subscription Amount:</strong> ₹${company.subscriptionPrice}</li>
+                  <li><strong>Validity Period:</strong> ${periodDisplay}</li>
+                  <li><strong>New Expiration Date:</strong> <span style="color: #2563eb; font-weight: bold;">${expiryFormatted}</span></li>
+                  <li><strong>Commission Rate:</strong> ${company.commissionRate}%</li>
+                </ul>
+              </div>
+            </div>
+          `
+        });
+      } catch (eErr) {
+        console.error('[UPDATE EMAIL NOTICE]', eErr.message);
+      }
+    }
 
     res.status(200).json({
       success: true,
