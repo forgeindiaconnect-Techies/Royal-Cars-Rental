@@ -8,7 +8,7 @@ const Icons = {
   Check: (props) => <svg width={props.size || 24} height={props.size || 24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
 };
 
-export default function AIFinderModal({ isOpen, onClose }) {
+export default function AIFinderModal({ isOpen, onClose, onSelectVehicle }) {
   const [step, setStep] = useState('choose_method'); // choose_method, manual, manual_results, ai_chat
   const [selectedMethod, setSelectedMethod] = useState(''); // 'ai' or 'manual'
 
@@ -22,12 +22,12 @@ export default function AIFinderModal({ isOpen, onClose }) {
   const chatEndRef = useRef(null);
 
   const colors = {
-    brown: '#7B4F2C',
-    lightBrown: '#F9F6F0',
-    purple: '#7C3AED',
-    lightPurple: '#F5F3FF',
-    textDark: '#2C1C13',
-    textMuted: '#6D5443'
+    brown: '#4E311B',
+    lightBrown: '#FAF4EE',
+    purple: '#4E311B',
+    lightPurple: '#FAF4EE',
+    textDark: '#3C2415',
+    textMuted: '#7C6959'
   };
 
   const AI_QUESTIONS = [
@@ -402,7 +402,13 @@ export default function AIFinderModal({ isOpen, onClose }) {
                           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem' }}><Icons.Check size={14} color="green"/> 2 km Away</div>
                         </div>
 
-                        <button style={{ width: '100%', background: colors.brown, color: '#fff', border: 'none', padding: '1rem', borderRadius: '12px', fontWeight: 700, fontSize: '1rem', cursor: 'pointer' }}>
+                        <button 
+                          onClick={() => {
+                            if (onSelectVehicle) onSelectVehicle({ make: 'Toyota', model: 'Innova 2023', pricePerDay: 2200, seats: 7, transmission: 'Automatic', fuelType: 'Petrol', imageUrl: 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=800' });
+                            onClose();
+                          }}
+                          style={{ width: '100%', background: colors.brown, color: '#fff', border: 'none', padding: '1rem', borderRadius: '12px', fontWeight: 700, fontSize: '1rem', cursor: 'pointer' }}
+                        >
                           Book Now
                         </button>
                       </div>
@@ -413,14 +419,30 @@ export default function AIFinderModal({ isOpen, onClose }) {
                           <span style={{ fontWeight: 600 }}>Hyundai Creta</span>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                             <span style={{ fontWeight: 800 }}>₹1900</span>
-                            <button style={{ background: '#f5f5f5', border: 'none', padding: '0.4rem 1rem', borderRadius: '6px', cursor: 'pointer', fontWeight: 600 }}>Book</button>
+                            <button 
+                              onClick={() => {
+                                if (onSelectVehicle) onSelectVehicle({ make: 'Hyundai', model: 'Creta 2023', pricePerDay: 1900, seats: 5, transmission: 'Automatic', fuelType: 'Petrol', imageUrl: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=800' });
+                                onClose();
+                              }}
+                              style={{ background: colors.brown, color: '#fff', border: 'none', padding: '0.4rem 1rem', borderRadius: '6px', cursor: 'pointer', fontWeight: 600 }}
+                            >
+                              Book
+                            </button>
                           </div>
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.8rem 1rem', border: '1px solid #eee', borderRadius: '12px' }}>
                           <span style={{ fontWeight: 600 }}>Maruti Swift</span>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                             <span style={{ fontWeight: 800 }}>₹900</span>
-                            <button style={{ background: '#f5f5f5', border: 'none', padding: '0.4rem 1rem', borderRadius: '6px', cursor: 'pointer', fontWeight: 600 }}>Book</button>
+                            <button 
+                              onClick={() => {
+                                if (onSelectVehicle) onSelectVehicle({ make: 'Maruti', model: 'Swift 2023', pricePerDay: 900, seats: 5, transmission: 'Manual', fuelType: 'Petrol', imageUrl: 'https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?w=800' });
+                                onClose();
+                              }}
+                              style={{ background: colors.brown, color: '#fff', border: 'none', padding: '0.4rem 1rem', borderRadius: '6px', cursor: 'pointer', fontWeight: 600 }}
+                            >
+                              Book
+                            </button>
                           </div>
                         </div>
                       </div>

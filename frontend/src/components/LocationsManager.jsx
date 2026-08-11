@@ -123,7 +123,7 @@ const LocationsManager = () => {
 
   return (
     <div style={{ background: '#fff', borderRadius: '16px', boxShadow: '0 2px 16px rgba(0,0,0,0.05)', padding: '2rem' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
         <h2 style={{ fontSize: '1.4rem', fontWeight: 900, color: 'var(--text-primary)', margin: 0 }}>📍 Popular Locations</h2>
         <div style={{ display: 'flex', gap: '1rem' }}>
           <input 
@@ -145,7 +145,7 @@ const LocationsManager = () => {
       {showAddForm && (
         <div style={{ background: '#f8fafc', padding: '1.5rem', borderRadius: '12px', border: '1px solid var(--border-color)', marginBottom: '2rem' }}>
           <h3 style={{ margin: '0 0 1.5rem 0', fontSize: '1.1rem' }}>{editId ? '✏️ Edit Location Form' : '➕ Add Location Form'}</h3>
-          <form onSubmit={handleAddSubmit} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+          <form className="location-form-grid" onSubmit={handleAddSubmit} style={{ display: 'grid', gap: '1.5rem' }}>
             <div>
               <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600, fontSize: '0.9rem' }}>Location Name *</label>
               <input type="text" name="name" value={formData.name} onChange={handleInputChange} required style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--border-color)' }} />

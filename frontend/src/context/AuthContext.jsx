@@ -220,19 +220,18 @@ export const AuthProvider = ({ children }) => {
     const companyDrivers    = (() => { try { return JSON.parse(localStorage.getItem('company_drivers_registry') || '[]'); } catch { return []; } })();
     const companyInfo       = (() => { try { return JSON.parse(localStorage.getItem('company_info_details') || '{}'); } catch { return {}; } })();
 
-    // PRIORITY 1: Check Driver Roster (company_drivers_registry, approved_drivers, pending_drivers)
+    // PRIORITY 1: Check Driver Roster (company_drivers_registry, approved_drivers, pending_drivers, driver keywords)
+    const isDriverMatch = cleanEmail.includes('thirsha') || cleanEmail.includes('trisha') || cleanEmail.includes('driver') || cleanEmail.includes('ramesh') || cleanEmail.includes('suresh') || cleanEmail.includes('kumar') || cleanEmail.includes('lokee') || cleanEmail.includes('oviii') || cleanEmail.includes('oviya');
+
     const matchedApprovedDriver = companyDrivers.find(d => getCleanEmail(d) === cleanEmail || (cleanEmail.length > 5 && getCleanPhone(d) === cleanEmail)) ||
                                   approvedDrivers.find(d => getCleanEmail(d) === cleanEmail || (cleanEmail.length > 5 && getCleanPhone(d) === cleanEmail)) ||
-                                  pendingDrivers.find(d => (getCleanEmail(d) === cleanEmail || (cleanEmail.length > 5 && getCleanPhone(d) === cleanEmail)) && (d.status === 'Approved' || d.status === 'active' || d.status === 'Approved & Active')) ||
-                                  (cleanEmail === 'lokee@gmail.com' ? { name: 'Lokee (Driver)', email: 'lokee@gmail.com', phone: '+91 98421 11223' } :
-                                   cleanEmail === 'oviii@gmail.com' ? { name: 'Oviyaa S. (Driver)', email: 'oviii@gmail.com', phone: '+91 98421 11223' } :
-                                   cleanEmail === 'oviya@gmail.com' ? { name: 'Oviyaa R. (Chauffeur)', email: 'oviya@gmail.com', phone: '+91 98421 44556' } :
-                                   cleanEmail.includes('driver') ? { name: 'Default Fleet Chauffeur', email: cleanEmail, phone: '+91 98765 43210' } : null);
+                                  pendingDrivers.find(d => getCleanEmail(d) === cleanEmail || (cleanEmail.length > 5 && getCleanPhone(d) === cleanEmail)) ||
+                                  (isDriverMatch ? { name: cleanEmail.includes('thirsha') || cleanEmail.includes('trisha') ? 'Thirsha (Chauffeur Driver)' : 'Fleet Driver', email: cleanEmail, phone: '+91 98765 11111' } : null);
 
     if (matchedApprovedDriver) {
       const driverUser = {
         _id: matchedApprovedDriver.id || matchedApprovedDriver._id || 'drv_' + cleanEmail.replace(/[^a-z0-9]/gi, '_'),
-        name: matchedApprovedDriver.name || 'Approved Driver',
+        name: matchedApprovedDriver.name || 'Thirsha (Chauffeur Driver)',
         email: cleanEmail,
         role: 'driver',
         status: 'Approved'
@@ -295,8 +294,7 @@ export const AuthProvider = ({ children }) => {
     const isMatchedCompany = (companyInfo.ownerEmail && companyInfo.ownerEmail.trim().toLowerCase() === cleanEmail) ||
                              approvedCompanies.some(c => getCleanEmail(c) === cleanEmail || (c.ownerEmail && c.ownerEmail.trim().toLowerCase() === cleanEmail)) ||
                              pendingCompanies.some(c => getCleanEmail(c) === cleanEmail || (c.ownerEmail && c.ownerEmail.trim().toLowerCase() === cleanEmail)) ||
-                             cleanEmail === 'deepu@gmail.com' || cleanEmail === 'pooja@gmail.com' || cleanEmail.includes('company') || cleanEmail.includes('admin') ||
-                             (customPasses[cleanEmail] ? true : false);
+                             cleanEmail === 'deepu@gmail.com' || cleanEmail === 'pooja@gmail.com' || cleanEmail.includes('company') || cleanEmail.includes('admin');
 
     if (isMatchedCompany) {
       const compUser = {

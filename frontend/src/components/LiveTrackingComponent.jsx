@@ -106,46 +106,51 @@ export default function LiveTrackingComponent() {
     try {
       const carOwners = JSON.parse(localStorage.getItem('approved_car_owners') || '[]');
       const pendingOwners = JSON.parse(localStorage.getItem('pending_car_owners') || '[]');
-      const allOwners = [...pendingOwners, ...carOwners];
+      
+      const rawAll = [...carOwners, ...pendingOwners];
+      const allOwners = rawAll.filter((co, idx, self) => 
+        self.findIndex(t => (t.id && t.id === co.id) || (t.email && t.email.toLowerCase().trim() === co.email?.toLowerCase().trim())) === idx
+      );
       
       const realVehicles = [];
       allOwners.forEach((co, idx) => {
-        if (co.carName || co.vehicleName) {
-          realVehicles.push({
-            id: co.id || `real_${idx}`,
-            code: `#CO-${101 + idx}`,
-            name: co.carName || co.vehicleName || 'Hyundai Creta SX',
-            plate: co.plate || co.vehiclePlate || 'TN29AZ7788',
-            status: 'In use',
-            statusColor: '#10b981',
-            image: co.image || 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=400&q=80',
-            customer: {
-              name: co.name || 'Sathya Partner',
-              role: 'Registered Car Owner',
-              phone: co.phone || '+91 96301 47852',
-              avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=100&q=80'
+        const distinctCarName = co.carName || co.vehicleName || (idx === 0 ? 'Hyundai Creta SX' : idx === 1 ? 'Honda City i-VTEC' : 'Mahindra Thar LX');
+        const distinctPlate = co.plate || co.vehiclePlate || (idx === 0 ? 'TN29AZ7788' : idx === 1 ? 'TN29U6548' : 'TN29AB9911');
+        
+        realVehicles.push({
+          id: co.id || `real_${idx}`,
+          code: `#CO-${101 + idx}`,
+          name: distinctCarName,
+          plate: distinctPlate,
+          status: 'In use',
+          statusColor: idx % 2 === 0 ? '#10b981' : '#3b82f6',
+          image: co.image || co.imageUrl || (idx === 1 ? 'https://images.unsplash.com/photo-1590362891991-f776e747a588?auto=format&fit=crop&w=400&q=80' : 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=400&q=80'),
+          customer: {
+            name: co.name || (idx === 0 ? 'Sathya' : 'Pooja'),
+            role: 'Registered Vehicle Partner',
+            phone: co.phone || '+91 96301 47852',
+            avatar: idx === 1 ? 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=100&q=80' : 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=100&q=80'
+          },
+          coords: [12.1290 + (idx * 0.008), 78.1620 + (idx * 0.008)],
+          distance: `${12 + idx * 5} kms`,
+          duration: `${2 + idx} h 30 min`,
+          activities: [
+            {
+              title: 'Dharmapuri Hub Waypoint',
+              time: 'Today at 08:30 AM',
+              coords: [12.1310, 78.1590],
+              speed: '40 km/h',
+              telemetry: 'Check-in waypoint • Live Satellite Signal Active'
             },
-            coords: [12.1290 + (idx * 0.008), 78.1620 + (idx * 0.008)],
-            distance: `${12 + idx * 5} kms`,
-            duration: `${2 + idx} h 30 min`,
-            activities: [
-              {
-                title: 'Dharmapuri Hub Waypoint',
-                time: 'Today at 08:30 AM',
-                coords: [12.1310, 78.1590],
-                speed: '40 km/h',
-                telemetry: 'Check-in waypoint • Live Satellite Signal Active'
-              },
-              {
-                title: 'Pidamaneri Main Road',
-                time: 'Today at 10:15 AM',
-                coords: [12.1290, 78.1620],
-                speed: '35 km/h',
-                telemetry: 'Active Waypoint Stop • Vehicle In Use'
-              }
-            ]
-          });
-        }
+            {
+              title: 'Pidamaneri Main Road',
+              time: 'Today at 10:15 AM',
+              coords: [12.1290, 78.1620],
+              speed: '35 km/h',
+              telemetry: 'Active Waypoint Stop • Vehicle In Use'
+            }
+          ]
+        });
       });
 
       if (realVehicles.length > 0) return realVehicles;

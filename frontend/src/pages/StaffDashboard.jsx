@@ -635,10 +635,10 @@ export default function StaffDashboard() {
       )}
 
       {/* MAIN LAYOUT */}
-      <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
+      <div className="dashboard-layout" style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
         
         {/* SIDEBAR NAVIGATION */}
-        <aside style={{ width: '230px', background: '#ffffff', borderRight: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
+        <aside className="dashboard-sidebar" style={{ width: '230px', background: '#ffffff', borderRight: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
           <div style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid #f1f5f9' }}>
             <div style={{ fontWeight: 800, color: '#1e293b', fontSize: '0.85rem' }}>Clerk Desk</div>
             <div style={{ fontSize: '0.72rem', color: '#64748b', marginTop: '2px' }}>logged in: {user?.name || 'Amit Patel'}</div>
@@ -667,7 +667,7 @@ export default function StaffDashboard() {
         </aside>
 
         {/* MAIN PANEL CONTENT */}
-        <main style={{ flex: 1, padding: '2rem', overflowY: 'auto', background: '#f8fafc' }}>
+        <main className="dashboard-main" style={{ flex: 1, padding: '2rem', overflowY: 'auto', background: '#f8fafc' }}>
 
           {/* 1. DASHBOARD */}
           {activeNav === 'dashboard' && (

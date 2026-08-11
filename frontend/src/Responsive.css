@@ -1,0 +1,602 @@
+/* Responsive adjustments for mobile and tablet */
+
+/* Tablet View (Max 992px) */
+@media (max-width: 992px) {
+  /* Fleet Layout Adjustments */
+  .fleet-v2-how-steps-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  .fleet-v2-trust-bar {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  .fleet-v2-locations {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+  .fleet-v2-footer {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+  .fleet-v2-car-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  
+  /* Hero section */
+  .fleet-v2-hero-title {
+    font-size: 3.5rem !important;
+  }
+  .fleet-v2-hero-content {
+    flex-direction: column !important;
+    text-align: center !important;
+    gap: 2rem !important;
+  }
+  .fleet-v2-hero-left {
+    max-width: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+  }
+  
+  /* Booking card */
+  .fleet-v2-booking-card {
+    width: 100% !important;
+    max-width: 500px !important;
+    margin: 0 auto !important;
+  }
+  
+  /* Banner */
+  .fleet-v2-banner-right-bg {
+    display: none !important;
+  }
+  .fleet-v2-banner-person-img {
+    display: none !important;
+  }
+  .fleet-v2-banner-content {
+    max-width: 100% !important;
+    text-align: center !important;
+  }
+  
+  /* Stats */
+  .fleet-v2-stats-bar {
+    flex-wrap: wrap !important;
+    gap: 1.5rem !important;
+    justify-content: center !important;
+    padding: 2rem !important;
+  }
+  
+  /* Prefooter */
+  .fleet-v2-prefooter {
+    flex-direction: column !important;
+    text-align: center !important;
+  }
+  .fleet-v2-prefooter-left {
+    flex-direction: column !important;
+  }
+  
+  /* Navbar */
+  .app-navbar {
+    padding: 0.85rem 1.5rem !important;
+    flex-wrap: wrap !important;
+    position: relative;
+    z-index: 1000;
+  }
+  .app-navbar-brand-row {
+    margin-bottom: 0 !important;
+  }
+  .app-navbar-hamburger {
+    display: block !important;
+    position: relative;
+    z-index: 1001;
+  }
+  .app-navbar-menu-wrapper {
+    display: none;
+    flex-direction: column;
+    width: 100%;
+    margin-top: 1.5rem;
+    gap: 1.5rem;
+  }
+  .app-navbar-menu-wrapper.mobile-open {
+    display: flex !important;
+  }
+  .app-navbar-links {
+    flex-direction: column !important;
+    margin: 0 !important;
+    gap: 1rem !important;
+    width: 100% !important;
+    align-items: center !important;
+  }
+  .app-navbar-actions {
+    flex-direction: column !important;
+    width: 100% !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+}
+
+/* Mobile View (Max 768px) */
+@media (max-width: 768px) {
+  /* Fleet Layout Adjustments */
+  .fleet-v2-how-steps-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .fleet-v2-trust-bar {
+    grid-template-columns: 1fr !important;
+  }
+  .fleet-v2-locations {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  .fleet-v2-footer {
+    grid-template-columns: 1fr !important;
+    text-align: center !important;
+    padding: 2.5rem 1.5rem !important;
+  }
+  .fleet-v2-footer-brand-title {
+    justify-content: center !important;
+  }
+  .fleet-v2-social-icons {
+    justify-content: center !important;
+  }
+  .fleet-v2-car-grid {
+    grid-template-columns: 1fr !important;
+  }
+  
+  /* Hero section */
+  .fleet-v2-hero-title {
+    font-size: 2.5rem !important;
+  }
+  .fleet-v2-hero-subtitle {
+    font-size: 1rem !important;
+  }
+  
+  /* Sections */
+  .fleet-v2-section {
+    padding: 2.5rem 1rem !important;
+  }
+  
+  /* Stats */
+  .fleet-v2-stats-bar {
+    padding: 1.5rem !important;
+    margin: -30px 1rem 3rem !important;
+  }
+  
+  /* Banner */
+  .fleet-v2-banner {
+    padding: 1rem !important;
+    border-radius: 16px !important;
+  }
+  .fleet-v2-banner-title {
+    font-size: 1.8rem !important;
+  }
+  
+  /* Navbar */
+  .app-navbar {
+    padding: 0.85rem 1rem !important;
+  }
+  .fleet-v2-nav {
+    flex-direction: column !important;
+    padding: 1rem !important;
+    gap: 1rem !important;
+  }
+  .fleet-v2-nav-links {
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+  }
+  
+  /* Custom Adjustments for Mobile alignment */
+  .fleet-v2-nav-actions {
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    width: 100% !important;
+  }
+  .fleet-v2-nav-actions button {
+    flex: 1 1 auto !important;
+    padding: 0.75rem !important;
+    font-size: 0.85rem !important;
+  }
+  
+  /* AI Vehicle Finder */
+  .ai-finder-card {
+    flex-direction: column !important;
+    padding: 1.25rem 1rem !important;
+    gap: 1.25rem !important;
+    border-radius: 18px !important;
+  }
+  .ai-finder-left {
+    width: 100% !important;
+  }
+  .ai-finder-inputs {
+    flex-wrap: wrap !important;
+    gap: 0.5rem !important;
+  }
+  .ai-finder-inputs > div {
+    min-width: 47% !important;
+    flex: 1 1 47% !important;
+  }
+  .ai-finder-btn {
+    width: 100% !important;
+  }
+  .ai-finder-right {
+    display: flex !important;
+    width: 100% !important;
+    flex: 1 1 100% !important;
+    min-height: 180px !important;
+    padding: 1rem !important;
+    margin-top: 0.5rem !important;
+  }
+  
+  /* LandingPage Footer */
+  .fleet-v2-footer-grid {
+    grid-template-columns: 1fr !important;
+    text-align: center !important;
+    gap: 1.5rem !important;
+  }
+  .fleet-v2-footer-grid ul {
+    align-items: center !important;
+  }
+  
+  /* AboutSupport Page */
+  .about-hero-section {
+    flex-direction: column !important;
+    text-align: center !important;
+    gap: 2rem !important;
+    padding: 2rem 5% !important;
+  }
+  .about-hero-title {
+    font-size: 2.5rem !important;
+  }
+  .about-stats-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1.5rem !important;
+    justify-content: center !important;
+  }
+  .about-policy-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .about-policy-card-left, .about-policy-card-right {
+    padding: 2rem !important;
+  }
+  
+  /* FAQ & Common Page Headers */
+  .faq-page-title, .page-header-title {
+    font-size: 2rem !important;
+  }
+  
+  /* Dashboards Responsive */
+  .dashboard-layout {
+    flex-direction: column !important;
+  }
+  .dashboard-sidebar {
+    width: 100% !important;
+    height: auto !important;
+    max-height: 350px !important;
+    overflow-y: auto !important;
+    border-right: none !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+    position: relative !important;
+  }
+  .dashboard-main {
+    padding: 1rem !important;
+  }
+  
+  /* Make tables responsive in dashboards */
+  table {
+    display: block !important;
+    overflow-x: auto !important;
+    white-space: nowrap !important;
+  }
+  
+  .location-form-grid {
+    grid-template-columns: 1fr !important;
+  }
+  
+  /* Fleet V2 Landing Page Responsive */
+  .fleet-v2-nav {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    flex-wrap: nowrap !important;
+    padding: 0.75rem 1rem !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 1000 !important;
+    background: #ffffff !important;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05) !important;
+  }
+
+  .fleet-v2-mobile-hamburger {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: none !important;
+    border: none !important;
+    font-size: 1.5rem !important;
+    cursor: pointer !important;
+    color: #1f140b !important;
+    padding: 0.3rem !important;
+    margin-right: 0.5rem !important;
+  }
+  
+  .fleet-v2-nav-brand {
+    margin: 0 auto 0 0 !important;
+  }
+  
+  .fleet-v2-nav-links {
+    display: none !important;
+  }
+  
+  .fleet-v2-nav-actions {
+    margin-left: auto !important;
+    gap: 0.4rem !important;
+  }
+
+  .fleet-v2-partner-btn {
+    display: none !important; /* Hide long button on header in mobile mode */
+  }
+
+  .fleet-v2-user-btn {
+    padding: 0.4rem 0.6rem !important;
+    font-size: 1.1rem !important;
+    border-radius: 50px !important;
+  }
+
+  .fleet-v2-user-name {
+    display: none !important; /* Icon-only in navbar header on mobile */
+  }
+
+  .fleet-v2-mobile-menu-drawer {
+    position: absolute !important;
+    top: 100% !important;
+    left: 0 !important;
+    right: 0 !important;
+    background: #ffffff !important;
+    border-bottom: 2px solid #e2d7c5 !important;
+    padding: 1.25rem 1.5rem !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.9rem !important;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.15) !important;
+    z-index: 1001 !important;
+  }
+
+  .fleet-v2-mobile-menu-drawer a {
+    color: #1f140b !important;
+    font-weight: 700 !important;
+    text-decoration: none !important;
+    font-size: 1rem !important;
+    padding: 0.4rem 0 !important;
+  }
+
+  .fleet-v2-mobile-menu-drawer button {
+    width: 100% !important;
+    padding: 0.75rem !important;
+    font-size: 0.9rem !important;
+  }
+  
+  .fleet-v2-hero-content {
+    flex-direction: column !important;
+    text-align: left !important;
+    padding: 2.5rem 1rem 2rem 1rem !important;
+  }
+  
+  .fleet-v2-hero-left {
+    align-items: flex-start !important;
+  }
+  
+  .fleet-v2-booking-tabs {
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+  }
+  
+  .fleet-v2-booking-grid {
+    grid-template-columns: 1fr !important;
+  }
+  
+  .fleet-v2-stats-bar {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 0.75rem !important;
+    padding: 0.5rem 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    margin-top: 1rem !important;
+  }
+
+  .fleet-v2-stats-bar > div {
+    background: #ffffff !important;
+    padding: 0.85rem 0.5rem !important;
+    border-radius: 12px !important;
+    border: 1px solid #f2eadf !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+    gap: 0.3rem !important;
+  }
+  
+  .fleet-v2-car-grid {
+    grid-template-columns: 1fr !important;
+  }
+  
+  .fleet-v2-how-steps-grid {
+    grid-template-columns: 1fr !important;
+  }
+  
+  .fleet-v2-prefooter {
+    flex-direction: column !important;
+    text-align: center !important;
+    padding: 1.5rem !important;
+  }
+  
+  .fleet-v2-prefooter-left {
+    flex-direction: column !important;
+  }
+  
+  .fleet-v2-footer {
+    grid-template-columns: 1fr !important;
+    text-align: center !important;
+    gap: 1.5rem !important;
+  }
+  
+  .fleet-v2-social-icons {
+    justify-content: center !important;
+  }
+  
+  /* AboutSupportPage Responsive Styles */
+  .about-hero-section {
+    flex-direction: column !important;
+    gap: 2rem !important;
+    padding: 2rem 5% !important;
+  }
+  
+  .about-hero-title {
+    font-size: 2.5rem !important;
+  }
+  
+  .about-stats-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 1rem !important;
+  }
+  
+  .about-stats-grid > div {
+    background: #fff;
+    padding: 1rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(123, 79, 44, 0.05);
+    flex-direction: column;
+    text-align: center;
+    gap: 0.5rem !important;
+  }
+  
+  .about-policy-section {
+    padding: 0 5% 2rem !important;
+  }
+  
+  .about-policy-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 2rem !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+  }
+  
+  .about-policy-divider {
+    display: none !important;
+  }
+  
+  .about-policy-badge {
+    display: none !important; /* Hide badge on mobile as it overlaps text */
+  }
+  
+  .about-policy-card-left, .about-policy-card-right {
+    background: #FFFFFF !important;
+    border-radius: 20px !important;
+    padding: 2.5rem 1.5rem !important;
+    box-shadow: 0 10px 30px rgba(123, 79, 44, 0.08) !important;
+    border: 1.5px solid #EAE0D5 !important;
+  }
+  
+  .about-support-cards-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1.5rem !important;
+  }
+  
+  .faq-container {
+    flex-direction: column !important;
+    gap: 2rem !important;
+    padding: 2rem 5% !important;
+  }
+  
+  .ai-finder-card {
+    padding: 1.5rem !important;
+    gap: 1.5rem !important;
+  }
+  
+  .ai-finder-right {
+    display: flex !important;
+    width: 100% !important;
+    min-height: 200px !important;
+  }
+  
+  /* Feature Details Page */
+  .feature-details-card {
+    padding: 2rem !important;
+  }
+  .feature-details-buttons {
+    flex-wrap: wrap !important;
+  }
+  .feature-details-buttons button {
+    width: 100% !important;
+  }
+}
+
+/* Base Navbar specific CSS (Non-Mobile) */
+.app-navbar {
+  background: #161616;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 0.85rem 3rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+.app-navbar-brand-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.app-navbar-links {
+  display: flex;
+  align-items: center;
+  gap: 2.5rem;
+  list-style: none;
+  margin: 0 3.5rem 0 auto;
+  padding: 0;
+}
+.app-navbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.app-navbar-hamburger {
+  display: none;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.8rem;
+  cursor: pointer;
+  padding: 0.5rem;
+}
+.app-navbar-menu-wrapper {
+  display: flex;
+  flex: 1;
+  align-items: center;
+}
+
+@media (max-width: 1024px) and (min-width: 769px) {
+  /* AboutSupportPage Tablet Responsive */
+  .about-hero-section {
+    gap: 2rem !important;
+    padding: 2rem 5% !important;
+  }
+  .about-hero-title {
+    font-size: 2.8rem !important;
+  }
+  .about-stats-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 1.5rem !important;
+  }
+  .about-policy-card-left, .about-policy-card-right {
+    padding: 2.5rem !important;
+  }
+  .about-support-cards-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 1.5rem !important;
+  }
+  .faq-container {
+    flex-direction: column !important;
+    gap: 2rem !important;
+    padding: 2rem 5% !important;
+  }
+}

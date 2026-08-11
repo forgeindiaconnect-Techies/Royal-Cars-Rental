@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import FaceScanModal from '../components/FaceScanModal';
+import BookingChatModal from '../components/BookingChatModal';
 import { getValidImageUrl, handleImageError } from '../utils/imageUtils';
 
 export default function DriverDashboard() {
@@ -12,6 +13,26 @@ export default function DriverDashboard() {
   const fileInputRef = useRef(null);
   const [activeNav, setActiveNav] = useState('dashboard');
   const [notice, setNotice] = useState('');
+  const [bypassPending, setBypassPending] = useState(false);
+  const [selectedChatBooking, setSelectedChatBooking] = useState(null);
+  const [showDispatchPopup, setShowDispatchPopup] = useState(true);
+  const [dispatchRequests, setDispatchRequests] = useState([
+    {
+      id: 'BK-2026-5475',
+      bookingId: 'BK-2026-5475',
+      customerName: 'Shanu (Customer)',
+      customerPhone: '+91 98421 99887',
+      vehicleName: 'Toyota Innova 2023',
+      pickupLocation: 'Chennai Airport Terminal 2',
+      dropLocation: 'Pondicherry Rock Beach',
+      startDate: '2026-08-10',
+      endDate: '2026-08-12',
+      allowance: 2700,
+      pickupTime: '09:30 AM',
+      notes: 'Customer requested experienced Chauffeur.',
+      status: 'Pending Approval'
+    }
+  ]);
   const showNotification = (msg) => {
     setNotice(msg);
     setTimeout(() => setNotice(''), 4000);
@@ -42,12 +63,28 @@ export default function DriverDashboard() {
       }
     } catch (e) {}
 
-    // For brand new drivers (e.g. lokee@gmail.com), start with clean empty array []
+    // For brand new drivers, start with clean empty array []
     return [];
   });
 
   useEffect(() => {
-    localStorage.setItem(`driver_attendance_logs_${driverEmailKey}`, JSON.stringify(attendanceLogs));
+    try {
+      const sanitizedLogs = (attendanceLogs || []).slice(0, 15).map(log => ({
+        ...log,
+        driverPhoto: (log.driverPhoto && log.driverPhoto.length > 250 && log.driverPhoto.startsWith('data:image'))
+          ? 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100'
+          : log.driverPhoto,
+        avatar: (log.avatar && log.avatar.length > 250 && log.avatar.startsWith('data:image'))
+          ? 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100'
+          : log.avatar
+      }));
+      localStorage.setItem(`driver_attendance_logs_${driverEmailKey}`, JSON.stringify(sanitizedLogs));
+    } catch (e) {
+      console.warn('LocalStorage quota limit caught safely:', e);
+      try {
+        localStorage.removeItem(`driver_attendance_logs_${driverEmailKey}`);
+      } catch (err) {}
+    }
   }, [attendanceLogs, driverEmailKey]);
   // GPS & Map Telemetry States & Refs
   const [gpsCoords, setGpsCoords] = useState({ lat: 13.0827, lng: 80.2707 });
@@ -280,26 +317,9 @@ export default function DriverDashboard() {
 
   const handleToggleDutyStatus = () => {
     if (!isOnDuty) {
-      if (gpsPermissionStatus !== 'granted') {
-        requestGpsPermission();
-      }
-      setIsOnDuty(true);
-      setIsCheckedIn(true);
-      setIsGpsSharing(true);
-      localStorage.setItem('driver_checked_in', 'true');
-      localStorage.setItem('driver_on_duty', 'true');
-      localStorage.setItem('driver_gps_sharing', 'true');
-      showNotification(`Duty status set to ON DUTY 🟢. GPS Tracking START.`);
-      sendTelemetryUpdate(gpsCoords.lat, gpsCoords.lng, 45, 'ON DUTY');
+      handleStartAttendanceScan('in');
     } else {
-      setIsOnDuty(false);
-      setIsCheckedIn(false);
-      setIsGpsSharing(false);
-      localStorage.setItem('driver_checked_in', 'false');
-      localStorage.setItem('driver_on_duty', 'false');
-      localStorage.setItem('driver_gps_sharing', 'false');
-      showNotification(`Duty status set to OFF DUTY 🔴. GPS Tracking STOP.`);
-      sendTelemetryUpdate(gpsCoords.lat, gpsCoords.lng, 0, 'OFF DUTY');
+      handleStartAttendanceScan('out');
     }
   };
 
@@ -334,6 +354,9 @@ export default function DriverDashboard() {
 
   const handleStartAttendanceScan = (action) => {
     setPunchActionType(action);
+    if (gpsPermissionStatus !== 'granted') {
+      requestGpsPermission();
+    }
     setIsFaceModalOpen(true);
   };
 
@@ -376,10 +399,19 @@ export default function DriverDashboard() {
 
       try {
         const companyLogs = JSON.parse(localStorage.getItem('company_attendance_logs') || '[]');
-        localStorage.setItem('company_attendance_logs', JSON.stringify([newLog, ...companyLogs.filter(l => l.email !== newLog.email && l.name !== newLog.name)]));
-        const driverLogs = JSON.parse(localStorage.getItem(`driver_attendance_logs_${driverEmailKey}`) || '[]');
-        localStorage.setItem(`driver_attendance_logs_${driverEmailKey}`, JSON.stringify([newLog, ...driverLogs]));
-      } catch (e) {}
+        const cleanLog = {
+          ...newLog,
+          driverPhoto: (newLog.driverPhoto && newLog.driverPhoto.length > 250 && newLog.driverPhoto.startsWith('data:image'))
+            ? 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100'
+            : newLog.driverPhoto,
+          avatar: (newLog.avatar && newLog.avatar.length > 250 && newLog.avatar.startsWith('data:image'))
+            ? 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100'
+            : newLog.avatar
+        };
+        localStorage.setItem('company_attendance_logs', JSON.stringify([cleanLog, ...companyLogs.filter(l => l.email !== cleanLog.email && l.name !== cleanLog.name).slice(0, 20)]));
+      } catch (e) {
+        console.warn('Quota limit handled for company attendance logs:', e);
+      }
 
       showNotification('🟢 Attendance Marked & ON DUTY GPS Active!');
     } else {
@@ -708,10 +740,16 @@ export default function DriverDashboard() {
       headers['x-mock-role'] = 'driver';
       headers['x-company-name'] = localStorage.getItem('company_name') || user?.company?.name || 'DriveX Rentals';
 
-      // Load locally assigned bookings from Company Admin Dashboard
+      // Load locally assigned bookings from all registries (Company Admin, Customer, Company Roster)
       const localAssigned = JSON.parse(localStorage.getItem('company_assigned_bookings') || '[]');
-      const formattedLocal = localAssigned.map(b => ({
-        id: b._id || b.id || 'TRIP-LOCAL',
+      const localCompany  = JSON.parse(localStorage.getItem('company_bookings_list') || '[]');
+      const localCustomer = JSON.parse(localStorage.getItem('customer_bookings_list') || '[]');
+
+      const allCombinedLocal = [...localAssigned, ...localCompany, ...localCustomer];
+
+      const formattedLocal = allCombinedLocal.map(b => ({
+        id: b.id || b.bookingId || b._id || 'TRIP-LOCAL',
+        bookingId: b.bookingId || b.id || b._id,
         customerName: b.customerName || (typeof b.customerId === 'object' ? b.customerId?.name : 'Renter User'),
         customerPhone: b.customerPhone || (typeof b.customerId === 'object' ? b.customerId?.mobile || b.customerId?.email : '+91 98765 43210'),
         vehicleName: b.vehicleName || (typeof b.vehicleId === 'object' ? `${b.vehicleId?.make} ${b.vehicleId?.model}` : 'Rental Vehicle'),
@@ -802,14 +840,64 @@ export default function DriverDashboard() {
 
 
 
+  const handleClaimDispatchRequest = (booking) => {
+    const driverName = user?.name || localStorage.getItem('driver_name') || 'Thirsha (Chauffeur Driver)';
+    const updatedTrip = {
+      _id: booking._id || booking.id,
+      id: booking.id || booking._id,
+      bookingId: booking.bookingId || booking.id,
+      vehicleName: booking.vehicleName || 'Toyota Innova 2023',
+      customerName: booking.customerName || 'Shanu (Customer)',
+      customerPhone: booking.customerPhone || '+91 98421 99887',
+      startDate: booking.startDate || '2026-08-10',
+      endDate: booking.endDate || '2026-08-12',
+      pickupTime: booking.pickupTime || '09:30 AM',
+      pickupLocation: booking.pickupLocation || 'Chennai Airport',
+      dropLocation: booking.dropLocation || 'Pondicherry',
+      status: 'Confirmed',
+      driverAssigned: driverName,
+      driverName: driverName,
+      hasDriver: true,
+      allowance: booking.allowance || 2700,
+      notes: booking.notes || 'Chauffeur trip accepted by driver'
+    };
+
+    setAssignedTrips(prev => [updatedTrip, ...prev.filter(t => String(t.id) !== String(booking.id))]);
+    setTripStatus('In Trip');
+    setDispatchRequests(prev => prev.filter(r => String(r.id) !== String(booking.id)));
+    setShowDispatchPopup(false);
+
+    try {
+      const compBookings = JSON.parse(localStorage.getItem('company_bookings_list') || '[]');
+      const updatedComp = compBookings.map(b => (String(b.id) === String(booking.id) || String(b.bookingId) === String(booking.id)) ? { ...b, status: 'Confirmed', driverAssigned: driverName, driverName } : b);
+      localStorage.setItem('company_bookings_list', JSON.stringify(updatedComp));
+
+      const custBookings = JSON.parse(localStorage.getItem('customer_bookings_list') || '[]');
+      const updatedCust = custBookings.map(b => (String(b.id) === String(booking.id) || String(b.bookingId) === String(booking.id)) ? { ...b, status: 'Confirmed', driverAssigned: driverName, driverName } : b);
+      localStorage.setItem('customer_bookings_list', JSON.stringify(updatedCust));
+    } catch(e) {}
+
+    showNotification(`✅ Dispatch Request ${booking.id} claimed! Trip assigned to you.`);
+  };
+
   const handleUpdateTripStatus = async (tripId, newStatus) => {
     // 1. Update local state immediately for instant UI feedback
     setAssignedTrips(prev => prev.map(trip => String(trip.id) === String(tripId) ? { ...trip, status: newStatus } : trip));
 
-    // 2. Persist to company_assigned_bookings in localStorage
-    const localAssigned = JSON.parse(localStorage.getItem('company_assigned_bookings') || '[]');
-    const updatedLocal = localAssigned.map(b => String(b._id || b.id) === String(tripId) ? { ...b, status: newStatus } : b);
-    localStorage.setItem('company_assigned_bookings', JSON.stringify(updatedLocal));
+    // 2. Persist to company_assigned_bookings, company_bookings_list, and customer_bookings_list in localStorage
+    try {
+      const localAssigned = JSON.parse(localStorage.getItem('company_assigned_bookings') || '[]');
+      const updatedLocal = localAssigned.map(b => String(b._id || b.id || b.bookingId) === String(tripId) ? { ...b, status: newStatus } : b);
+      localStorage.setItem('company_assigned_bookings', JSON.stringify(updatedLocal));
+
+      const localComp = JSON.parse(localStorage.getItem('company_bookings_list') || '[]');
+      const updatedComp = localComp.map(b => String(b._id || b.id || b.bookingId) === String(tripId) ? { ...b, status: newStatus } : b);
+      localStorage.setItem('company_bookings_list', JSON.stringify(updatedComp));
+
+      const localCust = JSON.parse(localStorage.getItem('customer_bookings_list') || '[]');
+      const updatedCust = localCust.map(b => String(b._id || b.id || b.bookingId) === String(tripId) ? { ...b, status: newStatus } : b);
+      localStorage.setItem('customer_bookings_list', JSON.stringify(updatedCust));
+    } catch(e) {}
 
     showNotification(`✓ Trip status updated to: ${newStatus.replace('_', ' ').toUpperCase()}`);
 
@@ -843,8 +931,44 @@ export default function DriverDashboard() {
     badge: '★ Elite Chauffeur'
   };
 
+  const [tripStatus, setTripStatus] = useState('Assigned');
+
+  const [assignedVehicle, setAssignedVehicle] = useState(() => {
+    try {
+      const savedVehicle = localStorage.getItem(`driver_assigned_vehicle_${driverEmailKey}`);
+      if (savedVehicle) return JSON.parse(savedVehicle);
+
+      const registry = JSON.parse(localStorage.getItem('company_drivers_registry') || '[]');
+      const approved = JSON.parse(localStorage.getItem('approved_drivers') || '[]');
+      const allDrv = [...registry, ...approved];
+
+      const driverNameClean = (user?.name || 'Ramesh').toLowerCase();
+      const matched = allDrv.find(d => 
+        (d.email && user?.email && d.email.toLowerCase() === user.email.toLowerCase()) || 
+        (d.name && d.name.toLowerCase().includes(driverNameClean))
+      );
+
+      if (matched && matched.assignedVehicle && matched.assignedVehicle !== 'Not Assigned') {
+        return {
+          model: matched.assignedVehicleModel || 'Hyundai Creta',
+          plate: matched.assignedVehiclePlate || 'TN 01 AB 1234',
+          name: matched.assignedVehicle,
+          status: matched.status || 'Assigned'
+        };
+      }
+    } catch(e) {}
+
+    return {
+      model: 'Hyundai Creta',
+      plate: 'TN 01 AB 1234',
+      name: 'TN 01 AB 1234 - Hyundai Creta',
+      status: 'Assigned'
+    };
+  });
+
   const NAV_ITEMS = [
     { id: 'dashboard', label: 'Dashboard' },
+    { id: 'dispatch-requests', label: '📢 Available Dispatch Requests' },
     { id: 'attendance', label: 'Attendance Logs' },
     { id: 'gps', label: 'GPS Tracking Sync' },
     { id: 'my-bookings', label: 'My Bookings' },
@@ -972,7 +1096,7 @@ export default function DriverDashboard() {
     );
   }
 
-  if (user?.status === 'Pending Approval' || user?.status === 'pending_approval') {
+  if ((user?.status === 'Pending Approval' || user?.status === 'pending_approval') && !bypassPending) {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: '#f8fafc', padding: '2rem', fontFamily: 'Inter, system-ui, sans-serif' }}>
         <div style={{ background: '#ffffff', borderRadius: '24px', padding: '3rem 2.5rem', maxWidth: '580px', width: '100%', textAlign: 'center', boxShadow: '0 20px 40px rgba(0,0,0,0.06)', border: '1px solid #e2e8f0' }}>
@@ -984,9 +1108,14 @@ export default function DriverDashboard() {
           <div style={{ background: '#fef3c7', border: '1px solid #fde68a', color: '#b45309', padding: '0.85rem', borderRadius: '12px', fontSize: '0.85rem', fontWeight: 800, marginBottom: '1.5rem' }}>
             🟡 Driver Status: Pending Verification
           </div>
-          <button onClick={logout} style={{ background: '#0f172a', color: '#fff', border: 'none', padding: '0.75rem 2rem', borderRadius: '10px', fontWeight: 800, fontSize: '0.88rem', cursor: 'pointer' }}>
-            Back to Home Page
-          </button>
+          <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <button onClick={() => setBypassPending(true)} style={{ background: '#2563eb', color: '#fff', border: 'none', padding: '0.75rem 1.5rem', borderRadius: '10px', fontWeight: 800, fontSize: '0.88rem', cursor: 'pointer', boxShadow: '0 4px 12px rgba(37,99,235,0.3)' }}>
+              🔓 Open Driver Console Now (Demo Mode)
+            </button>
+            <button onClick={logout} style={{ background: '#f1f5f9', color: '#475569', border: '1px solid #cbd5e1', padding: '0.75rem 1.5rem', borderRadius: '10px', fontWeight: 800, fontSize: '0.88rem', cursor: 'pointer' }}>
+              Back to Home Page
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -1141,10 +1270,10 @@ export default function DriverDashboard() {
       )}
 
       {/* MAIN LAYOUT */}
-      <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
+      <div className="dashboard-layout" style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
         
         {/* SIDEBAR NAVIGATION */}
-        <aside style={{ width: '230px', background: '#ffffff', borderRight: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
+        <aside className="dashboard-sidebar" style={{ width: '230px', background: '#ffffff', borderRight: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
           <nav style={{ flex: 1, padding: '0.75rem 0', overflowY: 'auto' }}>
             {NAV_ITEMS.map(item => {
               const isActive = activeNav === item.id;
@@ -1169,7 +1298,7 @@ export default function DriverDashboard() {
         </aside>
 
         {/* CONTENT AREA */}
-        <main style={{ flex: 1, padding: '1.75rem', overflowY: 'auto' }}>
+        <main className="dashboard-main" style={{ flex: 1, padding: '1.75rem', overflowY: 'auto' }}>
 
           {/* ATTENDANCE & AUTOMATIC GPS STATUS BANNER */}
           {!isCheckedIn ? (
@@ -1219,6 +1348,55 @@ export default function DriverDashboard() {
             </div>
           )}
 
+          {/* FLOATING AVAILABLE DISPATCH REQUEST POPUP ALERT BANNER */}
+          {showDispatchPopup && dispatchRequests.length > 0 && (
+            <div style={{ background: 'linear-gradient(135deg, #1e3a8a, #2563eb)', color: '#ffffff', padding: '1.25rem 1.5rem', borderRadius: '16px', marginBottom: '1.5rem', boxShadow: '0 12px 30px rgba(37,99,235,0.3)', border: '1px solid rgba(255,255,255,0.2)', position: 'relative', animation: 'fadeIn 0.3s ease-out' }}>
+              <button 
+                onClick={() => setShowDispatchPopup(false)} 
+                style={{ position: 'absolute', top: '12px', right: '16px', background: 'rgba(255,255,255,0.2)', border: 'none', color: '#fff', width: '28px', height: '28px', borderRadius: '50%', cursor: 'pointer', fontWeight: 900 }}
+              >
+                ×
+              </button>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
+                <span style={{ fontSize: '1.8rem' }}>📢</span>
+                <div>
+                  <div style={{ fontSize: '1.15rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.5px' }}>New Chauffeur Trip Request Available!</div>
+                  <div style={{ fontSize: '0.82rem', color: '#bfdbfe' }}>An unassigned customer booking is looking for an available driver. Click accept to claim this trip!</div>
+                </div>
+              </div>
+
+              <div style={{ background: 'rgba(255,255,255,0.1)', padding: '1rem', borderRadius: '12px', backdropFilter: 'blur(4px)', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.85rem', marginBottom: '1rem', fontSize: '0.85rem' }}>
+                <div><strong>Vehicle:</strong> {dispatchRequests[0].vehicleName}</div>
+                <div><strong>Renter Customer:</strong> {dispatchRequests[0].customerName} ({dispatchRequests[0].customerPhone})</div>
+                <div><strong>Route:</strong> {dispatchRequests[0].pickupLocation} ➔ {dispatchRequests[0].dropLocation}</div>
+                <div><strong>Schedule:</strong> {dispatchRequests[0].startDate} to {dispatchRequests[0].endDate}</div>
+                <div><strong>Allowance:</strong> ₹{dispatchRequests[0].allowance}</div>
+              </div>
+
+              <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                <button
+                  onClick={() => handleClaimDispatchRequest(dispatchRequests[0])}
+                  style={{ background: '#10b981', color: '#ffffff', border: 'none', padding: '0.75rem 1.5rem', borderRadius: '10px', fontWeight: 900, fontSize: '0.9rem', cursor: 'pointer', boxShadow: '0 4px 12px rgba(16,185,129,0.4)' }}
+                >
+                  🟢 Accept & Claim Trip Assignment
+                </button>
+                <button
+                  onClick={() => { setActiveNav('dispatch-requests'); setShowDispatchPopup(false); }}
+                  style={{ background: 'rgba(255,255,255,0.2)', color: '#ffffff', border: '1px solid rgba(255,255,255,0.4)', padding: '0.75rem 1.25rem', borderRadius: '10px', fontWeight: 800, fontSize: '0.88rem', cursor: 'pointer' }}
+                >
+                  📋 View All Available Requests ({dispatchRequests.length})
+                </button>
+                <button
+                  onClick={() => setSelectedChatBooking(dispatchRequests[0])}
+                  style={{ background: 'rgba(255,255,255,0.15)', color: '#ffffff', border: 'none', padding: '0.75rem 1.25rem', borderRadius: '10px', fontWeight: 800, fontSize: '0.88rem', cursor: 'pointer' }}
+                >
+                  💬 Chat Customer
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* TOP STAT CARDS DISPLAYED IN ALL TABS */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
             <div className="card" style={{ padding: '1.25rem', borderLeft: '4px solid #2563eb' }}>
@@ -1248,6 +1426,75 @@ export default function DriverDashboard() {
               <div style={{ marginBottom: '1.5rem' }}>
                 <h2 style={{ fontSize: '1.6rem', fontFamily: 'var(--font-heading)', marginBottom: '0.2rem' }}>Driver Overview Dashboard</h2>
                 <p style={{ color: '#64748b', fontSize: '0.88rem' }}>Welcome back, {driverProfile.name}. Here is your operational status today:</p>
+              </div>
+
+              {/* YOUR ASSIGNED VEHICLE CARD */}
+              <div className="card" style={{ padding: '1.5rem', background: '#ffffff', borderRadius: '16px', border: '1.5px solid #3b82f6', marginBottom: '1.5rem', boxShadow: '0 8px 25px rgba(59,130,246,0.1)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: '#eff6ff', color: '#2563eb', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', fontWeight: 900 }}>
+                      🚗
+                    </div>
+                    <div>
+                      <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 900, color: '#0f172a' }}>Your Assigned Vehicle</h3>
+                      <div style={{ fontSize: '0.8rem', color: '#64748b' }}>Assigned by Company Operations</div>
+                    </div>
+                  </div>
+                  <span style={{ background: tripStatus === 'In Trip' ? '#ecfdf5' : '#eff6ff', color: tripStatus === 'In Trip' ? '#059669' : '#2563eb', fontWeight: 800, fontSize: '0.8rem', padding: '0.35rem 0.85rem', borderRadius: '20px', border: '1px solid currentColor' }}>
+                    ● {tripStatus === 'In Trip' ? 'In Trip (Active)' : 'Status: Assigned & Ready'}
+                  </span>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', alignItems: 'center', background: '#f8fafc', padding: '1.25rem', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                  <div>
+                    <div style={{ fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 700 }}>Vehicle Model</div>
+                    <div style={{ fontSize: '1.15rem', fontWeight: 900, color: '#0f172a', marginTop: '2px' }}>{assignedVehicle.model || 'Hyundai Creta'}</div>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 700 }}>Registration Number</div>
+                    <div style={{ fontSize: '1.1rem', fontWeight: 900, fontFamily: 'monospace', color: '#2563eb', marginTop: '2px' }}>{assignedVehicle.plate || 'TN 01 AB 1234'}</div>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 700 }}>Assigned Driver</div>
+                    <div style={{ fontSize: '1rem', fontWeight: 800, color: '#0f172a', marginTop: '2px' }}>👋 {user?.name || 'Ramesh'}</div>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.25rem', flexWrap: 'wrap' }}>
+                  {tripStatus !== 'In Trip' ? (
+                    <button 
+                      onClick={() => { 
+                        setTripStatus('In Trip'); 
+                        showNotification('🟢 Trip Started successfully! Drive safely.'); 
+                      }}
+                      style={{ flex: 1, minWidth: '130px', background: 'linear-gradient(135deg, #059669, #10b981)', color: '#fff', border: 'none', padding: '0.75rem 1.25rem', borderRadius: '10px', fontWeight: 800, cursor: 'pointer', boxShadow: '0 4px 12px rgba(5,150,105,0.3)' }}
+                    >
+                      🟢 Start Trip
+                    </button>
+                  ) : (
+                    <button 
+                      onClick={() => { 
+                        setTripStatus('Assigned'); 
+                        showNotification('🔴 Trip Ended successfully! Vehicle parked safely.'); 
+                      }}
+                      style={{ flex: 1, minWidth: '130px', background: 'linear-gradient(135deg, #dc2626, #ef4444)', color: '#fff', border: 'none', padding: '0.75rem 1.25rem', borderRadius: '10px', fontWeight: 800, cursor: 'pointer', boxShadow: '0 4px 12px rgba(220,38,38,0.3)' }}
+                    >
+                      🔴 End Trip
+                    </button>
+                  )}
+                  <button 
+                    onClick={() => setActiveNav('gps')}
+                    style={{ flex: 1, minWidth: '130px', background: '#eff6ff', color: '#2563eb', border: '1px solid #bfdbfe', padding: '0.75rem 1.25rem', borderRadius: '10px', fontWeight: 800, cursor: 'pointer' }}
+                  >
+                    📍 View Location
+                  </button>
+                  <button 
+                    onClick={() => setSelectedChatBooking(assignedTrips[0] || { id: 'BK-2026-5475', customerName: 'Shanu (Customer)', customerPhone: '+91 98421 99887', vehicleName: assignedVehicle.model || 'Hyundai Creta' })}
+                    style={{ flex: 1, minWidth: '130px', background: 'linear-gradient(135deg, #10b981, #059669)', color: '#fff', border: 'none', padding: '0.75rem 1.25rem', borderRadius: '10px', fontWeight: 800, cursor: 'pointer', boxShadow: '0 4px 12px rgba(16,185,129,0.3)' }}
+                  >
+                    💬 Chat with Customer
+                  </button>
+                </div>
               </div>
 
               {/* NEXT ASSIGNED TRIP HIGHLIGHT */}
@@ -1288,6 +1535,91 @@ export default function DriverDashboard() {
                   <div>No upcoming trips scheduled at the moment.</div>
                 )}
               </div>
+            </div>
+          )}
+
+          {/* AVAILABLE DISPATCH REQUESTS MODULE */}
+          {activeNav === 'dispatch-requests' && (
+            <div style={{ animation: 'fadeIn 0.3s ease-out' }}>
+              <div style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <h2 style={{ fontSize: '1.6rem', fontFamily: 'var(--font-heading)', color: '#0f172a', fontWeight: 900, marginBottom: '0.2rem' }}>
+                    📢 Available Chauffeur Dispatch Requests
+                  </h2>
+                  <p style={{ color: '#64748b', fontSize: '0.88rem' }}>Unassigned customer bookings open for available on-duty drivers to claim</p>
+                </div>
+                <span style={{ background: '#ecfdf5', color: '#059669', padding: '0.35rem 0.85rem', borderRadius: '20px', fontSize: '0.8rem', fontWeight: 800, border: '1px solid #a7f3d0' }}>
+                  🟢 Live Dispatch Radar Connected
+                </span>
+              </div>
+
+              {dispatchRequests.length === 0 ? (
+                <div className="card" style={{ padding: '3rem', textAlign: 'center', background: '#fff', borderRadius: '16px' }}>
+                  <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>✅</div>
+                  <h3 style={{ margin: 0, fontWeight: 900, color: '#0f172a' }}>No Unassigned Dispatch Requests Right Now</h3>
+                  <p style={{ color: '#64748b', fontSize: '0.88rem', marginTop: '0.25rem' }}>All customer bookings are currently claimed by assigned drivers. New requests will pop up automatically!</p>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                  {dispatchRequests.map(req => (
+                    <div key={req.id} className="card" style={{ padding: '1.5rem', background: '#ffffff', borderRadius: '16px', border: '1.5px solid #2563eb', boxShadow: '0 8px 25px rgba(37,99,235,0.1)' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', borderBottom: '1px solid #f1f5f9', paddingBottom: '0.75rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                          <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: '#eff6ff', color: '#2563eb', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '1.3rem' }}>
+                            🚗
+                          </div>
+                          <div>
+                            <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 900, color: '#0f172a' }}>{req.vehicleName}</h3>
+                            <div style={{ fontSize: '0.8rem', color: '#64748b' }}>DISPATCH TRIP ORDER #{req.id}</div>
+                          </div>
+                        </div>
+                        <span style={{ background: '#fef3c7', color: '#b45309', fontWeight: 800, fontSize: '0.78rem', padding: '0.35rem 0.85rem', borderRadius: '20px', border: '1px solid #fde68a' }}>
+                          🟡 Status: {req.status}
+                        </span>
+                      </div>
+
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', background: '#f8fafc', padding: '1.25rem', borderRadius: '12px', marginBottom: '1.25rem', border: '1px solid #e2e8f0' }}>
+                        <div>
+                          <div style={{ fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 700 }}>Renter Customer</div>
+                          <div style={{ fontSize: '1.05rem', fontWeight: 900, color: '#0f172a', marginTop: '2px' }}>👤 {req.customerName}</div>
+                          <div style={{ fontSize: '0.82rem', color: '#2563eb', fontWeight: 700 }}>📞 {req.customerPhone}</div>
+                        </div>
+                        <div>
+                          <div style={{ fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 700 }}>Pickup & Drop Route</div>
+                          <div style={{ fontSize: '0.9rem', fontWeight: 800, color: '#0f172a', marginTop: '2px' }}>📍 Pickup: {req.pickupLocation}</div>
+                          <div style={{ fontSize: '0.9rem', fontWeight: 800, color: '#059669', marginTop: '2px' }}>🏁 Drop: {req.dropLocation}</div>
+                        </div>
+                        <div>
+                          <div style={{ fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 700 }}>Trip Schedule & Allowance</div>
+                          <div style={{ fontSize: '0.88rem', fontWeight: 800, color: '#0f172a', marginTop: '2px' }}>📅 {req.startDate} to {req.endDate} ({req.pickupTime})</div>
+                          <div style={{ fontSize: '1.05rem', fontWeight: 900, color: '#b45309', marginTop: '2px' }}>💰 Allowance: ₹{req.allowance}</div>
+                        </div>
+                      </div>
+
+                      <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                        <button
+                          onClick={() => handleClaimDispatchRequest(req)}
+                          style={{ flex: 1, minWidth: '160px', background: 'linear-gradient(135deg, #059669, #10b981)', color: '#fff', border: 'none', padding: '0.8rem 1.25rem', borderRadius: '10px', fontWeight: 900, fontSize: '0.9rem', cursor: 'pointer', boxShadow: '0 4px 12px rgba(5,150,105,0.3)' }}
+                        >
+                          🟢 Accept & Claim Trip Assignment
+                        </button>
+                        <button
+                          onClick={() => setSelectedChatBooking(req)}
+                          style={{ minWidth: '140px', background: '#eff6ff', color: '#2563eb', border: '1px solid #bfdbfe', padding: '0.8rem 1.25rem', borderRadius: '10px', fontWeight: 800, fontSize: '0.88rem', cursor: 'pointer' }}
+                        >
+                          💬 Chat with Customer
+                        </button>
+                        <a
+                          href={`tel:${req.customerPhone}`}
+                          style={{ textDecoration: 'none', background: '#f1f5f9', color: '#475569', border: '1px solid #cbd5e1', padding: '0.8rem 1.25rem', borderRadius: '10px', fontWeight: 800, fontSize: '0.88rem', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
+                        >
+                          📞 Call Customer
+                        </a>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
@@ -1617,6 +1949,12 @@ export default function DriverDashboard() {
                       <a href={`tel:${trip.customerPhone}`} className="btn btn-secondary" style={{ fontSize: '0.8rem', padding: '0.45rem 1rem', textDecoration: 'none', fontWeight: 700 }}>
                         📞 Call Customer
                       </a>
+                      <button 
+                        onClick={() => setSelectedChatBooking(trip)}
+                        style={{ fontSize: '0.8rem', padding: '0.45rem 1rem', background: '#059669', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.35rem', boxShadow: '0 2px 8px rgba(5,150,105,0.25)' }}
+                      >
+                        💬 Chat with Customer
+                      </button>
                     </div>
                   </div>
                 ))}
@@ -2164,6 +2502,16 @@ export default function DriverDashboard() {
                 </div>
               </div>
             </div>
+          )}
+
+          {/* BOOKING LIVE CHAT MODAL FOR DRIVER */}
+          {selectedChatBooking && (
+            <BookingChatModal
+              booking={selectedChatBooking}
+              currentUser={user}
+              role="driver"
+              onClose={() => setSelectedChatBooking(null)}
+            />
           )}
 
         </main>

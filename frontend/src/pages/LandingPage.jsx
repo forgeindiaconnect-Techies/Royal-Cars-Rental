@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { getValidImageUrl, handleImageError } from '../utils/imageUtils';
-import aiHeroGraphic from '../assets/ai-hero-graphic.png';
+import aiHeroGraphic from 'C:/Users/Forgeindiaconnect/.gemini/antigravity-ide/brain/a6abd9b4-7b52-4fa0-a4d6-6d9510c90894/media__1786340422015.png';
 import {
   Step1Illustration,
   Step2Illustration,
@@ -17,11 +17,14 @@ import {
 } from '../components/HowItWorksStepIllustrations';
 import FeatureCards from '../components/FeatureCards';
 import AIFinderModal from '../components/AIFinderModal';
+import AIChatbot from '../components/AIChatbot';
 
 export default function LandingPage() {
   const navigate = useNavigate();
   const { user, setUser } = useAuth();
 
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isAiChatbotOpen, setIsAiChatbotOpen] = useState(false);
   // Search Filter States
   const [searchLocation, setSearchLocation] = useState('gundalapatti');
   const [dropoffLocation, setDropoffLocation] = useState('Dharmapuri');
@@ -925,9 +928,37 @@ export default function LandingPage() {
     }
   })();
 
-  const combinedVehicles = [...searchResults, ...localVehicles];
+  const carOwnerVehicles = (() => {
+    try {
+      const approvedList = JSON.parse(localStorage.getItem('approved_car_owners') || '[]');
+      return approvedList
+        .filter(co => co.published !== false && co.isPublished !== false && (co.status === 'ACTIVE' || co.status === 'APPROVED' || co.status === 'Approved'))
+        .map((co, idx) => ({
+          _id: co.id || co._id || `co_v_${idx}`,
+          id: co.id || co._id || `co_v_${idx}`,
+          make: co.make || (co.carName || 'Hyundai').split(' ')[0],
+          model: co.model || co.carName || 'Creta SX',
+          year: co.year || 2024,
+          category: co.category || 'SUV',
+          pricePerDay: co.pricePerDay || 1500,
+          imageUrl: co.image || co.imageUrl || 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&q=80&w=800',
+          transmission: co.transmission || 'Manual',
+          fuelType: co.fuelType || 'Petrol',
+          seats: co.seats || 5,
+          location: co.location || 'Dharmapuri',
+          companyName: co.name || 'Vehicle Partner',
+          companyPhone: co.phone || '+91 96301 47852',
+          companyOwnerEmail: co.email || 'sathya@gmail.com',
+          companyLogo: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100%" height="100%" rx="20" fill="%23059669"/><text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" fill="%23ffffff" font-size="52" font-family="sans-serif" font-weight="bold">${(co.name || 'P').charAt(0).toUpperCase()}</text></svg>`
+        }));
+    } catch {
+      return [];
+    }
+  })();
 
-  // Show actual cars added by rental companies
+  const combinedVehicles = [...searchResults, ...localVehicles, ...carOwnerVehicles];
+
+  // Show actual cars added by rental companies & vehicle partners
   const displayedFleet = combinedVehicles.length > 0 ? combinedVehicles : INITIAL_PUBLISHED_FLEET;
 
   return (
@@ -935,7 +966,15 @@ export default function LandingPage() {
 
       {/* STICKY TOP NAVBAR HEADER (V2 FLEETMIND) */}
       <nav className="fleet-v2-nav">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', cursor: 'pointer' }} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+        <button 
+          className="fleet-v2-mobile-hamburger"
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          aria-label="Toggle Navigation Menu"
+        >
+          {mobileMenuOpen ? '✕' : '☰'}
+        </button>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', cursor: 'pointer' }} className="fleet-v2-nav-brand" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
           <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: '#4a2c11', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '1.2rem', boxShadow: '0 4px 12px rgba(74, 44, 17, 0.3)' }}>R</div>
           <div>
             <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#1f140b', letterSpacing: '-0.3px' }}>Royal Rent <span style={{ color: '#b48555' }}>Cars</span></div>
@@ -949,14 +988,31 @@ export default function LandingPage() {
           <a href="/about" onClick={(e) => { e.preventDefault(); navigate('/about'); }}>About Us</a>
         </div>
 
-        <div style={{ display: 'flex', gap: '0.8rem', alignItems: 'center' }}>
-          <button className="fleet-v2-btn-outline" onClick={() => navigate('/auth')}>
-            👤 {user ? user.name.split(' ')[0] : 'Login'}
+        <div className="fleet-v2-nav-actions" style={{ display: 'flex', gap: '0.8rem', alignItems: 'center' }}>
+          <button className="fleet-v2-btn-outline fleet-v2-user-btn" onClick={() => navigate('/auth')}>
+            👤 <span className="fleet-v2-user-name">{user ? user.name.split(' ')[0] : 'Login'}</span>
           </button>
-          <button className="fleet-v2-btn-solid" onClick={() => setShowMultiRoleRegModal(true)}>
+          <button className="fleet-v2-btn-solid fleet-v2-partner-btn" onClick={() => setShowMultiRoleRegModal(true)}>
             🔥 Register / Partner
           </button>
         </div>
+
+        {/* Mobile Menu Overlay Drawer */}
+        {mobileMenuOpen && (
+          <div className="fleet-v2-mobile-menu-drawer">
+            <a href="#home" onClick={() => setMobileMenuOpen(false)}>🏠 Home</a>
+            <a href="#fleets" onClick={() => setMobileMenuOpen(false)}>🏎️ Cars & Fleet</a>
+            <a href="/about" onClick={(e) => { e.preventDefault(); navigate('/about'); setMobileMenuOpen(false); }}>ℹ️ About Us</a>
+            <a href="/contact" onClick={(e) => { e.preventDefault(); navigate('/contact'); setMobileMenuOpen(false); }}>📞 Contact Us</a>
+            <hr style={{ border: 'none', borderTop: '1px solid #e2d7c5', margin: '0.5rem 0' }} />
+            <button className="fleet-v2-btn-solid" onClick={() => { setShowMultiRoleRegModal(true); setMobileMenuOpen(false); }}>
+              🔥 Register / Partner
+            </button>
+            <button className="fleet-v2-btn-outline" onClick={() => { navigate('/auth'); setMobileMenuOpen(false); }}>
+              👤 {user ? `Profile (${user.name.split(' ')[0]})` : 'Login / Signup'}
+            </button>
+          </div>
+        )}
       </nav>
 
       {/* 1. HERO BANNER SECTION WITH SEARCH CARD (ID: home) */}
@@ -1125,7 +1181,7 @@ export default function LandingPage() {
                 )}
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.8rem' }}>
+              <div className="fleet-v2-booking-grid" style={{ display: 'grid', gap: '0.8rem' }}>
                 <div className="fleet-v2-input-group">
                   <label>Pick-up Date</label>
                   <input type="date" value={startDate} onChange={e => { setStartDate(e.target.value); setTimeout(() => handleSearchSubmit(), 100); }} />
@@ -1157,7 +1213,7 @@ export default function LandingPage() {
               <button 
                 onClick={(e) => { e.preventDefault(); setShowAiModal(true); }} 
                 type="button"
-                style={{ width: '100%', padding: '0.85rem', background: '#7c3aed', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxShadow: '0 4px 15px rgba(124, 58, 237, 0.3)' }}
+                style={{ width: '100%', padding: '0.85rem', background: '#4E311B', color: '#fff', border: 'none', borderRadius: '10px', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxShadow: '0 4px 15px rgba(78, 49, 27, 0.3)' }}
               >
                 Find My Perfect Car
               </button>
@@ -1169,91 +1225,149 @@ export default function LandingPage() {
 
 
       {/* AI VEHICLE FINDER (Right below Hero) */}
-      <section style={{ padding: '0 4%', marginTop: '2rem', position: 'relative', zIndex: 10, width: '100%' }}>
+      <section style={{ padding: '0 4%', marginTop: '2rem', position: 'relative', zIndex: 10, width: '100%', boxSizing: 'border-box' }}>
         
         {/* Main AI Card */}
-        <div style={{ background: '#f8faff', border: '1.5px dashed #6366f1', borderRadius: '16px', padding: '1.5rem 2rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '2rem', minHeight: '180px', width: '100%' }}>
+        <div className="ai-finder-card" style={{ 
+          background: '#FCF8F3', 
+          border: '1px solid #C89B5B', 
+          borderRadius: '22px', 
+          padding: '2rem', 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'space-between', 
+          gap: '2rem', 
+          width: '100%', 
+          boxShadow: '0 12px 30px rgba(59, 33, 19, 0.08)',
+          boxSizing: 'border-box'
+        }}>
           
           {/* Left Form Section */}
-          <div style={{ flex: '1', minWidth: '0' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.2rem' }}>
-              <div style={{ width: '36px', height: '36px', background: '#e0e7ff', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4f46e5' }}>
-                <span style={{ fontWeight: 900, fontSize: '1rem', letterSpacing: '-0.5px' }}>Ai<span style={{ fontSize: '0.7rem', color: '#f59e0b', verticalAlign: 'top' }}>✨</span></span>
+          <div className="ai-finder-left" style={{ flex: '1 1 50%', minWidth: '0' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.4rem' }}>
+              <div style={{ width: '38px', height: '38px', background: '#F8F1E8', border: '1px solid #C89B5B', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#5A321C' }}>
+                <span style={{ fontWeight: 900, fontSize: '1rem', letterSpacing: '-0.5px' }}>Ai<span style={{ fontSize: '0.75rem', color: '#C89B5B', verticalAlign: 'top' }}>✨</span></span>
               </div>
-              <h3 style={{ color: '#0f172a', fontSize: '1.15rem', fontWeight: 800, margin: 0 }}>AI Vehicle Finder</h3>
+              <h3 style={{ color: '#3B2113', fontSize: '1.35rem', fontWeight: 800, margin: 0 }}>AI Vehicle Finder</h3>
             </div>
-            <p style={{ color: '#64748b', fontSize: '0.75rem', marginBottom: '1.25rem', fontWeight: 500 }}>Tell us your trip details and our AI will find the perfect car for you.</p>
+            <p style={{ color: '#7A4A2A', fontSize: '0.82rem', marginBottom: '1.25rem', fontWeight: 500 }}>Tell us your trip details and our AI will find the perfect car for you.</p>
 
-            <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'nowrap', marginBottom: '1.25rem' }}>
+            <div className="ai-finder-inputs" style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap', marginBottom: '1.25rem' }}>
               {/* Budget */}
-              <div style={{ background: '#fff', borderRadius: '8px', padding: '0.4rem 0.6rem', flex: 1, minWidth: '110px', display: 'flex', flexDirection: 'column', gap: '0.1rem', border: '1px solid #f1f5f9' }}>
-                <label style={{ color: '#475569', fontSize: '0.65rem', fontWeight: 600 }}>Budget</label>
+              <div style={{ background: '#FFFFFF', borderRadius: '12px', padding: '0.5rem 0.85rem', flex: 1, minWidth: '110px', display: 'flex', flexDirection: 'column', gap: '0.1rem', border: '1px solid #C89B5B', boxShadow: '0 2px 6px rgba(59, 33, 19, 0.03)' }}>
+                <label style={{ color: '#7A4A2A', fontSize: '0.68rem', fontWeight: 600 }}>Budget</label>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <input type="text" placeholder="₹ 2000 - ₹ 5000" value={aiBudget} onChange={e => setAiBudget(e.target.value)} style={{ width: '100%', border: 'none', color: '#0f172a', fontSize: '0.8rem', fontWeight: 700, outline: 'none', background: 'transparent' }} />
-                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6" /></svg>
+                  <input type="text" placeholder="₹ 3000" value={aiBudget} onChange={e => setAiBudget(e.target.value)} style={{ width: '100%', border: 'none', color: '#3B2113', fontSize: '0.88rem', fontWeight: 700, outline: 'none', background: 'transparent' }} />
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#7A4A2A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6" /></svg>
                 </div>
               </div>
 
               {/* Passengers */}
-              <div style={{ background: '#fff', borderRadius: '8px', padding: '0.4rem 0.6rem', flex: 1, minWidth: '90px', display: 'flex', flexDirection: 'column', gap: '0.1rem', border: '1px solid #f1f5f9' }}>
-                <label style={{ color: '#475569', fontSize: '0.65rem', fontWeight: 600 }}>Passengers</label>
+              <div style={{ background: '#FFFFFF', borderRadius: '12px', padding: '0.5rem 0.85rem', flex: 1, minWidth: '90px', display: 'flex', flexDirection: 'column', gap: '0.1rem', border: '1px solid #C89B5B', boxShadow: '0 2px 6px rgba(59, 33, 19, 0.03)' }}>
+                <label style={{ color: '#7A4A2A', fontSize: '0.68rem', fontWeight: 600 }}>Passengers</label>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <select value={aiPassengers} onChange={e => setAiPassengers(Number(e.target.value))} style={{ width: '100%', border: 'none', color: '#0f172a', fontSize: '0.8rem', fontWeight: 700, outline: 'none', background: 'transparent', appearance: 'none', cursor: 'pointer' }}>
+                  <select value={aiPassengers} onChange={e => setAiPassengers(Number(e.target.value))} style={{ width: '100%', border: 'none', color: '#3B2113', fontSize: '0.88rem', fontWeight: 700, outline: 'none', background: 'transparent', appearance: 'none', cursor: 'pointer' }}>
                     <option value="2">2</option>
                     <option value="4">4</option>
                     <option value="5">5</option>
                     <option value="7">7</option>
                   </select>
-                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ pointerEvents: 'none' }}><path d="M6 9l6 6 6-6" /></svg>
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#7A4A2A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ pointerEvents: 'none' }}><path d="M6 9l6 6 6-6" /></svg>
                 </div>
               </div>
 
               {/* Trip Type */}
-              <div style={{ background: '#fff', borderRadius: '8px', padding: '0.4rem 0.6rem', flex: 1, minWidth: '90px', display: 'flex', flexDirection: 'column', gap: '0.1rem', border: '1px solid #f1f5f9' }}>
-                <label style={{ color: '#475569', fontSize: '0.65rem', fontWeight: 600 }}>Trip Type</label>
+              <div style={{ background: '#FFFFFF', borderRadius: '12px', padding: '0.5rem 0.85rem', flex: 1, minWidth: '90px', display: 'flex', flexDirection: 'column', gap: '0.1rem', border: '1px solid #C89B5B', boxShadow: '0 2px 6px rgba(59, 33, 19, 0.03)' }}>
+                <label style={{ color: '#7A4A2A', fontSize: '0.68rem', fontWeight: 600 }}>Trip Type</label>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <select value={aiTripType} onChange={e => setAiTripType(e.target.value)} style={{ width: '100%', border: 'none', color: '#0f172a', fontSize: '0.8rem', fontWeight: 700, outline: 'none', background: 'transparent', appearance: 'none', cursor: 'pointer' }}>
+                  <select value={aiTripType} onChange={e => setAiTripType(e.target.value)} style={{ width: '100%', border: 'none', color: '#3B2113', fontSize: '0.88rem', fontWeight: 700, outline: 'none', background: 'transparent', appearance: 'none', cursor: 'pointer' }}>
                     <option value="Family">Family</option>
                     <option value="Business">Business</option>
                     <option value="Hills">Hills</option>
                   </select>
-                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ pointerEvents: 'none' }}><path d="M6 9l6 6 6-6" /></svg>
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#7A4A2A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ pointerEvents: 'none' }}><path d="M6 9l6 6 6-6" /></svg>
                 </div>
               </div>
 
               {/* Need Driver */}
-              <div style={{ background: '#fff', borderRadius: '8px', padding: '0.4rem 0.6rem', flex: 1, minWidth: '90px', display: 'flex', flexDirection: 'column', gap: '0.1rem', border: '1px solid #f1f5f9' }}>
-                <label style={{ color: '#475569', fontSize: '0.65rem', fontWeight: 600 }}>Need Driver</label>
+              <div style={{ background: '#FFFFFF', borderRadius: '12px', padding: '0.5rem 0.85rem', flex: 1, minWidth: '90px', display: 'flex', flexDirection: 'column', gap: '0.1rem', border: '1px solid #C89B5B', boxShadow: '0 2px 6px rgba(59, 33, 19, 0.03)' }}>
+                <label style={{ color: '#7A4A2A', fontSize: '0.68rem', fontWeight: 600 }}>Need Driver</label>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '0.1rem' }}>
-                  <span style={{ fontSize: '0.8rem', color: '#0f172a', fontWeight: 700 }}>{aiNeedDriver}</span>
+                  <span style={{ fontSize: '0.88rem', color: '#3B2113', fontWeight: 700 }}>{aiNeedDriver}</span>
                   <div
                     onClick={() => setAiNeedDriver(prev => prev === 'Yes' ? 'No' : 'Yes')}
-                    style={{ width: '20px', height: '20px', background: aiNeedDriver === 'Yes' ? '#4f46e5' : '#cbd5e1', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.2s', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+                    style={{ width: '22px', height: '22px', background: aiNeedDriver === 'Yes' ? '#5A321C' : '#F8F1E8', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.2s', boxShadow: '0 2px 4px rgba(0,0,0,0.08)' }}>
                     {aiNeedDriver === 'Yes' ? <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M5 12h14" /></svg> : null}
                   </div>
                 </div>
               </div>
             </div>
 
-            <button onClick={() => setShowAiModal(true)} style={{ width: 'calc(50% - 0.5rem)', padding: '0.75rem', background: '#4f46e5', border: 'none', borderRadius: '8px', color: '#fff', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
-              <span style={{ fontSize: '1rem', color: '#f59e0b' }}>✨</span> Get AI Recommendation
+            <button 
+              onClick={() => setShowAiModal(true)} 
+              className="ai-finder-btn" 
+              style={{ 
+                width: 'auto', 
+                padding: '0.85rem 1.75rem', 
+                background: '#5A321C', 
+                border: 'none', 
+                borderRadius: '12px', 
+                color: '#FFFFFF', 
+                fontWeight: 700, 
+                fontSize: '0.92rem', 
+                cursor: 'pointer', 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                gap: '0.5rem', 
+                boxShadow: '0 6px 20px rgba(59, 33, 19, 0.2)', 
+                transition: 'all 0.25s ease' 
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = '#3B2113'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = '#5A321C'; }}
+            >
+              <span style={{ fontSize: '1.05rem', color: '#C89B5B' }}>✨</span> Get AI Recommendation
             </button>
           </div>
 
-          {/* Right Graphic - Centered nicely within the flex layout */}
-          <div style={{ flex: '0 0 45%', display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '0.5rem' }}>
-            <img src={aiHeroGraphic} alt="AI Robot and Car" style={{ maxWidth: '100%', maxHeight: '220px', objectFit: 'contain', filter: 'drop-shadow(0 15px 25px rgba(0,0,0,0.15))' }} />
+          {/* Right Dedicated Image Container */}
+          <div className="ai-finder-right" style={{ 
+            flex: '0 0 48%', 
+            display: 'flex', 
+            justifyContent: 'center', 
+            alignItems: 'center', 
+            padding: '20px', 
+            background: '#FCF8F3', 
+            borderRadius: '18px', 
+            border: '1px solid #C89B5B',
+            boxShadow: 'none',
+            minHeight: '230px',
+            width: '100%',
+            boxSizing: 'border-box'
+          }}>
+            <img 
+              src={aiHeroGraphic} 
+              alt="AI Robot and Car" 
+              style={{ 
+                width: '100%',
+                height: '100%',
+                maxHeight: '230px', 
+                objectFit: 'contain', 
+                display: 'block',
+                margin: 'auto'
+              }} 
+            />
           </div>
         </div>
 
         {/* AI Result Card - Placed safely OUTSIDE the container to prevent any layout breaking when it appears */}
         {aiResultCard && (
-          <div style={{ marginTop: '1.5rem', background: '#fff', border: '1px solid #e2e8f0', padding: '1rem', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '1.5rem', boxShadow: '0 10px 25px rgba(0,0,0,0.05)', maxWidth: '400px' }}>
-            <img src={aiResultCard.img} style={{ width: '120px', borderRadius: '8px' }} alt="Result" />
+          <div style={{ marginTop: '1.5rem', background: '#FCF8F3', border: '1px solid #C89B5B', padding: '1.15rem 1.5rem', borderRadius: '16px', display: 'flex', alignItems: 'center', gap: '1.5rem', boxShadow: '0 10px 25px rgba(59, 33, 19, 0.08)', maxWidth: '420px' }}>
+            <img src={aiResultCard.img} style={{ width: '120px', borderRadius: '10px', border: '1px solid #C89B5B' }} alt="Result" />
             <div>
-              <div style={{ fontWeight: 800, color: '#4f46e5', fontSize: '0.8rem', marginBottom: '0.2rem' }}>⭐ AI Best Match ({aiResultCard.match}%)</div>
-              <div style={{ fontWeight: 900, fontSize: '1.15rem', color: '#1e293b' }}>{aiResultCard.car}</div>
-              <div style={{ fontSize: '0.85rem', color: '#64748b' }}>₹{aiResultCard.price}/day • {aiResultCard.seats} Seats</div>
+              <div style={{ fontWeight: 800, color: '#C89B5B', fontSize: '0.82rem', marginBottom: '0.2rem' }}>⭐ AI Best Match ({aiResultCard.match}%)</div>
+              <div style={{ fontWeight: 900, fontSize: '1.15rem', color: '#3B2113' }}>{aiResultCard.car}</div>
+              <div style={{ fontSize: '0.85rem', color: '#7A4A2A', marginTop: '0.2rem' }}>₹{aiResultCard.price}/day • {aiResultCard.seats} Seats</div>
             </div>
           </div>
         )}
@@ -1503,7 +1617,7 @@ export default function LandingPage() {
 
       {/* 7. FOOTER (EXACT MATCH TO SCREENSHOT 401) */}
       <footer id="contact" style={{ background: '#3b2313', color: '#e5e7eb', padding: '3rem 5%', fontFamily: "'Inter', sans-serif" }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr 1fr 1fr 1.2fr', gap: '2rem', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '2rem', marginBottom: '1.5rem' }}>
+        <div className="fleet-v2-footer-grid" style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr 1fr 1fr 1.2fr', gap: '2rem', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '2rem', marginBottom: '1.5rem' }}>
           
           {/* Logo Column */}
           <div>
@@ -1587,37 +1701,7 @@ export default function LandingPage() {
         </div>
       </footer>
 
-      {/* FLOATING AI CHATBOT ASSISTANT */}
-      <div style={{ position: 'fixed', bottom: '25px', right: '25px', zIndex: 1000 }}>
-        {!isChatbotOpen ? (
-          <button
-            onClick={() => setIsChatbotOpen(true)}
-            style={{ background: '#2563eb', border: 'none', padding: '0.75rem 1.25rem', borderRadius: '30px', fontWeight: 800, color: '#ffffff', cursor: 'pointer', boxShadow: '0 10px 25px rgba(37,99,235,0.4)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
-          >
-            <span>💬 Royal Rent Cars AI</span>
-          </button>
-        ) : (
-          <div style={{ width: '350px', height: '450px', background: '#0b0f17', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '16px', boxShadow: '0 20px 40px rgba(0,0,0,0.8)', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-            <div style={{ background: '#0f172a', color: '#fff', padding: '0.85rem 1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontWeight: 800, fontSize: '0.88rem' }}>💬 Royal Rent Cars AI</span>
-              <button onClick={() => setIsChatbotOpen(false)} style={{ background: 'none', border: 'none', color: '#fff', fontSize: '1.2rem', cursor: 'pointer' }}>×</button>
-            </div>
 
-            <div style={{ flex: 1, padding: '1rem', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              {chatMessages.map((m, idx) => (
-                <div key={idx} style={{ alignSelf: m.sender === 'user' ? 'flex-end' : 'flex-start', background: m.sender === 'user' ? '#2563eb' : '#1e293b', color: '#fff', padding: '0.6rem 0.85rem', borderRadius: '10px', fontSize: '0.8rem', maxWidth: '80%', fontWeight: 600 }}>
-                  {m.text}
-                </div>
-              ))}
-            </div>
-
-            <form onSubmit={handleSendChatMessage} style={{ padding: '0.65rem', borderTop: '1px solid rgba(255,255,255,0.1)', display: 'flex', gap: '0.5rem' }}>
-              <input type="text" value={chatInput} onChange={(e) => setChatInput(e.target.value)} placeholder="Ask AI concierge..." style={{ flex: 1, background: '#0f172a', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '6px', padding: '0.45rem', fontSize: '0.8rem', color: '#fff', outline: 'none' }} />
-              <button type="submit" style={{ background: '#2563eb', color: '#fff', border: 'none', padding: '0.45rem 0.75rem', borderRadius: '6px', fontWeight: 800, fontSize: '0.8rem', cursor: 'pointer' }}>Send</button>
-            </form>
-          </div>
-        )}
-      </div>
 
       {/* MODAL: OPERATOR CALL DESK */}
       {selectedCompanyDetails && (
@@ -1914,17 +1998,24 @@ export default function LandingPage() {
                 }
                 setOwnerDocError('');
                 const existing = JSON.parse(localStorage.getItem('pending_car_owners') || '[]');
-                const approvedExisting = JSON.parse(localStorage.getItem('approved_car_owners') || '[]');
-                const newOwner = { id: 'co_' + Date.now(), ...ownerFormData, status: 'Approved', createdAt: new Date().toISOString() };
+                const newOwner = {
+                  id: 'co_' + Date.now(),
+                  ...ownerFormData,
+                  status: 'PENDING_APPROVAL',
+                  termsAccepted: false,
+                  isPublished: false,
+                  fixedDailyEarnings: 500,
+                  pricePerDay: 1500,
+                  createdAt: new Date().toISOString()
+                };
 
                 localStorage.setItem('pending_car_owners', JSON.stringify([newOwner, ...existing]));
-                localStorage.setItem('approved_car_owners', JSON.stringify([newOwner, ...approvedExisting]));
 
                 // Notify Super Admin
                 const notif = {
                   _id: 'notif_co_' + Date.now(),
-                  title: '🚗 New Car Owner Registration',
-                  message: `New car owner partner ${ownerFormData.name} (${ownerFormData.phone}) registered ${ownerFormData.carName || 'vehicle'} (${ownerFormData.plate}). Awaiting KYC document verification.`,
+                  title: '🚗 New Car Owner Registration (PENDING_APPROVAL)',
+                  message: `New car owner partner ${ownerFormData.name} (${ownerFormData.phone}) registered ${ownerFormData.carName || 'vehicle'} (${ownerFormData.plate}). Status: PENDING_APPROVAL. Awaiting document verification.`,
                   senderRole: 'car-owner',
                   createdAt: new Date().toISOString()
                 };
@@ -1936,7 +2027,8 @@ export default function LandingPage() {
                   name: ownerFormData.name || 'Car Owner Partner',
                   email: ownerFormData.email,
                   role: 'car-owner',
-                  status: 'Approved'
+                  status: 'PENDING_APPROVAL',
+                  termsAccepted: false
                 };
                 sessionStorage.setItem('token', 'mock_owner_token_' + Date.now());
                 localStorage.setItem('car_owner_user', JSON.stringify(ownerUser));
@@ -1979,13 +2071,9 @@ export default function LandingPage() {
                     <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#334155' }}>Car Name & Model *</label>
                     <input type="text" required placeholder="e.g. Hyundai Creta" value={ownerFormData.carName} onChange={e => setOwnerFormData({ ...ownerFormData, carName: e.target.value })} style={{ width: '100%', padding: '0.55rem', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.85rem' }} />
                   </div>
-                  <div>
-                    <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#334155' }}>Vehicle Plate No *</label>
-                    <input type="text" required placeholder="TN29AB1234" value={ownerFormData.plate} onChange={e => setOwnerFormData({ ...ownerFormData, plate: e.target.value })} style={{ width: '100%', padding: '0.55rem', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.85rem' }} />
-                  </div>
-                  <div>
-                    <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#334155' }}>Desired Daily Rent (₹) *</label>
-                    <input type="number" required value={ownerFormData.pricePerDay} onChange={e => setOwnerFormData({ ...ownerFormData, pricePerDay: e.target.value })} style={{ width: '100%', padding: '0.55rem', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.85rem' }} />
+                  <div style={{ gridColumn: 'span 2' }}>
+                    <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#334155' }}>Vehicle Registration Plate No *</label>
+                    <input type="text" required placeholder="e.g. TN29AB1234" value={ownerFormData.plate} onChange={e => setOwnerFormData({ ...ownerFormData, plate: e.target.value })} style={{ width: '100%', padding: '0.55rem', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.85rem' }} />
                   </div>
 
                   {/* FILE UPLOADS: INSURANCE, RC, AADHAAR */}
@@ -2295,8 +2383,50 @@ export default function LandingPage() {
         </div>
       )}
 
+      {/* Floating Circular + AI Trigger Button */}
+      {!isAiChatbotOpen && (
+        <div 
+          onClick={() => setIsAiChatbotOpen(true)}
+          title="Royal Rent Cars AI Concierge"
+          style={{
+            position: 'fixed',
+            bottom: '28px',
+            right: '28px',
+            zIndex: 99999,
+            width: '56px',
+            height: '56px',
+            borderRadius: '50%',
+            background: '#4E311B',
+            color: '#ffffff',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxShadow: '0 12px 32px rgba(78, 49, 27, 0.5)',
+            cursor: 'pointer',
+            transition: 'all 0.25s cubic-bezier(0.165, 0.84, 0.44, 1)',
+            border: '2px solid rgba(255, 255, 255, 0.25)'
+          }}
+          onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.08)'; }}
+          onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+        </div>
+      )}
+
       {/* AI Modals placed at root to avoid stacking context issues */}
-      <AIFinderModal isOpen={showAiModal} onClose={() => setShowAiModal(false)} />
+      <AIFinderModal 
+        isOpen={showAiModal} 
+        onClose={() => setShowAiModal(false)} 
+        onSelectVehicle={(v) => setBookingVehicle(v)}
+      />
+
+      <AIChatbot 
+        isOpen={isAiChatbotOpen} 
+        onClose={() => setIsAiChatbotOpen(false)} 
+      />
     </div>
   );
 }

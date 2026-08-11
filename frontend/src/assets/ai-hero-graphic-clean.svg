@@ -1,0 +1,167 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="100%" height="100%">
+  <defs>
+    <!-- Background & Shadow Gradients -->
+    <radialGradient id="bgGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#F8F1E8" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#FCF8F3" stop-opacity="0"/>
+    </radialGradient>
+    
+    <linearGradient id="carBody" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4E311B"/>
+      <stop offset="50%" stop-color="#3B2113"/>
+      <stop offset="100%" stop-color="#23130A"/>
+    </linearGradient>
+
+    <linearGradient id="goldAccent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#E5A84B"/>
+      <stop offset="50%" stop-color="#C89B5B"/>
+      <stop offset="100%" stop-color="#9E7437"/>
+    </linearGradient>
+
+    <linearGradient id="robotBody" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#EFE4D6"/>
+    </linearGradient>
+
+    <linearGradient id="glassGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#5A321C" stop-opacity="0.7"/>
+      <stop offset="100%" stop-color="#23130A" stop-opacity="0.9"/>
+    </linearGradient>
+
+    <filter id="softShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="12" stdDeviation="15" flood-color="#3B2113" flood-opacity="0.12"/>
+    </filter>
+    
+    <filter id="bubbleShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#3B2113" flood-opacity="0.08"/>
+    </filter>
+  </defs>
+
+  <!-- Soft Ambient Glow Base -->
+  <ellipse cx="400" cy="270" rx="360" ry="180" fill="url(#bgGlow)"/>
+
+  <!-- Floor Shadow for Car & Robot -->
+  <ellipse cx="460" cy="410" rx="260" ry="25" fill="#3B2113" opacity="0.15" filter="blur(8px)"/>
+  <ellipse cx="180" cy="425" rx="75" ry="14" fill="#3B2113" opacity="0.18" filter="blur(6px)"/>
+
+  <!-- LUXURY SEDAN CAR ILLUSTRATION (Right Side) -->
+  <g id="luxuryCar" filter="url(#softShadow)">
+    <!-- Car Body Base Shadow -->
+    <path d="M 280,360 Q 320,270 420,250 Q 520,230 640,260 Q 730,285 750,330 L 760,370 Q 755,395 720,395 L 290,395 Q 275,390 280,360 Z" fill="url(#carBody)"/>
+
+    <!-- Car Cabin Roof & Glass -->
+    <path d="M 380,265 C 420,210 520,200 620,225 C 670,240 700,265 715,280 L 365,280 Z" fill="url(#glassGradient)"/>
+    
+    <!-- Chrome & Gold Window Trim -->
+    <path d="M 378,266 Q 470,202 622,226 Q 672,240 717,281" fill="none" stroke="url(#goldAccent)" stroke-width="3" stroke-linecap="round"/>
+    <line x1="530" y1="210" x2="535" y2="280" stroke="url(#goldAccent)" stroke-width="2.5"/>
+
+    <!-- Hood Line & Side Moldings -->
+    <path d="M 280,360 Q 380,345 520,345 Q 680,345 755,355" fill="none" stroke="#23130A" stroke-width="2"/>
+    <path d="M 300,375 Q 460,370 730,370" fill="none" stroke="url(#goldAccent)" stroke-width="2.5"/>
+
+    <!-- Front Grille Luxury Diamond Mesh -->
+    <path d="M 280,350 Q 272,375 285,390 L 315,390 Q 310,365 300,345 Z" fill="#23130A" stroke="url(#goldAccent)" stroke-width="2"/>
+    <path d="M 282,355 L 305,385 M 295,352 L 312,375 M 280,370 L 300,390" stroke="url(#goldAccent)" stroke-width="1" opacity="0.7"/>
+
+    <!-- LED Headlight (Warm Amber Gold) -->
+    <path d="M 305,335 Q 350,330 380,342 Q 345,350 305,350 Z" fill="#FFF9ED" stroke="url(#goldAccent)" stroke-width="2"/>
+    <path d="M 315,340 L 370,337" stroke="#E5A84B" stroke-width="3" stroke-linecap="round" filter="drop-shadow(0 0 4px #C89B5B)"/>
+
+    <!-- Front & Rear Wheels -->
+    <!-- Rear Wheel -->
+    <g id="rearWheel">
+      <circle cx="650" cy="390" r="38" fill="#1C0E07"/>
+      <circle cx="650" cy="390" r="28" fill="#3B2113" stroke="url(#goldAccent)" stroke-width="3"/>
+      <circle cx="650" cy="390" r="10" fill="url(#goldAccent)"/>
+      <!-- Spokes -->
+      <line x1="650" y1="362" x2="650" y2="418" stroke="url(#goldAccent)" stroke-width="3"/>
+      <line x1="622" y1="390" x2="678" y2="390" stroke="url(#goldAccent)" stroke-width="3"/>
+      <line x1="630" y1="370" x2="670" y2="410" stroke="url(#goldAccent)" stroke-width="2"/>
+      <line x1="630" y1="410" x2="670" y2="370" stroke="url(#goldAccent)" stroke-width="2"/>
+    </g>
+
+    <!-- Front Wheel -->
+    <g id="frontWheel">
+      <circle cx="360" cy="390" r="38" fill="#1C0E07"/>
+      <circle cx="360" cy="390" r="28" fill="#3B2113" stroke="url(#goldAccent)" stroke-width="3"/>
+      <circle cx="360" cy="390" r="10" fill="url(#goldAccent)"/>
+      <!-- Spokes -->
+      <line x1="360" y1="362" x2="360" y2="418" stroke="url(#goldAccent)" stroke-width="3"/>
+      <line x1="332" y1="390" x2="388" y2="390" stroke="url(#goldAccent)" stroke-width="3"/>
+      <line x1="340" y1="370" x2="380" y2="410" stroke="url(#goldAccent)" stroke-width="2"/>
+      <line x1="340" y1="410" x2="380" y2="370" stroke="url(#goldAccent)" stroke-width="2"/>
+    </g>
+  </g>
+
+  <!-- FRIENDLY AI ASSISTANT ROBOT (Left Side) -->
+  <g id="aiRobot" filter="url(#softShadow)">
+    <!-- Legs & Feet -->
+    <rect x="145" y="340" width="24" height="75" rx="12" fill="url(#robotBody)" stroke="#C89B5B" stroke-width="1.5"/>
+    <rect x="190" y="340" width="24" height="75" rx="12" fill="url(#robotBody)" stroke="#C89B5B" stroke-width="1.5"/>
+    <ellipse cx="157" cy="418" rx="20" ry="10" fill="#4E311B"/>
+    <ellipse cx="202" cy="418" rx="20" ry="10" fill="#4E311B"/>
+
+    <!-- Torso / Body -->
+    <path d="M 135,230 Q 180,215 225,230 L 215,340 Q 180,355 145,340 Z" fill="url(#robotBody)" stroke="#C89B5B" stroke-width="2"/>
+    <!-- Chest Plate Accent -->
+    <path d="M 150,245 Q 180,238 210,245 L 202,300 Q 180,310 158,300 Z" fill="#4E311B"/>
+    <circle cx="180" cy="270" r="12" fill="#E5A84B" filter="drop-shadow(0 0 6px #C89B5B)"/>
+    <text x="180" y="274" font-family="Arial, sans-serif" font-weight="900" font-size="10" fill="#3B2113" text-anchor="middle">AI</text>
+
+    <!-- Arms -->
+    <!-- Left Arm Resting -->
+    <path d="M 135,240 Q 110,280 120,330" fill="none" stroke="url(#robotBody)" stroke-width="18" stroke-linecap="round"/>
+    <path d="M 135,240 Q 110,280 120,330" fill="none" stroke="#C89B5B" stroke-width="2" stroke-linecap="round"/>
+    <circle cx="120" cy="335" r="10" fill="#4E311B"/>
+
+    <!-- Right Arm Welcoming Gesture towards Car -->
+    <path d="M 225,240 Q 270,250 305,230" fill="none" stroke="url(#robotBody)" stroke-width="18" stroke-linecap="round"/>
+    <path d="M 225,240 Q 270,250 305,230" fill="none" stroke="#C89B5B" stroke-width="2" stroke-linecap="round"/>
+    <circle cx="312" cy="226" r="10" fill="#4E311B"/>
+
+    <!-- Head & Face -->
+    <rect x="135" y="145" width="90" height="75" rx="35" fill="url(#robotBody)" stroke="#C89B5B" stroke-width="2.5"/>
+    <!-- Face Screen -->
+    <rect x="147" y="157" width="66" height="50" rx="20" fill="#23130A"/>
+    
+    <!-- Friendly Glowing Eyes (Gold Amber) -->
+    <ellipse cx="168" cy="180" rx="9" ry="11" fill="#E5A84B" filter="drop-shadow(0 0 5px #C89B5B)"/>
+    <ellipse cx="192" cy="180" rx="9" ry="11" fill="#E5A84B" filter="drop-shadow(0 0 5px #C89B5B)"/>
+    <!-- Eye Sparkles -->
+    <circle cx="170" cy="176" r="3" fill="#FFFFFF"/>
+    <circle cx="194" cy="176" r="3" fill="#FFFFFF"/>
+
+    <!-- Smiling Mouth -->
+    <path d="M 172,194 Q 180,201 188,194" fill="none" stroke="#E5A84B" stroke-width="2.5" stroke-linecap="round"/>
+
+    <!-- Head Antenna -->
+    <line x1="180" y1="145" x2="180" y2="125" stroke="#C89B5B" stroke-width="3"/>
+    <circle cx="180" cy="120" r="7" fill="#E5A84B" filter="drop-shadow(0 0 6px #C89B5B)"/>
+  </g>
+
+  <!-- FLOATING AI CHAT BUBBLES (Warm Cream & Gold Theme) -->
+  <!-- Top Main Bubble -->
+  <g id="chatBubble1" filter="url(#bubbleShadow)">
+    <rect x="120" y="45" width="220" height="52" rx="16" fill="#FFFFFF" stroke="#C89B5B" stroke-width="1.5"/>
+    <path d="M 180,97 L 190,110 L 200,97 Z" fill="#FFFFFF" stroke="#C89B5B" stroke-width="1.5"/>
+    <!-- White cover over join line -->
+    <path d="M 181,96 L 199,96" stroke="#FFFFFF" stroke-width="3"/>
+    <text x="230" y="76" font-family="'Inter', sans-serif" font-weight="800" font-size="14" fill="#3B2113" text-anchor="middle">Hello! I'm your AI Concierge 👋</text>
+  </g>
+
+  <!-- Right Floating Match Bubble -->
+  <g id="chatBubble2" filter="url(#bubbleShadow)">
+    <rect x="520" y="90" width="230" height="55" rx="16" fill="#F8F1E8" stroke="#C89B5B" stroke-width="1.5"/>
+    <!-- Sparkle Icon inside -->
+    <circle cx="550" cy="117" r="14" fill="#5A321C"/>
+    <text x="550" y="122" font-family="sans-serif" font-weight="900" font-size="14" fill="#C89B5B" text-anchor="middle">✨</text>
+    <text x="650" y="112" font-family="'Inter', sans-serif" font-weight="800" font-size="13" fill="#3B2113" text-anchor="middle">AI Match: 98% Score</text>
+    <text x="650" y="130" font-family="'Inter', sans-serif" font-weight="600" font-size="11" fill="#7A4A2A" text-anchor="middle">Genesis G80 Luxury Sedan</text>
+  </g>
+
+  <!-- Floating Gold Sparkles -->
+  <path d="M 100,140 L 104,152 L 116,156 L 104,160 L 100,172 L 96,160 L 84,156 L 96,152 Z" fill="#C89B5B" opacity="0.8"/>
+  <path d="M 720,210 L 723,219 L 732,222 L 723,225 L 720,234 L 717,225 L 708,222 L 717,219 Z" fill="#E5A84B" opacity="0.85"/>
+  <path d="M 450,110 L 452,116 L 458,118 L 452,120 L 450,126 L 448,120 L 442,118 L 448,116 Z" fill="#C89B5B" opacity="0.75"/>
+</svg>

@@ -210,10 +210,68 @@ export default function CustomerDashboard() {
         }
       },
       {
+        _id: 'BK-2026-5475',
+        id: 'BK-2026-5475',
+        bookingId: 'BK-2026-5475',
+        customerName: realName === 'Customer' ? 'Shanu' : realName,
+        customerPhone: realPhone,
+        vehicleName: 'Toyota Innova 2023',
+        vehicle: {
+          make: 'Toyota',
+          model: 'Innova 2023',
+          imageUrl: 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=800',
+          pricePerDay: 2200
+        },
+        startDate: '2026-07-28',
+        endDate: '2026-07-30',
+        pickupTime: '10:00 AM',
+        dropoffTime: '06:00 PM',
+        status: 'Confirmed',
+        paymentStatus: 'Paid Online',
+        totalPrice: 2700,
+        totalAmount: 2700,
+        bookingType: 'with-driver',
+        driverOption: '👨‍✈️ Driver + Car',
+        hasDriver: true,
+        driver: {
+          name: 'Ramesh Singh',
+          phone: '+91 98765 99999'
+        }
+      },
+      {
+        _id: 'BK-2026-4977',
+        id: 'BK-2026-4977',
+        bookingId: 'BK-2026-4977',
+        customerName: realName === 'Customer' ? 'Shanu' : realName,
+        customerPhone: realPhone,
+        vehicleName: 'Toyota 2020',
+        vehicle: {
+          make: 'Toyota',
+          model: '2020',
+          imageUrl: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=800',
+          pricePerDay: 2500
+        },
+        startDate: '2026-07-28',
+        endDate: '2026-07-30',
+        pickupTime: '10:00 AM',
+        dropoffTime: '06:00 PM',
+        status: 'Confirmed',
+        paymentStatus: 'Paid Online',
+        totalPrice: 5000,
+        totalAmount: 5000,
+        bookingType: 'with-driver',
+        driverOption: '👨‍✈️ Driver + Car',
+        hasDriver: true,
+        driver: {
+          name: 'Ramesh Singh',
+          phone: '+91 98765 99999'
+        }
+      },
+      {
         _id: 'b_selfdrive_default',
         id: 'BK-2026-9042',
         bookingId: 'BK-2026-9042',
-        customerName: realName,
+        customerName: realName === 'Customer' ? 'Shanu' : realName,
         customerPhone: realPhone,
         vehicleName: 'Toyota Fortuner Legender',
         vehicle: {
@@ -224,6 +282,8 @@ export default function CustomerDashboard() {
         },
         startDate: '2026-07-28',
         endDate: '2026-07-30',
+        pickupTime: '10:00 AM',
+        dropoffTime: '06:00 PM',
         status: 'Pending Admin Approval (Blocked)',
         paymentStatus: 'Paid Online',
         totalPrice: 9000,
@@ -335,12 +395,12 @@ export default function CustomerDashboard() {
   });
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: '#f8fafc', color: '#0f172a', fontFamily: 'Inter, system-ui, sans-serif' }}>
+    <div className="dashboard-layout" style={{ display: 'flex', minHeight: '100vh', background: '#f8fafc', color: '#0f172a', fontFamily: 'Inter, system-ui, sans-serif' }}>
       
       {/* ========================================== */}
       {/* LEFT SIDEBAR NAVIGATION */}
       {/* ========================================== */}
-      <aside style={{
+      <aside className="dashboard-sidebar" style={{
         width: sidebarCollapsed ? '75px' : '260px',
         background: '#ffffff',
         borderRight: '1px solid #e2e8f0',
@@ -440,7 +500,7 @@ export default function CustomerDashboard() {
       {/* ========================================== */}
       {/* MAIN CONTENT AREA */}
       {/* ========================================== */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+      <div className="dashboard-main" style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
         
         {/* Top Header Bar */}
         <header style={{ background: '#ffffff', borderBottom: '1px solid #e2e8f0', padding: '1rem 2rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 90, boxShadow: '0 2px 10px rgba(0,0,0,0.03)' }}>
@@ -557,10 +617,10 @@ export default function CustomerDashboard() {
                   </div>
 
                   <div style={{ display: 'grid', gridTemplateColumns: '120px 1fr 220px', gap: '1.5rem', alignItems: 'center' }}>
-                    <img src={activeBooking.vehicle.imageUrl} alt="Car" style={{ width: '100%', height: '80px', objectFit: 'cover', borderRadius: '10px' }} />
+                    <img src={activeBooking.vehicle?.imageUrl || 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=800'} alt="Car" style={{ width: '100%', height: '80px', objectFit: 'cover', borderRadius: '10px' }} />
                     
                     <div>
-                      <h3 style={{ margin: '0 0 0.3rem 0', fontSize: '1.2rem', fontWeight: 900, color: '#0f172a' }}>{activeBooking.vehicle.make} {activeBooking.vehicle.model}</h3>
+                      <h3 style={{ margin: '0 0 0.3rem 0', fontSize: '1.2rem', fontWeight: 900, color: '#0f172a' }}>{activeBooking.vehicle?.make || 'Toyota'} {activeBooking.vehicle?.model || 'Car'}</h3>
                       <div style={{ fontSize: '0.82rem', color: '#475569' }}>📍 Delhi Airport Hub → Connaught Place, New Delhi</div>
                       <div style={{ fontSize: '0.82rem', color: '#059669', fontWeight: 700, marginTop: '0.2rem' }}>👨‍✈️ Driver: {activeBooking.driver?.name} ({activeBooking.driver?.phone})</div>
                     </div>
@@ -781,11 +841,11 @@ export default function CustomerDashboard() {
                   }
                   return filtered.map(b => (
                     <div key={b._id} style={{ background: '#ffffff', borderRadius: '16px', border: '1px solid #e2e8f0', padding: '1.5rem', display: 'grid', gridTemplateColumns: '140px 1fr 220px', gap: '1.5rem', alignItems: 'center', boxShadow: '0 4px 15px rgba(0,0,0,0.03)' }}>
-                      <img src={b.vehicle.imageUrl} alt={b.vehicle.model} style={{ width: '100%', height: '90px', objectFit: 'cover', borderRadius: '10px' }} />
+                      <img src={b.vehicle?.imageUrl || 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=800'} alt={b.vehicle?.model || 'Car'} style={{ width: '100%', height: '90px', objectFit: 'cover', borderRadius: '10px' }} />
 
                       <div>
                         <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', marginBottom: '0.35rem', flexWrap: 'wrap' }}>
-                          <span style={{ fontWeight: 900, fontSize: '1.15rem', color: '#0f172a' }}>{b.vehicle.make} {b.vehicle.model}</span>
+                          <span style={{ fontWeight: 900, fontSize: '1.15rem', color: '#0f172a' }}>{b.vehicle?.make || b.vehicleName || 'Vehicle'} {b.vehicle?.model || ''}</span>
                           <span style={{ fontSize: '0.72rem', background: '#eff6ff', color: '#2563eb', padding: '0.2rem 0.5rem', borderRadius: '6px', fontWeight: 800 }}>ID: {b.bookingId}</span>
                           <span style={{ fontSize: '0.72rem', background: '#f1f5f9', color: '#475569', padding: '0.2rem 0.5rem', borderRadius: '6px', fontWeight: 800 }}>
                             {b.bookingType === 'self-drive' || b.bookingType === 'self_drive' || (!b.hasDriver && b.bookingType) ? 'Car Only (Self-Drive) 🔑' : b.bookingType === 'with-driver' || b.bookingType === 'with_driver' || b.hasDriver ? 'Car + Chauffeur 👨‍✈️' : (b.bookingType || 'Self-Drive')}
@@ -809,8 +869,12 @@ export default function CustomerDashboard() {
                           </div>
                         </div>
 
-                        <div style={{ fontSize: '0.82rem', color: '#475569', marginBottom: '0.4rem' }}>
-                          📅 Dates: <strong>{b.startDate}</strong> to <strong>{b.endDate}</strong> • Total: <strong style={{ color: '#059669' }}>₹{b.totalPrice}</strong>
+                        <div style={{ fontSize: '0.82rem', color: '#475569', marginBottom: '0.4rem', display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
+                          <span>📅 <strong>Pick-up:</strong> {b.startDate || b.pickupDate || '2026-07-28'} ⏰ <span style={{ color: '#2563eb', fontWeight: 800 }}>{b.pickupTime || b.startTime || '10:00 AM'}</span></span>
+                          <span style={{ color: '#94a3b8' }}>➔</span>
+                          <span><strong>Drop-off:</strong> {b.endDate || b.returnDate || '2026-07-30'} ⏰ <span style={{ color: '#2563eb', fontWeight: 800 }}>{b.dropoffTime || b.endTime || '06:00 PM'}</span></span>
+                          <span style={{ color: '#cbd5e1' }}>•</span>
+                          <span>Total: <strong style={{ color: '#059669', fontSize: '0.95rem' }}>₹{b.totalPrice || 2700}</strong></span>
                         </div>
                         {b.hasDriver && b.driver && (
                           <div style={{ fontSize: '0.78rem', color: '#2563eb', fontWeight: 700 }}>
@@ -922,7 +986,7 @@ export default function CustomerDashboard() {
 
                       <div style={{ display: 'flex', gap: '0.5rem' }}>
                         <a href="tel:+919876599999" style={{ flex: 1, textDecoration: 'none', background: '#2563eb', color: '#fff', textAlign: 'center', padding: '0.6rem', borderRadius: '8px', fontWeight: 800, fontSize: '0.82rem' }}>📞 Call Chauffeur</a>
-                        <button onClick={() => alert('Opening encrypted live driver chat...')} style={{ flex: 1, background: '#059669', color: '#fff', border: 'none', padding: '0.6rem', borderRadius: '8px', fontWeight: 800, fontSize: '0.82rem', cursor: 'pointer' }}>💬 Chat</button>
+                        <button onClick={() => setSelectedChatBooking(b)} style={{ flex: 1, background: '#059669', color: '#fff', border: 'none', padding: '0.6rem', borderRadius: '8px', fontWeight: 800, fontSize: '0.82rem', cursor: 'pointer' }}>💬 Chat with Driver</button>
                       </div>
                     </div>
                   ) : (
@@ -1248,7 +1312,7 @@ export default function CustomerDashboard() {
                     customerPhone: profileData?.mobile || user?.mobile || '+91 98765 43210',
                     startDate: pickupDate || '2026-07-28',
                     endDate: returnDate || '2026-07-30',
-                    status: 'Confirmed',
+                    status: 'Pending Approval',
                     paymentStatus: 'Paid Online',
                     totalPrice: calcPrice,
                     totalAmount: calcPrice,
@@ -1380,8 +1444,8 @@ export default function CustomerDashboard() {
             <div style={{ fontSize: '0.85rem', lineHeight: 1.6 }}>
               <div><strong>Invoice ID:</strong> INV-2026-{invoiceBooking.bookingId}</div>
               <div><strong>Renter:</strong> {profileData.name} ({profileData.mobile})</div>
-              <div><strong>Vehicle:</strong> {invoiceBooking.vehicle.make} {invoiceBooking.vehicle.model}</div>
-              <div><strong>Dates:</strong> {invoiceBooking.startDate} to {invoiceBooking.endDate}</div>
+              <div><strong>Vehicle:</strong> {invoiceBooking.vehicle?.make || invoiceBooking.vehicleName || 'Vehicle'} {invoiceBooking.vehicle?.model || ''}</div>
+              <div><strong>Dates & Time:</strong> {invoiceBooking.startDate || '2026-07-28'} ({invoiceBooking.pickupTime || '10:00 AM'}) to {invoiceBooking.endDate || '2026-07-30'} ({invoiceBooking.dropoffTime || '06:00 PM'})</div>
               <hr style={{ margin: '1rem 0', borderTop: '1px solid #e2e8f0' }} />
               <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Base Vehicle Rental:</span><span>₹{invoiceBooking.totalPrice - 1000}</span></div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Chauffeur Fee:</span><span>₹1,000</span></div>

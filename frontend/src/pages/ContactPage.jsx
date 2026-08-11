@@ -29,7 +29,7 @@ export default function ContactPage() {
         >
           ← Back to Home
         </button>
-        <h1 style={{ fontSize: '3rem', fontFamily: "'Outfit', sans-serif", fontWeight: 800, marginBottom: '1rem' }}>
+        <h1 className="page-header-title" style={{ fontSize: '3rem', fontFamily: "'Outfit', sans-serif", fontWeight: 800, marginBottom: '1rem' }}>
           Get in <span style={{ color: '#2563eb' }}>Touch</span>
         </h1>
         <p style={{ fontSize: '1.2rem', color: '#94a3b8', maxWidth: '600px', margin: '0 auto' }}>

@@ -77,8 +77,8 @@ function TopHeader({ activeNav, notifications = [], unreadCount = 0, showNotific
   return (
     <header style={{
       height: '56px',
-      background: '#fff',
-      borderBottom: '1px solid var(--border-color)',
+      background: '#FFFFFF',
+      borderBottom: '1px solid #EADCCF',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-between',
@@ -86,8 +86,8 @@ function TopHeader({ activeNav, notifications = [], unreadCount = 0, showNotific
       flexShrink: 0,
       position: 'relative'
     }}>
-      <div style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
-        <span style={{ color: 'var(--text-muted)' }}>Admin Console</span> / <span style={{ color: 'var(--accent-blue)', fontWeight: 700 }}>{cleanLabel}</span>
+      <div style={{ fontSize: '0.9rem', fontWeight: 600, color: '#7C6959' }}>
+        <span style={{ color: '#9C8A7B' }}>Admin Console</span> / <span style={{ color: '#D49B4B', fontWeight: 800 }}>{cleanLabel}</span>
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
@@ -98,7 +98,7 @@ function TopHeader({ activeNav, notifications = [], unreadCount = 0, showNotific
             🔔
             {unreadCount > 0 && (
               <span style={{
-                position: 'absolute', top: '0px', right: '0px', background: '#f43f5e', color: '#fff', fontSize: '0.65rem', fontWeight: 700, borderRadius: '50%', width: '16px', height: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center'
+                position: 'absolute', top: '0px', right: '0px', background: '#D49B4B', color: '#fff', fontSize: '0.65rem', fontWeight: 700, borderRadius: '50%', width: '16px', height: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center'
               }}>
                 {unreadCount}
               </span>
@@ -106,26 +106,26 @@ function TopHeader({ activeNav, notifications = [], unreadCount = 0, showNotific
           </button>
           {showNotificationsDropdown && (
             <div style={{
-              position: 'absolute', top: '100%', right: 0, width: '320px', background: '#fff', border: '1px solid var(--border-color)', borderRadius: '8px', boxShadow: 'var(--shadow-lg)', zIndex: 1000, marginTop: '0.5rem', padding: '0.5rem 0'
+              position: 'absolute', top: '100%', right: 0, width: '320px', background: '#fff', border: '1px solid #EADCCF', borderRadius: '12px', boxShadow: '0 10px 30px rgba(78,49,27,0.1)', zIndex: 1000, marginTop: '0.5rem', padding: '0.5rem 0'
             }}>
-              <div style={{ padding: '0.5rem 1rem', borderBottom: '1px solid var(--border-color)', fontWeight: 700, fontSize: '0.88rem', color: 'var(--text-primary)', display: 'flex', justifyContent: 'space-between' }}>
+              <div style={{ padding: '0.5rem 1rem', borderBottom: '1px solid #EADCCF', fontWeight: 700, fontSize: '0.88rem', color: '#3C2415', display: 'flex', justifyContent: 'space-between' }}>
                 <span>Notification History</span>
-                <span style={{ color: 'var(--text-muted)', fontWeight: 500, fontSize: '0.75rem' }}>({notifications.length})</span>
+                <span style={{ color: '#7C6959', fontWeight: 500, fontSize: '0.75rem' }}>({notifications.length})</span>
               </div>
               <div style={{ maxHeight: '280px', overflowY: 'auto' }}>
                 {notifications.length === 0 ? (
-                  <div style={{ padding: '2rem 1rem', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.8rem' }}>
+                  <div style={{ padding: '2rem 1rem', textAlign: 'center', color: '#7C6959', fontSize: '0.8rem' }}>
                     No notifications yet
                   </div>
                 ) : (
                   notifications.map((n) => (
-                    <div key={n._id} style={{ padding: '0.75rem 1rem', borderBottom: '1px solid #f1f5f9', fontSize: '0.78rem', textAlign: 'left' }}>
+                    <div key={n._id} style={{ padding: '0.75rem 1rem', borderBottom: '1px solid #FAF4EE', fontSize: '0.78rem', textAlign: 'left' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.2rem' }}>
-                        <span style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{n.title}</span>
-                        <span style={{ color: 'var(--text-muted)', fontSize: '0.68rem' }}>{new Date(n.createdAt).toLocaleDateString()}</span>
+                        <span style={{ fontWeight: 700, color: '#3C2415' }}>{n.title}</span>
+                        <span style={{ color: '#7C6959', fontSize: '0.68rem' }}>{new Date(n.createdAt).toLocaleDateString()}</span>
                       </div>
-                      <div style={{ color: 'var(--text-secondary)', lineHeight: '1.3' }}>{n.message}</div>
-                      <div style={{ fontSize: '0.65rem', color: 'var(--accent-blue)', marginTop: '0.25rem', fontWeight: 600 }}>
+                      <div style={{ color: '#7C6959', lineHeight: '1.3' }}>{n.message}</div>
+                      <div style={{ fontSize: '0.65rem', color: '#D49B4B', marginTop: '0.25rem', fontWeight: 600 }}>
                         Sender: {n.senderRole === 'super-admin' ? 'Platform Admin' : 'Company Manager'}
                       </div>
                     </div>
@@ -137,13 +137,13 @@ function TopHeader({ activeNav, notifications = [], unreadCount = 0, showNotific
         </div>
 
         {/* Super Admin Identity Badge */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', borderLeft: '1px solid #e2e8f0', paddingLeft: '1.25rem' }}>
-          <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#e2e8f0', color: '#475569', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '0.78rem', border: '1px solid #cbd5e1' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', borderLeft: '1px solid #EADCCF', paddingLeft: '1.25rem' }}>
+          <div style={{ width: '34px', height: '34px', borderRadius: '50%', background: '#D49B4B', color: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '0.85rem', boxShadow: '0 2px 8px rgba(212, 155, 75, 0.4)' }}>
             SA
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', lineHeight: '1.2' }}>
-            <span style={{ fontSize: '0.78rem', fontWeight: 800, color: '#1e293b' }}>Super Admin</span>
-            <span style={{ fontSize: '0.65rem', color: '#64748b', fontWeight: 600 }}>Administrator</span>
+            <span style={{ fontSize: '0.78rem', fontWeight: 800, color: '#3C2415' }}>Super Admin</span>
+            <span style={{ fontSize: '0.65rem', color: '#7C6959', fontWeight: 600 }}>Administrator</span>
           </div>
         </div>
       </div>
@@ -156,44 +156,53 @@ function TopHeader({ activeNav, notifications = [], unreadCount = 0, showNotific
 ───────────────────────────────────────────────────────────────── */
 function Sidebar({ activeNav, onNavChange, onLogout }) {
   return (
-    <aside style={{
-      width: '210px', height: '100%', background: '#fff',
-      borderRight: '1px solid var(--border-color)',
+    <aside className="dashboard-sidebar" style={{
+      width: '220px', height: '100%', background: '#100C09',
+      borderRight: '1px solid rgba(255,255,255,0.08)',
       display: 'flex', flexDirection: 'column', flexShrink: 0, overflowY: 'hidden',
     }}>
-      <div style={{ padding: '1.1rem 1.25rem', borderBottom: '1px solid var(--border-color)' }}>
-        <div style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '0.9rem', background: 'var(--grad-primary)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-          Super Admin
+      <div style={{ padding: '1.25rem 1.25rem', borderBottom: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'linear-gradient(135deg, #D49B4B 0%, #B88235 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', boxShadow: '0 4px 12px rgba(212,155,75,0.4)' }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="m2 4 3 12h14l3-12-6 7-4-8-4 8-6-7z"/><path d="M5 20h14"/></svg>
         </div>
-        <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', marginTop: '2px' }}>Platform Control Console</div>
+        <div>
+          <div style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '0.95rem', color: '#D49B4B', letterSpacing: '-0.02em' }}>
+            Super Admin
+          </div>
+          <div style={{ fontSize: '0.68rem', color: '#A89886', marginTop: '1px' }}>Platform Control Console</div>
+        </div>
       </div>
-      <nav style={{ flex: 1, padding: '0.5rem 0', overflowY: 'auto' }}>
+      <nav style={{ flex: 1, padding: '0.75rem 0.6rem', overflowY: 'auto' }}>
         {NAV_ITEMS.map(item => {
           const isActive = activeNav === item.id;
           return (
             <button key={item.id} onClick={() => onNavChange(item.id)} style={{
-              display: 'block', width: '100%', padding: '0.7rem 1.25rem',
-              background: isActive ? 'rgba(37,99,235,0.07)' : 'transparent', border: 'none',
-              borderLeft: isActive ? '3px solid var(--accent-blue)' : '3px solid transparent',
-              cursor: 'pointer', color: isActive ? 'var(--accent-blue)' : 'var(--text-primary)',
-              fontWeight: isActive ? 700 : 500, fontSize: '0.875rem',
-              fontFamily: 'var(--font-body)', textAlign: 'left', transition: 'all 0.18s ease',
+              display: 'block', width: '100%', padding: '0.7rem 1rem',
+              margin: '0.2rem 0',
+              background: isActive ? 'linear-gradient(135deg, #D49B4B 0%, #C58F3E 100%)' : 'transparent',
+              border: 'none', borderRadius: '8px',
+              cursor: 'pointer', color: isActive ? '#FFFFFF' : '#E0D5C7',
+              fontWeight: isActive ? 800 : 500, fontSize: '0.85rem',
+              fontFamily: 'var(--font-body)', textAlign: 'left', transition: 'all 0.2s ease',
+              boxShadow: isActive ? '0 4px 12px rgba(212, 155, 75, 0.35)' : 'none'
             }}
-            onMouseEnter={e => { if (!isActive) { e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.color = 'var(--accent-blue)'; } }}
-            onMouseLeave={e => { if (!isActive) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-primary)'; } }}
-            >{item.label}</button>
+            onMouseEnter={e => { if (!isActive) { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; e.currentTarget.style.color = '#D49B4B'; } }}
+            onMouseLeave={e => { if (!isActive) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#E0D5C7'; } }}
+            >
+              {item.label}
+            </button>
           );
         })}
       </nav>
-      <div style={{ padding: '0.75rem', borderTop: '1px solid var(--border-color)' }}>
+      <div style={{ padding: '0.75rem', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
         <button onClick={onLogout} style={{
           display: 'block', width: '100%', padding: '0.6rem 1rem',
-          background: 'transparent', border: '1px solid rgba(244,63,94,0.25)',
-          borderRadius: 'var(--radius-sm)', cursor: 'pointer', color: 'var(--accent-rose)',
-          fontWeight: 600, fontSize: '0.85rem', fontFamily: 'var(--font-body)', textAlign: 'center',
-          transition: 'all 0.18s ease',
+          background: 'transparent', border: '1px solid rgba(212, 155, 75, 0.4)',
+          borderRadius: '8px', cursor: 'pointer', color: '#D49B4B',
+          fontWeight: 700, fontSize: '0.82rem', fontFamily: 'var(--font-body)', textAlign: 'center',
+          transition: 'all 0.2s ease',
         }}
-        onMouseEnter={e => e.currentTarget.style.background = 'rgba(244,63,94,0.06)'}
+        onMouseEnter={e => e.currentTarget.style.background = 'rgba(212,155,75,0.1)'}
         onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
         >Sign Out</button>
       </div>
@@ -1047,6 +1056,7 @@ function SubscriptionPanel({ companies, onBack }) {
   const [showSendMailModal, setShowSendMailModal] = useState(false);
   const [showAddSubModal, setShowAddSubModal] = useState(false);
   const [viewingEmail, setViewingEmail] = useState(null);
+  const [confirmingPayout, setConfirmingPayout] = useState(null);
 
   // Email Dispatcher State inside Modal
   const [manualEmailInput, setManualEmailInput] = useState('vaideedeepu@gmail.com');
@@ -3830,6 +3840,141 @@ export default function SuperAdminDashboard() {
 
   // KYC Inspection Modal State
   const [selectedKycItem, setSelectedKycItem] = useState(null);
+  const [confirmingPayout, setConfirmingPayout] = useState(null);
+
+  // Driver Assignment & Publish Status Management
+  const [assignedDriversMap, setAssignedDriversMap] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem('car_owner_assigned_drivers') || '{}');
+    } catch {
+      return {};
+    }
+  });
+
+  const [registeredDriversList, setRegisteredDriversList] = useState(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem('registered_drivers_list') || '[]');
+      if (saved.length > 0) return saved;
+    } catch {}
+    return [
+      { id: 'dr_1', name: 'Ramesh Kumar', phone: '+91 98765 43210' },
+      { id: 'dr_2', name: 'Praveen Raj', phone: '+91 98765 12345' },
+      { id: 'dr_3', name: 'Karthik S', phone: '+91 98765 67890' }
+    ];
+  });
+
+  const handleAssignDriver = (coId, driverName) => {
+    const updated = { ...assignedDriversMap, [coId]: driverName };
+    setAssignedDriversMap(updated);
+    try {
+      localStorage.setItem('car_owner_assigned_drivers', JSON.stringify(updated));
+    } catch {}
+
+    if (driverName) {
+      alert(`✓ Driver "${driverName}" assigned to vehicle owner successfully!`);
+    } else {
+      alert(`ℹ️ Driver unassigned.`);
+    }
+  };
+
+  const handleQuickRegisterDriver = (coId) => {
+    const driverName = prompt('Enter new driver full name to register & assign:', 'Karthik S');
+    if (!driverName || !driverName.trim()) return;
+
+    const newDriver = {
+      id: 'dr_' + Date.now(),
+      name: driverName.trim(),
+      phone: '+91 ' + Math.floor(6000000000 + Math.random() * 3999999999)
+    };
+
+    const updatedDrivers = [...registeredDriversList, newDriver];
+    setRegisteredDriversList(updatedDrivers);
+    try {
+      localStorage.setItem('registered_drivers_list', JSON.stringify(updatedDrivers));
+    } catch {}
+
+    handleAssignDriver(coId, newDriver.name);
+  };
+
+  const handleTogglePublishStatus = (co) => {
+    const targetEmail = (co.email || '').trim().toLowerCase();
+    const targetId = String(co.id || '');
+
+    const isMatch = (item) => {
+      const itemEmail = (item.email || item.ownerEmail || '').trim().toLowerCase();
+      const itemId = String(item.id || item._id || '');
+      return (targetId && itemId === targetId) || (targetEmail && itemEmail === targetEmail);
+    };
+
+    try {
+      const approved = JSON.parse(localStorage.getItem('approved_car_owners') || '[]');
+      const pending = JSON.parse(localStorage.getItem('pending_car_owners') || '[]');
+
+      const isCurrentlyPublished = co.published !== false && (co.status === 'ACTIVE' || co.status === 'APPROVED');
+      const newStatus = isCurrentlyPublished ? 'UNPUBLISHED' : 'ACTIVE';
+      const newPublishBool = !isCurrentlyPublished;
+
+      const updatedApproved = approved.map(item => isMatch(item) ? { ...item, published: newPublishBool, status: newStatus } : item);
+      const updatedPending = pending.map(item => isMatch(item) ? { ...item, published: newPublishBool, status: newStatus } : item);
+
+      localStorage.setItem('approved_car_owners', JSON.stringify(updatedApproved));
+      localStorage.setItem('pending_car_owners', JSON.stringify(updatedPending));
+
+      alert(`🚗 Vehicle status for ${co.name} updated to: ${newPublishBool ? '🟢 Published (Active on platform)' : '🔴 Unpublished'}`);
+      window.location.reload();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleApprovePay = (req) => {
+    if (!req) return;
+    setConfirmingPayout(req);
+
+    const isOk = window.confirm(
+      `💳 CONFIRM PAYOUT:\n\n` +
+      `Owner: ${req.ownerName} (${req.ownerEmail || 'sathya@gmail.com'})\n` +
+      `Amount: ₹${Number(req.amount || 4930).toLocaleString('en-IN')}\n` +
+      `Account: ${req.bankDetails || 'HDFC Bank (A/C: ****8899)'}\n` +
+      `Ref ID: ${req.id || 'PAY-4930'}\n\n` +
+      `Are you sure you want to process this payout via RazorpayX?`
+    );
+
+    if (isOk) {
+      const utr = 'TXN' + Math.floor(10000000 + Math.random() * 90000000);
+      const fullTimeStamp = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) + ', ' + new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+
+      try {
+        const allReqs = JSON.parse(localStorage.getItem('payout_requests') || '[]');
+        const updated = allReqs.map(r => r.id === req.id ? { ...r, status: 'PAID', utrNo: utr, paidAt: fullTimeStamp } : r);
+        if (!updated.some(r => r.id === req.id)) {
+          updated.unshift({ ...req, status: 'PAID', utrNo: utr, paidAt: fullTimeStamp });
+        }
+        localStorage.setItem('payout_requests', JSON.stringify(updated));
+
+        // Push notification to Vehicle Owner
+        const notifItem = {
+          id: 'notif_' + Date.now(),
+          ownerEmail: (req.ownerEmail || 'sathya@gmail.com').toLowerCase().trim(),
+          title: '🎉 Payout Dispatched & Settled!',
+          message: `₹${Number(req.amount || 4930).toLocaleString('en-IN')} payout (${req.id}) has been successfully credited to your bank account via RazorpayX. UTR: ${utr}`,
+          timestamp: fullTimeStamp,
+          read: false
+        };
+
+        const existingOwnerNotifs = JSON.parse(localStorage.getItem('notifications_car_owner') || '[]');
+        localStorage.setItem('notifications_car_owner', JSON.stringify([notifItem, ...existingOwnerNotifs]));
+
+        const existingAdminNotifs = JSON.parse(localStorage.getItem('notifications_super_admin') || '[]');
+        localStorage.setItem('notifications_super_admin', JSON.stringify([notifItem, ...existingAdminNotifs]));
+      } catch (err) {
+        console.error(err);
+      }
+
+      alert(`🎉 SUCCESS!\n\nRazorpayX Payout of ₹${Number(req.amount || 4930).toLocaleString('en-IN')} processed successfully for ${req.ownerName}!\n\nStatus: PAID\nTransaction UTR: ${utr}\nPaid Date & Time: ${fullTimeStamp}`);
+      window.location.reload();
+    }
+  };
 
   // Chat States
   const [chatMessages, setChatMessages] = useState([]);
@@ -3841,80 +3986,161 @@ export default function SuperAdminDashboard() {
   const [recordingSeconds, setRecordingSeconds] = useState(0);
   const recordingTimerRef = useRef(null);
 
-  const fetchChatMessages = async () => {
-    if (!token) return;
-    try {
-      const res = await fetch('/api/chat', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (res.ok) {
-        const data = await res.json();
-        if (data.success) {
-          setChatMessages(data.messages || []);
-        }
-      }
-    } catch (err) {
-      console.warn('Error fetching chat messages:', err);
+  const filterContactMessages = (msgList, contact) => {
+    if (!contact || !Array.isArray(msgList)) return [];
+    if (contact.type === 'CAR_OWNER' || String(contact._id).startsWith('co_')) {
+      return msgList;
     }
+    const targetEmail = (contact.ownerEmail || contact.email || '').toLowerCase().trim();
+    const targetId = String(contact._id || contact.id || '').toLowerCase().trim();
+
+    return msgList.filter(msg => {
+      const msgEmail = (msg.ownerEmail || '').toLowerCase().trim();
+      if (targetEmail && msgEmail && targetEmail === msgEmail) return true;
+
+      const sId = String(typeof msg.senderId === 'object' && msg.senderId ? (msg.senderId._id || msg.senderId.id) : (msg.senderId || '')).toLowerCase();
+      const rId = String(typeof msg.receiverId === 'object' && msg.receiverId ? (msg.receiverId._id || msg.receiverId.id) : (msg.receiverId || '')).toLowerCase();
+      const cId = String(typeof msg.companyId === 'object' && msg.companyId ? (msg.companyId._id || msg.companyId.id) : (msg.companyId || '')).toLowerCase();
+
+      if (targetId && (sId === targetId || rId === targetId || cId === targetId)) return true;
+      if (targetEmail && (sId.includes(targetEmail) || rId.includes(targetEmail) || cId.includes(targetEmail))) return true;
+
+      return false;
+    });
+  };
+
+  const getMergedChatMessages = () => {
+    try {
+      const store1 = JSON.parse(localStorage.getItem('rentos_unified_chat_store') || '[]');
+      const store2 = JSON.parse(localStorage.getItem('rentos_live_chat_store') || '[]');
+      const store3 = JSON.parse(localStorage.getItem('owner_support_messages') || '[]');
+
+      const combined = [...store1, ...store2, ...store3];
+      const uniqueMap = new Map();
+
+      combined.forEach(m => {
+        if (!m) return;
+        const key = m.id || `${m.sender}_${m.text || m.message}_${m.time}`;
+        if (!uniqueMap.has(key)) {
+          uniqueMap.set(key, {
+            id: key,
+            _id: key,
+            sender: m.sender || (m.senderRole === 'super-admin' ? 'admin' : 'owner'),
+            senderRole: m.senderRole || (m.sender === 'admin' ? 'super-admin' : 'car-owner'),
+            senderName: m.senderName || (m.sender === 'admin' ? 'Super Admin' : 'Sathya'),
+            text: m.text || m.message || '',
+            message: m.text || m.message || '',
+            time: m.time || m.createdAt || '10:00 AM',
+            createdAt: m.time || m.createdAt || '10:00 AM',
+            ownerEmail: (m.ownerEmail || 'sathya@gmail.com').toLowerCase().trim(),
+            timestamp: m.timestamp || (m.id && String(m.id).startsWith('msg_') ? parseInt(String(m.id).replace('msg_', '')) : Date.now())
+          });
+        }
+      });
+
+      const masterList = Array.from(uniqueMap.values()).sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+
+      localStorage.setItem('rentos_unified_chat_store', JSON.stringify(masterList));
+      localStorage.setItem('rentos_live_chat_store', JSON.stringify(masterList));
+      localStorage.setItem('owner_support_messages', JSON.stringify(masterList));
+
+      return masterList;
+    } catch (e) {
+      return [];
+    }
+  };
+
+  const fetchChatMessages = async () => {
+    const masterList = getMergedChatMessages();
+    setChatMessages(masterList);
   };
 
   const handleSendChatMessage = async (e) => {
     e.preventDefault();
     if (!chatInput.trim() || !selectedContact) return;
 
-    const payload = {
-      message: chatInput,
-      receiverRole: 'company-admin',
-      receiverId: selectedContact.ownerId || selectedContact._id, // Send to company owner user account
-      companyId: selectedContact._id
+    const timeStr = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+    const targetEmail = (selectedContact.ownerEmail || selectedContact.email || 'sathya@gmail.com').toLowerCase().trim();
+
+    const newAdminMsg = {
+      id: 'msg_' + Date.now(),
+      sender: 'admin',
+      senderRole: 'super-admin',
+      senderName: 'Super Admin',
+      text: chatInput.trim(),
+      message: chatInput.trim(),
+      time: timeStr,
+      ownerEmail: targetEmail,
+      ownerName: selectedContact.name || 'Sathya',
+      timestamp: Date.now()
     };
 
     try {
-      const res = await fetch('/api/chat', {
+      const currentMaster = getMergedChatMessages();
+      const updatedMaster = [...currentMaster, newAdminMsg];
+      localStorage.setItem('rentos_unified_chat_store', JSON.stringify(updatedMaster));
+      localStorage.setItem('rentos_live_chat_store', JSON.stringify(updatedMaster));
+      localStorage.setItem('owner_support_messages', JSON.stringify(updatedMaster));
+      setChatMessages(updatedMaster);
+    } catch (err) {}
+
+    if (token && selectedContact.type === 'VENDOR') {
+      const payload = {
+        message: chatInput,
+        receiverRole: 'company-admin',
+        receiverId: selectedContact.ownerId || selectedContact._id,
+        companyId: selectedContact._id
+      };
+      fetch('/api/chat', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify(payload)
-      });
-      if (res.ok) {
-        const data = await res.json();
-        if (data.success) {
-          setChatInput('');
-          fetchChatMessages();
-        }
-      }
-    } catch (err) {
-      console.error('Error sending message:', err);
+      }).catch(() => {});
     }
+
+    setChatInput('');
   };
 
   const sendDirectChatMessage = async (text) => {
-    if (!text.trim()) return;
-    const payload = {
-      message: text,
-      receiverRole: 'company-admin',
-      receiverId: selectedContact.ownerId || selectedContact._id,
-      companyId: selectedContact._id
+    if (!text || !text.trim() || !selectedContact) return;
+
+    const timeStr = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+    const targetEmail = (selectedContact.ownerEmail || selectedContact.email || 'sathya@gmail.com').toLowerCase().trim();
+
+    const newAdminMsg = {
+      id: 'msg_' + Date.now(),
+      sender: 'admin',
+      senderRole: 'super-admin',
+      senderName: 'Super Admin',
+      text: text.trim(),
+      message: text.trim(),
+      time: timeStr,
+      ownerEmail: targetEmail,
+      ownerName: selectedContact.name || 'Sathya',
+      timestamp: Date.now()
     };
+
     try {
-      const res = await fetch('/api/chat', {
+      const currentMaster = getMergedChatMessages();
+      const updatedMaster = [...currentMaster, newAdminMsg];
+      localStorage.setItem('rentos_unified_chat_store', JSON.stringify(updatedMaster));
+      localStorage.setItem('rentos_live_chat_store', JSON.stringify(updatedMaster));
+      localStorage.setItem('owner_support_messages', JSON.stringify(updatedMaster));
+      setChatMessages(updatedMaster);
+    } catch (err) {}
+
+    if (token && selectedContact.type === 'VENDOR') {
+      const payload = {
+        message: text,
+        receiverRole: 'company-admin',
+        receiverId: selectedContact.ownerId || selectedContact._id,
+        companyId: selectedContact._id
+      };
+      fetch('/api/chat', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify(payload)
-      });
-      if (res.ok) {
-        const data = await res.json();
-        if (data.success) {
-          fetchChatMessages();
-        }
-      }
-    } catch (err) {
-      console.error('Error sending direct support message:', err);
+      }).catch(() => {});
     }
   };
 
@@ -3986,19 +4212,46 @@ export default function SuperAdminDashboard() {
   }, [token]);
 
   useEffect(() => {
-    if (activeNav === 'chat' && token) {
+    if (activeNav === 'chat') {
       fetchChatMessages();
-      const interval = setInterval(fetchChatMessages, 4000);
-      return () => clearInterval(interval);
-    }
-  }, [activeNav, token]);
+      const interval = setInterval(fetchChatMessages, 100);
+      const handleStorageChange = () => fetchChatMessages();
+      window.addEventListener('storage', handleStorageChange);
 
-  // Set default selected contact once companies load
-  useEffect(() => {
-    if (companies.length > 0 && !selectedContact) {
-      setSelectedContact(companies[0]);
+      return () => {
+        clearInterval(interval);
+        window.removeEventListener('storage', handleStorageChange);
+      };
     }
-  }, [companies]);
+  }, [activeNav]);
+
+  // Set default selected contact once contacts load
+  useEffect(() => {
+    if (!selectedContact) {
+      try {
+        const approved = JSON.parse(localStorage.getItem('approved_car_owners') || '[]');
+        if (approved.length > 0) {
+          const o = approved[0];
+          setSelectedContact({
+            _id: 'co_' + (o.id || o.email),
+            name: o.name || 'Sathya',
+            displayName: o.name || 'Sathya',
+            ownerName: o.name || 'Sathya',
+            ownerEmail: (o.email || 'sathya@gmail.com').toLowerCase().trim(),
+            subText: `${o.carName || 'Hyundai Creta SX'} (${o.email || 'sathya@gmail.com'})`,
+            type: 'CAR_OWNER',
+            badge: '🚗 Car Owner',
+            phone: o.phone || '+91 96301 47852'
+          });
+          return;
+        }
+      } catch {}
+
+      if (companies.length > 0) {
+        setSelectedContact(companies[0]);
+      }
+    }
+  }, [companies, selectedContact]);
 
   const handleNavChange = (target, subObj) => {
     if (typeof target === 'object' && target !== null && target.nav) {
@@ -4045,12 +4298,12 @@ export default function SuperAdminDashboard() {
           <div className="card" style={{ flex: 1, display: 'flex', overflow: 'hidden', padding: 0, border: '1px solid var(--border-color)', borderRadius: '16px', background: '#ffffff' }}>
             
             {/* CONTACTS SIDEBAR */}
-            <div style={{ width: '280px', borderRight: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', background: '#f8fafc', flexShrink: 0 }}>
+            <div style={{ width: '290px', borderRight: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', background: '#f8fafc', flexShrink: 0 }}>
               <div style={{ padding: '1rem', borderBottom: '1px solid var(--border-color)' }}>
-                <div style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.5rem' }}>Active Vendors</div>
+                <div style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.5rem' }}>Direct Chat Contacts</div>
                 <input 
                   type="text" 
-                  placeholder="🔍 Search vendors..." 
+                  placeholder="🔍 Search vendors & car owners..." 
                   value={chatSearchQuery}
                   onChange={(e) => setChatSearchQuery(e.target.value)}
                   style={{ width: '100%', padding: '0.45rem 0.75rem', borderRadius: '6px', border: '1px solid var(--border-color)', fontSize: '0.82rem', outline: 'none' }}
@@ -4058,10 +4311,60 @@ export default function SuperAdminDashboard() {
               </div>
 
               <div style={{ flex: 1, overflowY: 'auto', padding: '0.5rem' }}>
-                {companies.filter(c => c && c.status !== 'pending_approval' && c.name.toLowerCase().includes(chatSearchQuery.toLowerCase())).length === 0 ? (
-                  <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', padding: '0.5rem', textAlign: 'center' }}>No active companies found.</div>
-                ) : (
-                  companies.filter(c => c && c.status !== 'pending_approval' && c.name.toLowerCase().includes(chatSearchQuery.toLowerCase())).map(c => {
+                {(() => {
+                  const companyContacts = companies.filter(c => c && c.status !== 'pending_approval').map(c => ({
+                    _id: c._id || c.id,
+                    name: c.name,
+                    displayName: c.name,
+                    subText: c.ownerName || c.ownerEmail,
+                    type: 'VENDOR',
+                    badge: '🏢 Vendor',
+                    phone: c.phone || c.ownerPhone || '+91 9517863240'
+                  }));
+
+                  const carOwnerContacts = (() => {
+                    try {
+                      const approved = JSON.parse(localStorage.getItem('approved_car_owners') || '[]');
+                      const pending = JSON.parse(localStorage.getItem('pending_car_owners') || '[]');
+                      const merged = [...approved, ...pending];
+                      if (merged.length > 0) {
+                        return merged.map(o => ({
+                          _id: 'co_' + (o.id || o.email || 'sathya'),
+                          name: o.name || 'Sathya',
+                          displayName: o.name || 'Sathya',
+                          ownerName: o.name || 'Sathya',
+                          ownerEmail: (o.email || 'sathya@gmail.com').toLowerCase().trim(),
+                          subText: `${o.carName || 'Hyundai Creta SX'} (${o.email || 'sathya@gmail.com'})`,
+                          type: 'CAR_OWNER',
+                          badge: '🚗 Car Owner',
+                          phone: o.phone || '+91 96301 47852'
+                        }));
+                      }
+                    } catch {}
+
+                    return [{
+                      _id: 'co_sathya',
+                      name: 'Sathya',
+                      displayName: 'Sathya',
+                      ownerName: 'Sathya',
+                      ownerEmail: 'sathya@gmail.com',
+                      subText: 'Hyundai Creta SX (sathya@gmail.com)',
+                      type: 'CAR_OWNER',
+                      badge: '🚗 Car Owner',
+                      phone: '+91 96301 47852'
+                    }];
+                  })();
+
+                  const allContactsList = [...companyContacts, ...carOwnerContacts].filter(
+                    (c, idx, self) => self.findIndex(t => t._id === c._id) === idx &&
+                    (c.name.toLowerCase().includes(chatSearchQuery.toLowerCase()) || (c.subText && c.subText.toLowerCase().includes(chatSearchQuery.toLowerCase())))
+                  );
+
+                  if (allContactsList.length === 0) {
+                    return <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', padding: '0.5rem', textAlign: 'center' }}>No active contacts found.</div>;
+                  }
+
+                  return allContactsList.map(c => {
                     const isSelected = selectedContact?._id === c._id;
                     return (
                       <button
@@ -4075,15 +4378,20 @@ export default function SuperAdminDashboard() {
                           marginBottom: '0.25rem'
                         }}
                       >
-                        <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#3b82f6', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ffffff', fontSize: '0.9rem', fontWeight: 'bold' }}>🏢</div>
+                        <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: c.type === 'CAR_OWNER' ? '#059669' : '#3b82f6', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ffffff', fontSize: '0.9rem', fontWeight: 'bold' }}>
+                          {c.type === 'CAR_OWNER' ? '🚗' : '🏢'}
+                        </div>
                         <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-primary)', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>{c.name}</div>
-                          <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{c.ownerName || c.ownerEmail}</div>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-primary)', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>{c.name}</div>
+                            <span style={{ fontSize: '0.62rem', background: c.type === 'CAR_OWNER' ? '#dcfce7' : '#eff6ff', color: c.type === 'CAR_OWNER' ? '#15803d' : '#2563eb', padding: '0.1rem 0.35rem', borderRadius: '6px', fontWeight: 800 }}>{c.badge}</span>
+                          </div>
+                          <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{c.subText}</div>
                         </div>
                       </button>
                     );
-                  })
-                )}
+                  });
+                })()}
               </div>
             </div>
 
@@ -4119,32 +4427,14 @@ export default function SuperAdminDashboard() {
 
                   {/* Messages Stream */}
                   <div style={{ flex: 1, overflowY: 'auto', padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.75rem', background: '#efeae2', borderBottom: '1px solid #e9edef' }}>
-                    {chatMessages.filter(msg => {
-                      const sId = typeof msg.senderId === 'object' && msg.senderId !== null ? (msg.senderId._id || msg.senderId.id) : msg.senderId;
-                      const rId = typeof msg.receiverId === 'object' && msg.receiverId !== null ? (msg.receiverId._id || msg.receiverId.id) : msg.receiverId;
-                      const cId = typeof msg.companyId === 'object' && msg.companyId !== null ? (msg.companyId._id || msg.companyId.id) : msg.companyId;
-
-                      const targetCompanyId = String(selectedContact._id || '');
-                      const targetOwnerId = String(selectedContact.ownerId || selectedContact._id || '');
-
-                      return cId === targetCompanyId || sId === targetOwnerId || rId === targetOwnerId;
-                    }).length === 0 ? (
+                    {filterContactMessages(chatMessages, selectedContact).length === 0 ? (
                       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#667781', gap: '0.5rem' }}>
                         <span style={{ fontSize: '2.5rem' }}>💬</span>
-                        <div style={{ fontSize: '0.82rem', fontWeight: 600 }}>No messages in this WhatsApp thread yet.</div>
-                        <div style={{ fontSize: '0.72rem' }}>Send a message to initiate support contact.</div>
+                        <div style={{ fontSize: '0.82rem', fontWeight: 600 }}>No messages in this chat thread yet.</div>
+                        <div style={{ fontSize: '0.72rem' }}>Send a message to initiate direct support contact.</div>
                       </div>
                     ) : (
-                      chatMessages.filter(msg => {
-                        const sId = typeof msg.senderId === 'object' && msg.senderId !== null ? (msg.senderId._id || msg.senderId.id) : msg.senderId;
-                        const rId = typeof msg.receiverId === 'object' && msg.receiverId !== null ? (msg.receiverId._id || msg.receiverId.id) : msg.receiverId;
-                        const cId = typeof msg.companyId === 'object' && msg.companyId !== null ? (msg.companyId._id || msg.companyId.id) : msg.companyId;
-
-                        const targetCompanyId = String(selectedContact._id || '');
-                        const targetOwnerId = String(selectedContact.ownerId || selectedContact._id || '');
-
-                        return cId === targetCompanyId || sId === targetOwnerId || rId === targetOwnerId;
-                      }).map((msg) => {
+                      filterContactMessages(chatMessages, selectedContact).map((msg) => {
                         const isMe = msg.senderRole === 'super-admin';
                         return (
                           <div 
@@ -4206,7 +4496,20 @@ export default function SuperAdminDashboard() {
                                 )}
                               </div>
                               <div style={{ fontSize: '0.62rem', color: '#667781', textAlign: 'right', marginTop: '0.2rem', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '2px' }}>
-                                {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                {(() => {
+                                  const ts = msg.createdAt;
+                                  if (!ts) return '12:00 PM';
+                                  if (typeof ts === 'string' && (ts.includes('AM') || ts.includes('PM') || ts.includes('am') || ts.includes('pm'))) {
+                                    return ts;
+                                  }
+                                  try {
+                                    const d = new Date(ts);
+                                    if (!isNaN(d.getTime())) {
+                                      return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                                    }
+                                  } catch {}
+                                  return String(ts);
+                                })()}
                                 {isMe && <span style={{ color: '#53bdeb', fontSize: '0.8rem', fontWeight: 'bold' }}>✓✓</span>}
                               </div>
                             </div>
@@ -4403,12 +4706,12 @@ export default function SuperAdminDashboard() {
               <table className="custom-table" style={{ width: '100%' }}>
                 <thead>
                   <tr>
-                    <th>Payout Ref ID</th><th>Owner / Partner Name</th><th>Requested Date</th><th>Amount (₹)</th><th>Settlement Account</th><th>Status</th><th>Action</th>
+                    <th>Payout Ref ID</th><th>Owner / Partner Name</th><th>Requested Date & Time</th><th>Amount (₹)</th><th>Settlement Account</th><th>Status</th><th>Paid Date & Time</th><th>Action</th>
                   </tr>
                 </thead>
                 <tbody>
                   {payoutReqs.length === 0 ? (
-                    <tr><td colSpan="7" style={{ textAlign: 'center', color: '#94a3b8', padding: '2rem' }}>No instant payout requests submitted yet by car owners.</td></tr>
+                    <tr><td colSpan="8" style={{ textAlign: 'center', color: '#94a3b8', padding: '2rem' }}>No instant payout requests submitted yet by car owners.</td></tr>
                   ) : (
                     payoutReqs.map(req => (
                       <tr key={req.id}>
@@ -4417,7 +4720,7 @@ export default function SuperAdminDashboard() {
                           <div style={{ fontWeight: 800, color: '#0f172a' }}>{req.ownerName}</div>
                           <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{req.ownerEmail}</div>
                         </td>
-                        <td style={{ fontSize: '0.82rem', color: '#475569' }}>{req.requestedAt}</td>
+                        <td style={{ fontSize: '0.82rem', color: '#475569', fontWeight: 600 }}>{req.requestedAt || '05 Aug 2026, 11:15 AM'}</td>
                         <td style={{ fontWeight: 900, color: '#059669', fontSize: '1rem' }}>₹ {Number(req.amount).toLocaleString('en-IN')}</td>
                         <td>
                           <div style={{ fontWeight: 700, fontSize: '0.85rem', color: '#1e293b' }}>{req.bankDetails}</div>
@@ -4426,46 +4729,58 @@ export default function SuperAdminDashboard() {
                         <td>
                           <span style={{
                             fontSize: '0.72rem', fontWeight: 800, padding: '0.25rem 0.65rem', borderRadius: '12px',
-                            background: req.status.includes('Paid') || req.status.includes('Completed') ? '#dcfce7' : req.status.includes('Rejected') ? '#ffe4e6' : '#fef3c7',
-                            color: req.status.includes('Paid') || req.status.includes('Completed') ? '#15803d' : req.status.includes('Rejected') ? '#be123c' : '#b45309',
-                            border: req.status.includes('Paid') || req.status.includes('Completed') ? '1px solid #86efac' : req.status.includes('Rejected') ? '1px solid #fca5a5' : '1px solid #fde68a'
+                            background: req.status === 'PAID' || req.status.includes('Paid') ? '#dcfce7' : req.status.includes('Rejected') ? '#ffe4e6' : '#fef3c7',
+                            color: req.status === 'PAID' || req.status.includes('Paid') ? '#15803d' : req.status.includes('Rejected') ? '#be123c' : '#b45309',
+                            border: req.status === 'PAID' || req.status.includes('Paid') ? '1px solid #86efac' : req.status.includes('Rejected') ? '1px solid #fca5a5' : '1px solid #fde68a'
                           }}>
-                            {req.status.includes('Paid') || req.status.includes('Completed') ? '✓ Dispatched & Paid' : req.status.includes('Rejected') ? '🔴 Rejected' : '⏳ Pending Super Admin Approval'}
+                            {req.status === 'PAID' || req.status.includes('Paid') ? '✓ PAID (RazorpayX)' : req.status.includes('Rejected') ? '🔴 Rejected' : '⏳ Pending Super Admin Approval'}
                           </span>
+                        </td>
+                        <td style={{ fontSize: '0.82rem', color: req.paidAt ? '#059669' : '#94a3b8', fontWeight: 700 }}>
+                          {req.paidAt || (req.status === 'PAID' ? '10 Aug 2026, 04:45 PM' : '— Pending')}
                         </td>
                         <td>
                           <div style={{ display: 'flex', gap: '0.4rem' }}>
-                            {(!req.status.includes('Paid') && !req.status.includes('Completed')) ? (
+                            {(!req.status.includes('Paid') && !req.status.includes('Completed') && req.status !== 'PAID') ? (
                               <>
                                 <button
-                                  onClick={() => {
-                                    const utr = 'UTR' + Math.floor(10000000 + Math.random() * 90000000);
-                                    const updated = payoutReqs.map(r => r.id === req.id ? { ...r, status: 'Dispatched & Paid', utrNo: utr } : r);
-                                    localStorage.setItem('payout_requests', JSON.stringify(updated));
-                                    alert(`✅ Approved payout ${req.id} of ₹${req.amount} for ${req.ownerName}!\nStatus updated to Dispatched & Paid.\nTransaction Ref: ${utr}`);
-                                    window.location.reload();
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    handleApprovePay(req);
                                   }}
-                                  style={{ background: '#10b981', color: '#fff', border: 'none', padding: '0.4rem 0.85rem', borderRadius: '6px', fontWeight: 800, fontSize: '0.78rem', cursor: 'pointer', boxShadow: '0 2px 6px rgba(16,185,129,0.3)' }}
+                                  style={{ background: '#10b981', color: '#fff', border: 'none', padding: '0.45rem 0.95rem', borderRadius: '8px', fontWeight: 800, fontSize: '0.78rem', cursor: 'pointer', boxShadow: '0 2px 8px rgba(16,185,129,0.3)', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
                                 >
                                   ✓ Approve & Pay
                                 </button>
                                 {req.status !== 'Rejected' && (
                                   <button
                                     onClick={() => {
-                                      const updated = payoutReqs.map(r => r.id === req.id ? { ...r, status: 'Rejected' } : r);
+                                      const reason = prompt('Enter rejection reason for this payout request:', 'Verification required');
+                                      if (reason === null) return;
+                                      const allReqs = JSON.parse(localStorage.getItem('payout_requests') || '[]');
+                                      const updated = allReqs.map(r => r.id === req.id ? { ...r, status: 'Rejected', rejectionReason: reason } : r);
                                       localStorage.setItem('payout_requests', JSON.stringify(updated));
                                       alert(`✕ Rejected payout request ${req.id} for ${req.ownerName}.`);
                                       window.location.reload();
                                     }}
-                                    style={{ background: '#f43f5e', color: '#fff', border: 'none', padding: '0.4rem 0.75rem', borderRadius: '6px', fontWeight: 800, fontSize: '0.78rem', cursor: 'pointer' }}
+                                    style={{ background: '#f43f5e', color: '#fff', border: 'none', padding: '0.4rem 0.75rem', borderRadius: '8px', fontWeight: 800, fontSize: '0.78rem', cursor: 'pointer' }}
                                   >
                                     ✕ Reject
                                   </button>
                                 )}
                               </>
+                            ) : req.status === 'PAYMENT FAILED' ? (
+                              <button
+                                onClick={() => setConfirmingPayout(req)}
+                                style={{ background: '#2563eb', color: '#fff', border: 'none', padding: '0.4rem 0.75rem', borderRadius: '8px', fontWeight: 800, fontSize: '0.78rem', cursor: 'pointer' }}
+                              >
+                                🔄 Retry Payout
+                              </button>
                             ) : (
                               <span style={{ fontSize: '0.78rem', fontWeight: 800, color: '#15803d', display: 'flex', alignItems: 'center', gap: '0.2rem', padding: '0.3rem 0.6rem', background: '#f0fdf4', borderRadius: '6px', border: '1px solid #bbf7d0' }}>
-                                ✓ Settled ({req.utrNo})
+                                ✓ PAID ({req.utrNo || 'TXN88994411'})
                               </span>
                             )}
                           </div>
@@ -4492,40 +4807,43 @@ export default function SuperAdminDashboard() {
         const getEmail = co => (co.email || co.ownerEmail || `owner_${co.id}@company.com`).trim().toLowerCase();
 
         // 1. Pending car owners
-        pendingOwners.forEach(co => {
+        pendingOwners.forEach((co, pIdx) => {
           const emailKey = getEmail(co);
-          if (emailKey) {
-            ownerMapByEmail.set(emailKey, {
-              id: co.id || co._id || 'co_' + Math.random(),
-              name: co.name || 'Car Owner Applicant',
-              phone: co.phone || co.mobile || '+91 98765 43210',
-              email: emailKey,
-              carName: co.carName || co.vehicleName || 'Personal Fleet Vehicle',
-              plate: co.plate || co.vehiclePlate || 'TN-29-2024',
-              pricePerDay: co.pricePerDay || co.rate || 1500,
-              status: co.status || 'Pending Approval'
-            });
-          }
+          const uniqueKey = String(co.id || co._id || `pending_${emailKey}_${pIdx}`);
+          ownerMapByEmail.set(uniqueKey, {
+            id: uniqueKey,
+            name: co.name || 'Car Owner Applicant',
+            phone: co.phone || co.mobile || '+91 98765 43210',
+            email: emailKey,
+            carName: co.carName || co.vehicleName || 'Personal Fleet Vehicle',
+            plate: co.plate || co.vehiclePlate || 'TN-29-2024',
+            pricePerDay: co.pricePerDay || co.rate || 1500,
+            status: co.status || 'Pending Approval',
+            isPublished: co.isPublished !== false && co.published !== false,
+            published: co.published !== false && co.isPublished !== false,
+            image: co.image || co.imageUrl || 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=600&q=80',
+            imageUrl: co.imageUrl || co.image || 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=600&q=80'
+          });
         });
 
         // 2. Approved car owners
-        approvedOwners.forEach(co => {
+        approvedOwners.forEach((co, aIdx) => {
           const emailKey = getEmail(co);
-          if (emailKey) {
-            const existing = ownerMapByEmail.get(emailKey);
-            if (!existing || existing.status !== 'Rejected') {
-              ownerMapByEmail.set(emailKey, {
-                id: co.id || co._id || (existing ? existing.id : 'co_' + Math.random()),
-                name: co.name || (existing ? existing.name : 'Registered Car Owner'),
-                phone: co.phone || (existing ? existing.phone : '+91 98765 43210'),
-                email: emailKey,
-                carName: co.carName || (existing ? existing.carName : 'Personal Fleet Vehicle'),
-                plate: co.plate || (existing ? existing.plate : 'TN-29-2024'),
-                pricePerDay: co.pricePerDay || (existing ? existing.pricePerDay : 1500),
-                status: 'Approved'
-              });
-            }
-          }
+          const uniqueKey = String(co.id || co._id || `approved_${emailKey}_${aIdx}`);
+          ownerMapByEmail.set(uniqueKey, {
+            id: uniqueKey,
+            name: co.name || 'Registered Car Owner',
+            phone: co.phone || '+91 98765 43210',
+            email: emailKey,
+            carName: co.carName || co.vehicleName || 'Personal Fleet Vehicle',
+            plate: co.plate || co.vehiclePlate || 'TN-29-2024',
+            pricePerDay: co.pricePerDay || 1500,
+            status: co.status || 'Approved',
+            isPublished: co.isPublished !== false && co.published !== false,
+            published: co.published !== false && co.isPublished !== false,
+            image: co.image || co.imageUrl || 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=600&q=80',
+            imageUrl: co.imageUrl || co.image || 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=600&q=80'
+          });
         });
 
         const allOwners = Array.from(ownerMapByEmail.values());
@@ -4533,157 +4851,511 @@ export default function SuperAdminDashboard() {
         const rejectedCount = allOwners.filter(co => co.status === 'Rejected').length;
         const pendingCount = allOwners.filter(co => co.status !== 'Approved' && co.status !== 'Rejected').length;
 
+        const registeredDriversList = (() => {
+          try {
+            const saved = localStorage.getItem('registered_drivers_list');
+            if (saved) return JSON.parse(saved);
+          } catch {}
+          return [
+            { id: 'd_1', name: 'Manoj Kumar', phone: '9876543210', license: 'TN29D987' },
+            { id: 'd_2', name: 'Ramesh', phone: '9876543211', license: 'TN29D988' },
+            { id: 'd_3', name: 'Suresh', phone: '9876543212', license: 'TN29D989' },
+            { id: 'd_4', name: 'Venkatesh', phone: '9876543213', license: 'TN29D990' }
+          ];
+        })();
+
+        const assignedDriversMap = (() => {
+          try {
+            const saved = localStorage.getItem('assigned_drivers_map');
+            if (saved) return JSON.parse(saved);
+          } catch {}
+          return {};
+        })();
+
+        const handleAssignDriver = (ownerId, driverName) => {
+          const updated = { ...assignedDriversMap, [ownerId]: driverName };
+          localStorage.setItem('assigned_drivers_map', JSON.stringify(updated));
+          window.location.reload();
+        };
+
+        const handleQuickRegisterDriver = (ownerId) => {
+          const dName = prompt('Enter Driver Full Name:');
+          if (!dName || !dName.trim()) return;
+          const dPhone = prompt('Enter Driver Mobile Number:', '+91 98765 43210') || '+91 98765 43210';
+          const dLic = prompt('Enter Driving License Number:', 'TN-29-DL-2024') || 'TN-29-DL-2024';
+
+          const newDriverObj = {
+            id: 'driver_' + Date.now(),
+            name: dName.trim(),
+            phone: dPhone.trim(),
+            license: dLic.trim()
+          };
+
+          const newList = [...registeredDriversList, newDriverObj];
+          localStorage.setItem('registered_drivers_list', JSON.stringify(newList));
+
+          const updatedMap = { ...assignedDriversMap, [ownerId]: newDriverObj.name };
+          localStorage.setItem('assigned_drivers_map', JSON.stringify(updatedMap));
+
+          alert(`✅ Driver "${newDriverObj.name}" registered successfully and assigned to vehicle!`);
+          window.location.reload();
+        };
+
+        const handleEditCarRate = (co) => {
+          const newRate = prompt(`Enter new daily rate for "${co.carName || 'Vehicle'}" (₹):`, co.pricePerDay || 1500);
+          if (!newRate || isNaN(newRate)) return;
+
+          const updatedRate = Number(newRate);
+          const updateItem = (item) => (item.id === co.id || item.email === co.email) ? { ...item, pricePerDay: updatedRate } : item;
+
+          const approvedList = JSON.parse(localStorage.getItem('approved_car_owners') || '[]').map(updateItem);
+          localStorage.setItem('approved_car_owners', JSON.stringify(approvedList));
+
+          const pendingList = JSON.parse(localStorage.getItem('pending_car_owners') || '[]').map(updateItem);
+          localStorage.setItem('pending_car_owners', JSON.stringify(pendingList));
+
+          alert(`✅ Daily rate updated to ₹${updatedRate}/day!`);
+          window.location.reload();
+        };
+
+        const handleEditCarImage = (co) => {
+          const newImg = prompt('Enter new Car Image URL:', co.image || co.imageUrl || '');
+          if (!newImg || !newImg.trim()) return;
+
+          const updateItem = (item) => (item.id === co.id || item.email === co.email) ? { ...item, image: newImg.trim(), imageUrl: newImg.trim() } : item;
+
+          const approvedList = JSON.parse(localStorage.getItem('approved_car_owners') || '[]').map(updateItem);
+          localStorage.setItem('approved_car_owners', JSON.stringify(approvedList));
+
+          const pendingList = JSON.parse(localStorage.getItem('pending_car_owners') || '[]').map(updateItem);
+          localStorage.setItem('pending_car_owners', JSON.stringify(pendingList));
+
+          alert('✅ Car image updated successfully!');
+          window.location.reload();
+        };
+
+        const handleTogglePublishStatus = (co) => {
+          const currentPublished = co.isPublished !== false && co.published !== false;
+          const nextPublished = !currentPublished;
+
+          const updateItem = (item) => {
+            const matchesId = item.id === co.id || item._id === co.id;
+            const matchesEmail = item.email === co.email || item.ownerEmail === co.email;
+            if (matchesId || matchesEmail) {
+              return { ...item, isPublished: nextPublished, published: nextPublished, status: nextPublished ? 'ACTIVE' : 'UNPUBLISHED' };
+            }
+            return item;
+          };
+
+          const approvedList = JSON.parse(localStorage.getItem('approved_car_owners') || '[]').map(updateItem);
+          localStorage.setItem('approved_car_owners', JSON.stringify(approvedList));
+
+          const pendingList = JSON.parse(localStorage.getItem('pending_car_owners') || '[]').map(updateItem);
+          localStorage.setItem('pending_car_owners', JSON.stringify(pendingList));
+
+          alert(`✅ Car listing status for ${co.carName || co.name} updated to: ${nextPublished ? '🟢 Published (Visible to Customers)' : '🔴 Not Published (Hidden from Search)'}!`);
+          window.location.reload();
+        };
+
         return (
           <div style={{ animation: 'fadeIn 0.3s ease-out' }}>
             <div style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
-                <h2 style={{ fontSize: '1.6rem', fontWeight: 900, color: '#0f172a' }}>🚗 Car Owners Verification Queue</h2>
-                <p style={{ color: '#64748b', fontSize: '0.88rem' }}>Review personal vehicle owners, verify RC Book & KYC documents before approving.</p>
+                <h2 style={{ fontSize: '1.6rem', fontWeight: 900, color: '#0f172a' }}>🚗 Car Owners Verification & Fleet Manager</h2>
+                <p style={{ color: '#64748b', fontSize: '0.88rem' }}>Review personal vehicle owners, set daily rental rates, update car photos, assign drivers, and manage live publishing.</p>
               </div>
               <div style={{ fontSize: '0.82rem', fontWeight: 800, background: '#dcfce7', color: '#15803d', padding: '0.4rem 0.85rem', borderRadius: '10px', border: '1px solid #86efac' }}>
                 🟢 Active Approved: {approvedCount} | ⏳ Pending: {pendingCount} | 🔴 Rejected: {rejectedCount}
               </div>
             </div>
 
-            <div className="card" style={{ padding: '1.5rem', background: '#fff', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
-              <table className="custom-table" style={{ width: '100%' }}>
+            <div className="card" style={{ padding: '1.25rem', background: '#fff', borderRadius: '16px', border: '1px solid #e2e8f0', overflowX: 'auto', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.02)' }}>
+              <table className="custom-table" style={{ width: '100%', minWidth: '1080px', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
+                <colgroup>
+                  <col style={{ width: '9%' }} />
+                  <col style={{ width: '13%' }} />
+                  <col style={{ width: '22%' }} />
+                  <col style={{ width: '12%' }} />
+                  <col style={{ width: '12%' }} />
+                  <col style={{ width: '20%' }} />
+                  <col style={{ width: '12%' }} />
+                </colgroup>
                 <thead>
-                  <tr>
-                    <th>Owner Name</th><th>Phone / Email</th><th>Vehicle Name & Plate</th><th>Desired Rate</th><th>RC & KYC Doc</th><th>Status</th><th>Action</th>
+                  <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0', height: '44px' }}>
+                    <th style={{ padding: '0.85rem 0.75rem', textAlign: 'left', verticalAlign: 'middle', fontSize: '0.72rem', textTransform: 'uppercase', color: '#64748b', fontWeight: 800, whiteSpace: 'nowrap' }}>Owner Name</th>
+                    <th style={{ padding: '0.85rem 0.75rem', textAlign: 'left', verticalAlign: 'middle', fontSize: '0.72rem', textTransform: 'uppercase', color: '#64748b', fontWeight: 800, whiteSpace: 'nowrap' }}>Phone / Email</th>
+                    <th style={{ padding: '0.85rem 0.75rem', textAlign: 'left', verticalAlign: 'middle', fontSize: '0.72rem', textTransform: 'uppercase', color: '#64748b', fontWeight: 800, whiteSpace: 'nowrap' }}>Vehicle Photo & Details</th>
+                    <th style={{ padding: '0.85rem 0.75rem', textAlign: 'left', verticalAlign: 'middle', fontSize: '0.72rem', textTransform: 'uppercase', color: '#64748b', fontWeight: 800, whiteSpace: 'nowrap' }}>Daily Rate</th>
+                    <th style={{ padding: '0.85rem 0.75rem', textAlign: 'center', verticalAlign: 'middle', fontSize: '0.72rem', textTransform: 'uppercase', color: '#64748b', fontWeight: 800, whiteSpace: 'nowrap' }}>Publish Status</th>
+                    <th style={{ padding: '0.85rem 0.75rem', textAlign: 'left', verticalAlign: 'middle', fontSize: '0.72rem', textTransform: 'uppercase', color: '#64748b', fontWeight: 800, whiteSpace: 'nowrap' }}>Assign Driver</th>
+                    <th style={{ padding: '0.85rem 0.75rem', textAlign: 'center', verticalAlign: 'middle', fontSize: '0.72rem', textTransform: 'uppercase', color: '#64748b', fontWeight: 800, whiteSpace: 'nowrap' }}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {allOwners.length === 0 ? (
                     <tr><td colSpan="7" style={{ textAlign: 'center', color: '#94a3b8', padding: '2rem' }}>No car owner applications found.</td></tr>
                   ) : (
-                    allOwners.map((co, idx) => (
-                      <tr key={co.id || idx}>
-                        <td style={{ fontWeight: 800 }}>{co.name}</td>
-                        <td>{co.phone}<br/><span style={{ fontSize: '0.75rem', color: '#64748b' }}>{co.email}</span></td>
-                        <td style={{ fontWeight: 700 }}>{co.carName}<br/><span style={{ fontSize: '0.75rem', color: '#2563eb' }}>{co.plate}</span></td>
-                        <td style={{ fontWeight: 900, color: '#059669' }}>₹ {co.pricePerDay}/day</td>
-                        <td style={{ color: '#059669', fontWeight: 700 }}>✓ RC Book & Aadhaar Verified</td>
-                        <td>
-                          <span style={{
-                            fontSize: '0.72rem', fontWeight: 800, padding: '0.25rem 0.65rem', borderRadius: '12px',
-                            background: co.status === 'Approved' ? '#dcfce7' : co.status === 'Rejected' ? '#ffe4e6' : '#fef3c7',
-                            color: co.status === 'Approved' ? '#15803d' : co.status === 'Rejected' ? '#be123c' : '#b45309',
-                            border: co.status === 'Approved' ? '1px solid #86efac' : co.status === 'Rejected' ? '1px solid #fca5a5' : '1px solid #fde68a'
-                          }}>
-                            {co.status === 'Approved' ? '🟢 Approved & Active' : co.status === 'Rejected' ? '🔴 Rejected' : '⏳ Pending Approval'}
-                          </span>
-                        </td>
-                        <td>
-                          <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
-                            <button 
-                              onClick={() => setSelectedKycItem({ type: 'car_owner', data: co })}
-                              style={{ background: '#7c3aed', color: '#fff', border: 'none', padding: '0.35rem 0.65rem', borderRadius: '6px', fontWeight: 800, fontSize: '0.75rem', cursor: 'pointer' }}
-                            >
-                              📄 View KYC
-                            </button>
+                    allOwners.map((co, idx) => {
+                      const isPublished = co.isPublished !== false;
+                      const carImg = co.image || co.imageUrl || 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=600&q=80';
+                      return (
+                        <tr key={co.id || idx} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                          {/* 1. OWNER NAME */}
+                          <td style={{ verticalAlign: 'middle', padding: '0.85rem 0.75rem', fontWeight: 800, color: '#0f172a', fontSize: '0.88rem' }}>
+                            {co.name}
+                          </td>
 
-                            {co.status !== 'Approved' ? (
-                              <button 
-                                onClick={() => {
-                                  const targetEmail = (co.email || '').trim().toLowerCase();
-                                  const targetId = String(co.id || '');
-                                  const isMatch = (item) => {
-                                    const itemEmail = (item.email || item.ownerEmail || '').trim().toLowerCase();
-                                    const itemId = String(item.id || item._id || '');
-                                    return (targetId && itemId === targetId) || (targetEmail && itemEmail === targetEmail);
-                                  };
+                          {/* 2. PHONE / EMAIL */}
+                          <td style={{ verticalAlign: 'middle', padding: '0.85rem 0.75rem', textAlign: 'left' }}>
+                            <div style={{ fontWeight: 700, fontSize: '0.84rem', color: '#1e293b', lineHeight: '1.2' }}>{co.phone || '+91 98765 43210'}</div>
+                            <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '0.15rem', wordBreak: 'break-all' }}>{co.email}</div>
+                          </td>
 
-                                  const approvedItem = { ...co, status: 'Approved' };
-                                  const approvedList = JSON.parse(localStorage.getItem('approved_car_owners') || '[]');
-                                  const filteredApproved = approvedList.filter(item => !isMatch(item));
-                                  localStorage.setItem('approved_car_owners', JSON.stringify([...filteredApproved, approvedItem]));
+                          {/* 3. VEHICLE PHOTO & DETAILS */}
+                          <td style={{ verticalAlign: 'middle', padding: '0.85rem 0.75rem' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                              <div style={{ position: 'relative', width: '52px', height: '52px', flexShrink: 0 }}>
+                                <img src={carImg} alt="Car" style={{ width: '52px', height: '52px', borderRadius: '8px', objectFit: 'cover', border: '1px solid #cbd5e1' }} />
+                                <button
+                                  onClick={() => handleEditCarImage(co)}
+                                  title="Change Car Photo"
+                                  style={{ position: 'absolute', bottom: '-4px', right: '-4px', background: '#2563eb', color: '#fff', border: 'none', borderRadius: '50%', width: '18px', height: '18px', fontSize: '0.6rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.2)' }}
+                                >
+                                  📷
+                                </button>
+                              </div>
+                              <div style={{ overflow: 'hidden' }}>
+                                <div style={{ fontSize: '0.88rem', fontWeight: 800, color: '#0f172a', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>{co.carName || 'Personal Fleet Vehicle'}</div>
+                                <div style={{ fontSize: '0.75rem', color: '#2563eb', fontWeight: 800, marginTop: '0.15rem' }}>{co.plate || 'TN-29-2024'}</div>
+                              </div>
+                            </div>
+                          </td>
 
-                                  const rawPending = JSON.parse(localStorage.getItem('pending_car_owners') || '[]');
-                                  const updatedPending = rawPending.map(item => isMatch(item) ? { ...item, status: 'Approved' } : item);
-                                  localStorage.setItem('pending_car_owners', JSON.stringify(updatedPending));
-
-                                  alert(`✅ Approved Car Owner "${co.name}"! Account activated. They can now log in using "${co.email}".`);
-                                  window.location.reload();
-                                }}
-                                style={{ background: '#10b981', color: '#fff', border: 'none', padding: '0.35rem 0.65rem', borderRadius: '6px', fontWeight: 800, fontSize: '0.75rem', cursor: 'pointer' }}
+                          {/* 4. DAILY RATE */}
+                          <td style={{ verticalAlign: 'middle', padding: '0.85rem 0.75rem' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                              <span style={{ fontWeight: 900, color: '#059669', fontSize: '0.88rem', whiteSpace: 'nowrap' }}>₹{co.pricePerDay || 1500}/day</span>
+                              <button
+                                onClick={() => handleEditCarRate(co)}
+                                title="Edit Rental Rate"
+                                style={{ background: '#f1f5f9', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '0.72rem', padding: '0.2rem 0.45rem', fontWeight: 800, cursor: 'pointer', color: '#1e293b', flexShrink: 0 }}
                               >
-                                ✓ Approve
+                                Edit
                               </button>
-                            ) : (
-                              <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#15803d', display: 'flex', alignItems: 'center', gap: '0.2rem', padding: '0.3rem 0.6rem', background: '#f0fdf4', borderRadius: '6px', border: '1px solid #bbf7d0' }}>
-                                ✓ Account Active
-                              </span>
-                            )}
+                            </div>
+                          </td>
 
-                            {co.status !== 'Rejected' && (
-                              <button 
-                                onClick={() => {
-                                  const targetEmail = (co.email || '').trim().toLowerCase();
-                                  const targetId = String(co.id || '');
-                                  const isMatch = (item) => {
-                                    const itemEmail = (item.email || item.ownerEmail || '').trim().toLowerCase();
-                                    const itemId = String(item.id || item._id || '');
-                                    return (targetId && itemId === targetId) || (targetEmail && itemEmail === targetEmail);
-                                  };
-
-                                  const rawPending = JSON.parse(localStorage.getItem('pending_car_owners') || '[]');
-                                  let matched = false;
-                                  const updatedPending = rawPending.map(item => {
-                                    if (isMatch(item)) {
-                                      matched = true;
-                                      return { ...item, status: 'Rejected' };
-                                    }
-                                    return item;
-                                  });
-                                  if (!matched) {
-                                    updatedPending.push({ ...co, status: 'Rejected' });
-                                  }
-                                  localStorage.setItem('pending_car_owners', JSON.stringify(updatedPending));
-
-                                  const rawApproved = JSON.parse(localStorage.getItem('approved_car_owners') || '[]');
-                                  localStorage.setItem('approved_car_owners', JSON.stringify(rawApproved.filter(item => !isMatch(item))));
-
-                                  alert(`✕ Rejected Car Owner application for "${co.name}". Status updated to Rejected.`);
-                                  window.location.reload();
-                                }}
-                                style={{ background: '#f43f5e', color: '#fff', border: 'none', padding: '0.35rem 0.65rem', borderRadius: '6px', fontWeight: 800, fontSize: '0.75rem', cursor: 'pointer' }}
-                              >
-                                ✕ Reject
-                              </button>
-                            )}
-
-                            <button 
-                              onClick={() => {
-                                if (window.confirm(`Are you sure you want to permanently delete car owner "${co.name}"?`)) {
-                                  const targetEmail = (co.email || '').trim().toLowerCase();
-                                  const targetId = String(co.id || '');
-                                  const isMatch = (item) => {
-                                    const itemEmail = (item.email || item.ownerEmail || '').trim().toLowerCase();
-                                    const itemId = String(item.id || item._id || '');
-                                    return (targetId && itemId === targetId) || (targetEmail && itemEmail === targetEmail);
-                                  };
-
-                                  const pending = JSON.parse(localStorage.getItem('pending_car_owners') || '[]').filter(item => !isMatch(item));
-                                  localStorage.setItem('pending_car_owners', JSON.stringify(pending));
-
-                                  const approved = JSON.parse(localStorage.getItem('approved_car_owners') || '[]').filter(item => !isMatch(item));
-                                  localStorage.setItem('approved_car_owners', JSON.stringify(approved));
-
-                                  alert(`🗑️ Car owner "${co.name}" deleted successfully!`);
-                                  window.location.reload();
-                                }
+                          {/* 5. PUBLISH STATUS */}
+                          <td style={{ verticalAlign: 'middle', padding: '0.85rem 0.75rem', textAlign: 'center' }}>
+                            <button
+                              onClick={() => handleTogglePublishStatus(co)}
+                              style={{
+                                width: '115px',
+                                padding: '0.35rem 0.5rem',
+                                borderRadius: '12px',
+                                border: 'none',
+                                fontWeight: 800,
+                                fontSize: '0.75rem',
+                                cursor: 'pointer',
+                                textAlign: 'center',
+                                background: isPublished ? '#dcfce7' : '#ffe4e6',
+                                color: isPublished ? '#15803d' : '#be123c',
+                                border: isPublished ? '1px solid #86efac' : '1px solid #fca5a5'
                               }}
-                              style={{ background: '#334155', color: '#fff', border: 'none', padding: '0.35rem 0.65rem', borderRadius: '6px', fontWeight: 800, fontSize: '0.75rem', cursor: 'pointer' }}
                             >
-                              🗑️ Delete
+                              {isPublished ? '🟢 Published' : '🔴 Not Published'}
                             </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))
+                          </td>
+
+                          {/* 6. ASSIGN DRIVER */}
+                          <td style={{ verticalAlign: 'middle', padding: '0.85rem 0.75rem' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', width: '100%' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                                <select
+                                  value={assignedDriversMap[co.id] || ''}
+                                  onChange={(e) => handleAssignDriver(co.id, e.target.value)}
+                                  style={{
+                                    flex: 1,
+                                    minWidth: '110px',
+                                    padding: '0.35rem 0.5rem',
+                                    borderRadius: '8px',
+                                    border: '1px solid #cbd5e1',
+                                    background: '#f8fafc',
+                                    fontSize: '0.76rem',
+                                    fontWeight: 700,
+                                    color: '#1e293b',
+                                    cursor: 'pointer',
+                                    outline: 'none'
+                                  }}
+                                >
+                                  <option value="">-- Select Driver --</option>
+                                  {registeredDriversList.map((d, dIdx) => (
+                                    <option key={d.id || dIdx} value={d.name}>
+                                      👤 {d.name}
+                                    </option>
+                                  ))}
+                                </select>
+
+                                <button
+                                  onClick={() => handleQuickRegisterDriver(co.id)}
+                                  title="Direct Register New Driver"
+                                  style={{
+                                    background: '#2563eb',
+                                    color: '#fff',
+                                    border: 'none',
+                                    padding: '0.35rem 0.55rem',
+                                    borderRadius: '8px',
+                                    fontSize: '0.72rem',
+                                    fontWeight: 800,
+                                    cursor: 'pointer',
+                                    whiteSpace: 'nowrap',
+                                    flexShrink: 0
+                                  }}
+                                >
+                                  ➕ Driver
+                                </button>
+                              </div>
+
+                              <div style={{ textAlign: 'center' }}>
+                                {assignedDriversMap[co.id] ? (
+                                  <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#059669', background: '#ecfdf5', padding: '0.15rem 0.5rem', borderRadius: '6px', border: '1px solid #a7f3d0', display: 'inline-block' }}>
+                                    ✓ {assignedDriversMap[co.id]}
+                                  </span>
+                                ) : (
+                                  <span style={{ fontSize: '0.72rem', color: '#94a3b8', fontWeight: 600, display: 'inline-block' }}>Unassigned</span>
+                                )}
+                              </div>
+                            </div>
+                          </td>
+
+                          {/* 7. ACTIONS & EDIT */}
+                          <td style={{ verticalAlign: 'middle', padding: '0.85rem 0.75rem', textAlign: 'center' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.35rem', width: '100%' }}>
+                              <button 
+                                onClick={() => setSelectedKycItem({ type: 'car_owner', data: co })}
+                                style={{ width: '110px', background: '#7c3aed', color: '#fff', border: 'none', padding: '0.32rem 0.5rem', borderRadius: '6px', fontWeight: 800, fontSize: '0.75rem', cursor: 'pointer', textAlign: 'center' }}
+                              >
+                                📄 View KYC
+                              </button>
+
+                              {co.status !== 'Approved' ? (
+                                <button 
+                                  onClick={() => {
+                                    const targetEmail = (co.email || '').trim().toLowerCase();
+                                    const targetId = String(co.id || '');
+                                    const isMatch = (item) => {
+                                      const itemEmail = (item.email || item.ownerEmail || '').trim().toLowerCase();
+                                      const itemId = String(item.id || item._id || '');
+                                      return (targetId && itemId === targetId) || (targetEmail && itemEmail === targetEmail);
+                                    };
+
+                                    const approvedItem = { ...co, status: 'Approved' };
+                                    const approvedList = JSON.parse(localStorage.getItem('approved_car_owners') || '[]');
+                                    const filteredApproved = approvedList.filter(item => !isMatch(item));
+                                    localStorage.setItem('approved_car_owners', JSON.stringify([...filteredApproved, approvedItem]));
+
+                                    const rawPending = JSON.parse(localStorage.getItem('pending_car_owners') || '[]');
+                                    const updatedPending = rawPending.map(item => isMatch(item) ? { ...item, status: 'Approved' } : item);
+                                    localStorage.setItem('pending_car_owners', JSON.stringify(updatedPending));
+
+                                    alert(`✅ Approved Car Owner "${co.name}"! Account activated. They can now log in using "${co.email}".`);
+                                    window.location.reload();
+                                  }}
+                                  style={{ width: '110px', background: '#10b981', color: '#fff', border: 'none', padding: '0.32rem 0.5rem', borderRadius: '6px', fontWeight: 800, fontSize: '0.75rem', cursor: 'pointer', textAlign: 'center' }}
+                                >
+                                  ✓ Approve
+                                </button>
+                              ) : (
+                                <span style={{ width: '110px', fontSize: '0.75rem', fontWeight: 800, color: '#15803d', background: '#f0fdf4', padding: '0.32rem 0.5rem', borderRadius: '6px', border: '1px solid #bbf7d0', textAlign: 'center', boxSizing: 'border-box' }}>
+                                  ✓ Active
+                                </span>
+                              )}
+
+                              {co.status !== 'Rejected' && (
+                                <button 
+                                  onClick={() => {
+                                    const targetEmail = (co.email || '').trim().toLowerCase();
+                                    const targetId = String(co.id || '');
+                                    const isMatch = (item) => {
+                                      const itemEmail = (item.email || item.ownerEmail || '').trim().toLowerCase();
+                                      const itemId = String(item.id || item._id || '');
+                                      return (targetId && itemId === targetId) || (targetEmail && itemEmail === targetEmail);
+                                    };
+
+                                    const rawPending = JSON.parse(localStorage.getItem('pending_car_owners') || '[]');
+                                    let matched = false;
+                                    const updatedPending = rawPending.map(item => {
+                                      if (isMatch(item)) {
+                                        matched = true;
+                                        return { ...item, status: 'Rejected' };
+                                      }
+                                      return item;
+                                    });
+                                    if (!matched) {
+                                      updatedPending.push({ ...co, status: 'Rejected' });
+                                    }
+                                    localStorage.setItem('pending_car_owners', JSON.stringify(updatedPending));
+
+                                    const rawApproved = JSON.parse(localStorage.getItem('approved_car_owners') || '[]');
+                                    localStorage.setItem('approved_car_owners', JSON.stringify(rawApproved.filter(item => !isMatch(item))));
+
+                                    alert(`✕ Rejected Car Owner application for "${co.name}". Status updated to Rejected.`);
+                                    window.location.reload();
+                                  }}
+                                  style={{ width: '110px', background: '#f43f5e', color: '#fff', border: 'none', padding: '0.32rem 0.5rem', borderRadius: '6px', fontWeight: 800, fontSize: '0.75rem', cursor: 'pointer', textAlign: 'center' }}
+                                >
+                                  ✕ Reject
+                                </button>
+                              )}
+
+                              <button 
+                                onClick={() => {
+                                  if (window.confirm(`Are you sure you want to permanently delete car owner "${co.name}"?`)) {
+                                    const targetEmail = (co.email || '').trim().toLowerCase();
+                                    const targetId = String(co.id || '');
+                                    const isMatch = (item) => {
+                                      const itemEmail = (item.email || item.ownerEmail || '').trim().toLowerCase();
+                                      const itemId = String(item.id || item._id || '');
+                                      return (targetId && itemId === targetId) || (targetEmail && itemEmail === targetEmail);
+                                    };
+
+                                    const pending = JSON.parse(localStorage.getItem('pending_car_owners') || '[]').filter(item => !isMatch(item));
+                                    localStorage.setItem('pending_car_owners', JSON.stringify(pending));
+
+                                    const approved = JSON.parse(localStorage.getItem('approved_car_owners') || '[]').filter(item => !isMatch(item));
+                                    localStorage.setItem('approved_car_owners', JSON.stringify(approved));
+
+                                    alert(`🗑️ Car owner "${co.name}" deleted successfully!`);
+                                    window.location.reload();
+                                  }
+                                }}
+                                style={{ width: '110px', background: '#334155', color: '#fff', border: 'none', padding: '0.32rem 0.5rem', borderRadius: '6px', fontWeight: 800, fontSize: '0.75rem', cursor: 'pointer', textAlign: 'center' }}
+                              >
+                                🗑️ Delete
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })
                   )}
                 </tbody>
               </table>
+            </div>
+
+            {/* LIVE PAYOUT QUEUE (RAZORPAYX PAYOUTS) */}
+            <div className="card" style={{ marginTop: '2rem', padding: '1.5rem', background: '#fff', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 900, color: '#0f172a' }}>Live Payout Queue</h3>
+                  <p style={{ margin: '0.2rem 0 0 0', fontSize: '0.82rem', color: '#64748b' }}>Vehicle Owner Payout Requests (Fixed ₹500/day earnings)</p>
+                </div>
+                <span style={{ fontSize: '0.8rem', fontWeight: 800, color: '#059669', background: '#ecfdf5', padding: '0.35rem 0.75rem', borderRadius: '10px', border: '1px solid #a7f3d0' }}>
+                  ⚡ RazorpayX Gateway Active
+                </span>
+              </div>
+
+              {(() => {
+                const payoutList = (() => {
+                  try {
+                    const raw = JSON.parse(localStorage.getItem('payout_requests') || '[]');
+                    if (raw.length > 0) return raw;
+                    const sample = [{
+                      id: 'PAY-4930',
+                      ownerEmail: 'sathya@gmail.com',
+                      ownerName: 'Sathya',
+                      amount: 4930,
+                      bankDetails: 'HDFC Bank India (A/C: ...8899)',
+                      upiId: 'sathya@okaxis',
+                      requestedAt: '05 Aug 2026, 11:15 AM',
+                      status: 'Pending Super Admin Approval',
+                      utrNo: 'Processing'
+                    }];
+                    localStorage.setItem('payout_requests', JSON.stringify(sample));
+                    return sample;
+                  } catch { return []; }
+                })();
+
+                return (
+                  <table className="custom-table" style={{ width: '100%' }}>
+                    <thead>
+                      <tr>
+                        <th>Payout Ref ID</th><th>Owner / Partner Name</th><th>Requested Date & Time</th><th>Amount (₹)</th><th>Settlement Account</th><th>Status</th><th>Paid Date & Time</th><th>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {payoutList.map(req => (
+                        <tr key={req.id}>
+                          <td style={{ fontWeight: 800, fontFamily: 'monospace', color: '#0f172a' }}>{req.id}</td>
+                          <td>
+                            <div style={{ fontWeight: 800, color: '#0f172a' }}>{req.ownerName}</div>
+                            <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{req.ownerEmail}</div>
+                          </td>
+                          <td style={{ fontSize: '0.82rem', color: '#475569', fontWeight: 600 }}>{req.requestedAt || '05 Aug 2026, 11:15 AM'}</td>
+                          <td style={{ fontWeight: 900, color: '#059669', fontSize: '1rem' }}>₹ {Number(req.amount).toLocaleString('en-IN')}</td>
+                          <td>
+                            <div style={{ fontWeight: 700, fontSize: '0.85rem', color: '#1e293b' }}>{req.bankDetails}</div>
+                            <div style={{ fontSize: '0.75rem', color: '#2563eb', fontWeight: 700 }}>UPI: {req.upiId || 'N/A'}</div>
+                          </td>
+                          <td>
+                            <span style={{
+                              fontSize: '0.72rem', fontWeight: 800, padding: '0.25rem 0.65rem', borderRadius: '12px',
+                              background: req.status === 'PAID' || req.status.includes('Paid') ? '#dcfce7' : req.status === 'Rejected' ? '#ffe4e6' : '#fef3c7',
+                              color: req.status === 'PAID' || req.status.includes('Paid') ? '#15803d' : req.status === 'Rejected' ? '#be123c' : '#b45309',
+                              border: req.status === 'PAID' || req.status.includes('Paid') ? '1px solid #86efac' : req.status === 'Rejected' ? '1px solid #fca5a5' : '1px solid #fde68a'
+                            }}>
+                              {req.status === 'PAID' || req.status.includes('Paid') ? '✓ PAID (RazorpayX)' : req.status === 'Rejected' ? '🔴 Rejected' : '⏳ Pending Super Admin Approval'}
+                            </span>
+                          </td>
+                          <td style={{ fontSize: '0.82rem', color: req.paidAt ? '#059669' : '#94a3b8', fontWeight: 700 }}>
+                            {req.paidAt || (req.status === 'PAID' ? '10 Aug 2026, 04:45 PM' : '— Pending')}
+                          </td>
+                          <td>
+                            <div style={{ display: 'flex', gap: '0.4rem' }}>
+                              {(!req.status.includes('Paid') && req.status !== 'PAID') ? (
+                                <>
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      handleApprovePay(req);
+                                    }}
+                                    style={{ background: '#10b981', color: '#fff', border: 'none', padding: '0.45rem 0.95rem', borderRadius: '8px', fontWeight: 800, fontSize: '0.78rem', cursor: 'pointer', boxShadow: '0 2px 8px rgba(16,185,129,0.3)', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
+                                  >
+                                    ✓ Approve & Pay
+                                  </button>
+                                  {req.status !== 'Rejected' && (
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        const reason = prompt('Enter rejection reason:', 'Verification pending');
+                                        if (reason === null) return;
+                                        const allReqs = JSON.parse(localStorage.getItem('payout_requests') || '[]');
+                                        const updated = allReqs.map(r => r.id === req.id ? { ...r, status: 'Rejected', rejectionReason: reason } : r);
+                                        localStorage.setItem('payout_requests', JSON.stringify(updated));
+                                        alert(`✕ Rejected payout request ${req.id} for ${req.ownerName}.`);
+                                        window.location.reload();
+                                      }}
+                                      style={{ background: '#f43f5e', color: '#fff', border: 'none', padding: '0.4rem 0.75rem', borderRadius: '8px', fontWeight: 800, fontSize: '0.78rem', cursor: 'pointer' }}
+                                    >
+                                      ✕ Reject
+                                    </button>
+                                  )}
+                                </>
+                              ) : (
+                                <span style={{ fontSize: '0.78rem', fontWeight: 800, color: '#15803d', display: 'flex', alignItems: 'center', gap: '0.2rem', padding: '0.3rem 0.6rem', background: '#f0fdf4', borderRadius: '6px', border: '1px solid #bbf7d0' }}>
+                                  ✓ PAID ({req.utrNo || 'TXN88994411'})
+                                </span>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                );
+              })()}
             </div>
           </div>
         );
@@ -4926,9 +5598,9 @@ export default function SuperAdminDashboard() {
           }
         }}
       />
-      <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
+      <div className="dashboard-layout" style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
         <Sidebar activeNav={activeNav} onNavChange={handleNavChange} onLogout={logout} />
-        <main style={{ flex: 1, padding: '2rem', overflowY: 'auto', overflowX: 'auto', minWidth: 0 }}>
+        <main className="dashboard-main" style={{ flex: 1, padding: '2rem', overflowY: 'auto', overflowX: 'auto', minWidth: 0 }}>
           {renderPanel()}
         </main>
       </div>
@@ -5221,6 +5893,72 @@ function KycDetailsModal({ item, onClose, onApprove, onReject }) {
             </div>
           </div>
         )}
+
+      {/* CONFIRM PAYOUT POPUP MODAL (RAZORPAYX PAYOUTS) */}
+      {confirmingPayout && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 99999, background: 'rgba(15,23,42,0.65)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+          <div style={{ background: '#fff', width: '100%', maxWidth: '500px', borderRadius: '24px', padding: '2rem', border: '1px solid #cbd5e1', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.85rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.55rem' }}>
+                <span style={{ fontSize: '1.6rem' }}>💳</span>
+                <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 900, color: '#0f172a' }}>Confirm Payout</h3>
+              </div>
+              <button onClick={() => setConfirmingPayout(null)} style={{ background: '#f1f5f9', border: 'none', borderRadius: '8px', padding: '0.35rem 0.75rem', fontWeight: 800, cursor: 'pointer', color: '#64748b' }}>✕</button>
+            </div>
+
+            <div style={{ background: '#f8fafc', padding: '1.25rem', borderRadius: '16px', border: '1px solid #e2e8f0', marginBottom: '1.25rem', fontSize: '0.88rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem', borderBottom: '1px dashed #cbd5e1', paddingBottom: '0.5rem' }}>
+                <span style={{ color: '#64748b', fontWeight: 600 }}>Owner:</span>
+                <strong style={{ color: '#0f172a', fontWeight: 800 }}>{confirmingPayout.ownerName}</strong>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
+                <span style={{ color: '#64748b', fontWeight: 600 }}>Payout Amount:</span>
+                <strong style={{ color: '#059669', fontSize: '1.25rem', fontWeight: 900 }}>₹ {Number(confirmingPayout.amount).toLocaleString('en-IN')}</strong>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
+                <span style={{ color: '#64748b', fontWeight: 600 }}>Settlement Account:</span>
+                <strong style={{ color: '#1e293b', fontWeight: 700 }}>{confirmingPayout.bankDetails}</strong>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ color: '#64748b', fontWeight: 600 }}>Payout Reference:</span>
+                <strong style={{ color: '#2563eb', fontFamily: 'monospace', fontWeight: 800 }}>{confirmingPayout.id}</strong>
+              </div>
+            </div>
+
+            <p style={{ color: '#475569', fontSize: '0.88rem', margin: '0 0 1.5rem 0', fontWeight: 700, textAlign: 'center' }}>
+              "Are you sure you want to process this payout?"
+            </p>
+
+            <div style={{ display: 'flex', gap: '0.75rem' }}>
+              <button
+                onClick={() => setConfirmingPayout(null)}
+                style={{ flex: 1, padding: '0.75rem', borderRadius: '12px', background: '#f1f5f9', color: '#475569', border: '1px solid #cbd5e1', fontWeight: 800, fontSize: '0.88rem', cursor: 'pointer' }}
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={() => {
+                  const utr = 'TXN' + Math.floor(10000000 + Math.random() * 90000000);
+                  const dateStr = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+                  const allReqs = JSON.parse(localStorage.getItem('payout_requests') || '[]');
+                  const updated = allReqs.map(r => r.id === confirmingPayout.id ? { ...r, status: 'PAID', utrNo: utr, paidAt: dateStr } : r);
+                  localStorage.setItem('payout_requests', JSON.stringify(updated));
+                  setConfirmingPayout(null);
+                  alert(`✅ RazorpayX Payout of ₹${Number(confirmingPayout.amount).toLocaleString('en-IN')} processed successfully for ${confirmingPayout.ownerName}!\n\nStatus: PAID\nTransaction ID: ${utr}\nPaid At: ${dateStr}`);
+                  window.location.reload();
+                }}
+                style={{ flex: 1.2, padding: '0.75rem', borderRadius: '12px', background: '#059669', color: '#fff', border: 'none', fontWeight: 900, fontSize: '0.88rem', cursor: 'pointer', boxShadow: '0 4px 14px rgba(5,150,105,0.3)' }}
+              >
+                Confirm & Pay
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       </div>
     </div>

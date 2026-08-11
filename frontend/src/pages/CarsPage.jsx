@@ -37,9 +37,37 @@ const CarsPage = () => {
           allCars = data;
         }
         
-        // Filter only available cars
-        const available = allCars.filter(v => v.status === 'available');
-        setVehicles(available);
+        let carOwnerVehicles = [];
+        try {
+          const approvedList = JSON.parse(localStorage.getItem('approved_car_owners') || '[]');
+          carOwnerVehicles = approvedList
+            .filter(co => co.published !== false && (co.status === 'ACTIVE' || co.status === 'APPROVED' || co.status === 'Approved'))
+            .map((co, idx) => ({
+              _id: co.id || co._id || `co_v_${idx}`,
+              make: co.make || (co.carName || 'Hyundai').split(' ')[0],
+              model: co.model || co.carName || 'Creta SX',
+              plate: co.plate || co.vehiclePlate || 'TN-29-2024',
+              location: co.location || 'Dharmapuri',
+              pricePerDay: co.pricePerDay || 1500,
+              imageUrl: co.image || co.imageUrl || 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=400&h=300&fit=crop',
+              status: 'available',
+              seats: 5,
+              fuelType: 'Petrol',
+              transmission: 'Manual',
+              ownerName: co.name || 'Vehicle Partner'
+            }));
+        } catch {}
+
+        const availableApi = allCars.filter(v => v.status === 'available' || v.status === 'Active');
+        
+        // Default fleet if API returns empty
+        const defaultFleet = availableApi.length === 0 && carOwnerVehicles.length === 0 ? [
+          { _id: 'v_101', make: 'Hyundai', model: 'Creta SX', location: 'Dharmapuri', pricePerDay: 1500, imageUrl: 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=400&h=300&fit=crop', status: 'available', seats: 5, fuelType: 'Petrol', transmission: 'Manual' },
+          { _id: 'v_102', make: 'Honda', model: 'City i-VTEC', location: 'Dharmapuri', pricePerDay: 1800, imageUrl: 'https://images.unsplash.com/photo-1590362891991-f776e747a588?w=400&h=300&fit=crop', status: 'available', seats: 5, fuelType: 'Petrol', transmission: 'Automatic' },
+          { _id: 'v_103', make: 'Mahindra', model: 'Thar LX 4x4', location: 'Dharmapuri', pricePerDay: 2500, imageUrl: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=400&h=300&fit=crop', status: 'available', seats: 4, fuelType: 'Diesel', transmission: 'Manual' }
+        ] : [];
+
+        setVehicles([...availableApi, ...carOwnerVehicles, ...defaultFleet]);
       } catch (err) {
         console.error('Failed to load cars', err);
       } finally {

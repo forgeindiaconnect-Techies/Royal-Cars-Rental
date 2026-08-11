@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, Navigate, useNavigate, useLocation } from 'react-router-dom';
+import './Responsive.css';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import LandingPage from './pages/LandingPage';
 import AuthPage from './pages/AuthPage';
@@ -23,9 +24,11 @@ function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
   const [showDriverModal, setShowDriverModal] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const handleNavClick = (e, targetSectionId) => {
     e.preventDefault();
+    setIsMobileMenuOpen(false); // Close mobile menu when a link is clicked
     if (location.pathname !== '/') {
       navigate('/');
       setTimeout(() => {
@@ -61,150 +64,143 @@ function Navbar() {
 
   return (
     <>
-      <nav 
-        style={{
-          background: '#161616',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-          padding: '0.85rem 3rem',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          position: 'sticky',
-          top: 0,
-          zIndex: 1000
-        }}
-      >
-        {/* BRAND LOGO: ROYAL CAR RENTALS */}
-        <div 
-          onClick={(e) => handleNavClick(e, '#home')}
-          style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', cursor: 'pointer' }}
-        >
-          <div style={{
-            width: '42px',
-            height: '42px',
-            borderRadius: '50%',
-            background: 'linear-gradient(135deg, #e6c875 0%, #c5a059 50%, #8c6e28 100%)',
-            display: 'flex',
-            alignItems: 'center',
-            justify: 'center',
-            boxShadow: '0 0 16px rgba(197, 160, 89, 0.45)',
-            border: '1px solid rgba(255, 255, 255, 0.25)',
-            flexShrink: 0
-          }}>
-            <span style={{ fontSize: '1.35rem', lineHeight: 1 }}>👑</span>
+      <nav className="app-navbar">
+        <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }} className="app-navbar-brand-row">
+          {/* BRAND LOGO: ROYAL CAR RENTALS */}
+          <div 
+            onClick={(e) => handleNavClick(e, '#home')}
+            style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', cursor: 'pointer' }}
+          >
+            <div style={{
+              width: '42px',
+              height: '42px',
+              borderRadius: '50%',
+              background: 'linear-gradient(135deg, #e6c875 0%, #c5a059 50%, #8c6e28 100%)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 0 16px rgba(197, 160, 89, 0.45)',
+              border: '1px solid rgba(255, 255, 255, 0.25)',
+              flexShrink: 0
+            }}>
+              <span style={{ fontSize: '1.35rem', lineHeight: 1 }}>👑</span>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <span style={{
+                color: '#c5a059',
+                fontFamily: "'Georgia', 'Times New Roman', serif",
+                fontSize: '1.25rem',
+                fontWeight: 900,
+                letterSpacing: '3px',
+                lineHeight: 1.1,
+                textTransform: 'uppercase'
+              }}>
+                ROYAL
+              </span>
+              <span style={{
+                color: '#ffffff',
+                fontSize: '0.62rem',
+                fontWeight: 800,
+                letterSpacing: '2.5px',
+                textTransform: 'uppercase',
+                marginTop: '1px'
+              }}>
+                CAR RENTALS
+              </span>
+            </div>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <span style={{
-              color: '#c5a059',
-              fontFamily: "'Georgia', 'Times New Roman', serif",
-              fontSize: '1.25rem',
-              fontWeight: 900,
-              letterSpacing: '3px',
-              lineHeight: 1.1,
-              textTransform: 'uppercase'
-            }}>
-              ROYAL
-            </span>
-            <span style={{
-              color: '#ffffff',
-              fontSize: '0.62rem',
-              fontWeight: 800,
-              letterSpacing: '2.5px',
-              textTransform: 'uppercase',
-              marginTop: '1px'
-            }}>
-              CAR RENTALS
-            </span>
-          </div>
+          <button 
+            className="app-navbar-hamburger" 
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          >
+            {isMobileMenuOpen ? '✖' : '☰'}
+          </button>
         </div>
         
-        {/* CENTER / RIGHT-CENTER NAV LINKS */}
-        <ul style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '2.5rem',
-          listStyle: 'none',
-          margin: '0 3.5rem 0 auto',
-          padding: 0
-        }}>
-          <li>
-            <a href="#home" onClick={(e) => handleNavClick(e, '#home')} style={{ fontSize: '0.95rem', fontWeight: 800, color: '#c5a059', textDecoration: 'none' }}>Home</a>
-          </li>
-          <li>
-            <a href="#fleets" onClick={(e) => handleNavClick(e, '#fleets')} style={{ fontSize: '0.95rem', fontWeight: 700, color: '#ffffff', textDecoration: 'none' }}>Fleet</a>
-          </li>
-          <li>
-            <a href="#services" onClick={(e) => handleNavClick(e, '#services')} style={{ fontSize: '0.95rem', fontWeight: 700, color: '#ffffff', textDecoration: 'none' }}>Services</a>
-          </li>
-          <li>
-            <a href="#" onClick={(e) => { e.preventDefault(); navigate('/about'); }} style={{ fontSize: '0.95rem', fontWeight: 700, color: '#ffffff', textDecoration: 'none' }}>About Us</a>
-          </li>
-          <li>
-            <a href="#" onClick={(e) => { e.preventDefault(); navigate('/contact'); }} style={{ fontSize: '0.95rem', fontWeight: 700, color: '#ffffff', textDecoration: 'none' }}>Contact Us</a>
-          </li>
-        </ul>
+        <div className={`app-navbar-menu-wrapper ${isMobileMenuOpen ? 'mobile-open' : ''}`}>
+          {/* CENTER / RIGHT-CENTER NAV LINKS */}
+          <ul className="app-navbar-links">
+            <li>
+              <a href="#home" onClick={(e) => handleNavClick(e, '#home')} style={{ fontSize: '0.95rem', fontWeight: 800, color: '#c5a059', textDecoration: 'none' }}>Home</a>
+            </li>
+            <li>
+              <a href="#fleets" onClick={(e) => handleNavClick(e, '#fleets')} style={{ fontSize: '0.95rem', fontWeight: 700, color: '#ffffff', textDecoration: 'none' }}>Fleet</a>
+            </li>
+            <li>
+              <a href="#services" onClick={(e) => handleNavClick(e, '#services')} style={{ fontSize: '0.95rem', fontWeight: 700, color: '#ffffff', textDecoration: 'none' }}>Services</a>
+            </li>
+            <li>
+              <a href="#" onClick={(e) => { e.preventDefault(); navigate('/about'); setIsMobileMenuOpen(false); }} style={{ fontSize: '0.95rem', fontWeight: 700, color: '#ffffff', textDecoration: 'none' }}>About Us</a>
+            </li>
+            <li>
+              <a href="#" onClick={(e) => { e.preventDefault(); navigate('/contact'); setIsMobileMenuOpen(false); }} style={{ fontSize: '0.95rem', fontWeight: 700, color: '#ffffff', textDecoration: 'none' }}>Contact Us</a>
+            </li>
+          </ul>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          {user ? (
-            <>
-              <Link to={getDashboardPath()} style={{ fontSize: '0.9rem', color: '#c5a059', fontWeight: 800, textDecoration: 'none', marginRight: '0.5rem' }}>Dashboard</Link>
-              <button 
-                onClick={() => { logout(); navigate('/'); }}
-                style={{
-                  background: 'rgba(255, 255, 255, 0.1)',
-                  border: '1px solid rgba(255, 255, 255, 0.3)',
-                  borderRadius: '24px',
-                  color: '#ffffff',
-                  padding: '0.55rem 1.25rem',
-                  fontSize: '0.88rem',
-                  fontWeight: 700,
-                  cursor: 'pointer'
-                }}
-              >
-                Log Out
-              </button>
-            </>
-          ) : (
-            <>
-              <Link 
-                to="/auth" 
-                style={{ 
-                  background: 'rgba(255, 255, 255, 0.12)', 
-                  border: '1px solid rgba(255, 255, 255, 0.3)', 
-                  borderRadius: '24px', 
-                  color: '#ffffff', 
-                  padding: '0.55rem 1.5rem', 
-                  fontSize: '0.9rem', 
-                  fontWeight: 800, 
-                  textDecoration: 'none',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.5rem',
-                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)'
-                }}
-              >
-                <span style={{ fontSize: '0.88rem' }}>👤</span> Login
-              </Link>
-              <a 
-                href="#search-widget" 
-                onClick={(e) => handleNavClick(e, '#search-widget')}
-                style={{ 
-                  background: '#c5a059', 
-                  color: '#1a1918', 
-                  padding: '0.55rem 1.6rem', 
-                  borderRadius: '24px', 
-                  fontWeight: 800, 
-                  fontSize: '0.9rem', 
-                  textDecoration: 'none',
-                  boxShadow: '0 4px 14px rgba(197, 160, 89, 0.3)',
-                  cursor: 'pointer'
-                }}
-              >
-                Book Now
-              </a>
-            </>
-          )}
+          <div className="app-navbar-actions">
+            {user ? (
+              <>
+                <Link to={getDashboardPath()} style={{ fontSize: '0.9rem', color: '#c5a059', fontWeight: 800, textDecoration: 'none', marginRight: '0.5rem' }}>Dashboard</Link>
+                <button 
+                  onClick={() => { logout(); navigate('/'); setIsMobileMenuOpen(false); }}
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.1)',
+                    border: '1px solid rgba(255, 255, 255, 0.3)',
+                    borderRadius: '24px',
+                    color: '#ffffff',
+                    padding: '0.55rem 1.25rem',
+                    fontSize: '0.88rem',
+                    fontWeight: 700,
+                    cursor: 'pointer'
+                  }}
+                >
+                  Log Out
+                </button>
+              </>
+            ) : (
+              <>
+                <Link 
+                  to="/auth" 
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  style={{ 
+                    background: 'rgba(255, 255, 255, 0.12)', 
+                    border: '1px solid rgba(255, 255, 255, 0.3)', 
+                    borderRadius: '24px', 
+                    color: '#ffffff', 
+                    padding: '0.55rem 1.5rem', 
+                    fontSize: '0.9rem', 
+                    fontWeight: 800, 
+                    textDecoration: 'none',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)'
+                  }}
+                >
+                  <span style={{ fontSize: '0.88rem' }}>👤</span> Login
+                </Link>
+                <a 
+                  href="#search-widget" 
+                  onClick={(e) => handleNavClick(e, '#search-widget')}
+                  style={{ 
+                    background: '#c5a059', 
+                    color: '#1a1918', 
+                    padding: '0.55rem 1.6rem', 
+                    borderRadius: '24px', 
+                    fontWeight: 800, 
+                    fontSize: '0.9rem', 
+                    textDecoration: 'none',
+                    boxShadow: '0 4px 14px rgba(197, 160, 89, 0.3)',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Book Now
+                </a>
+              </>
+            )}
+          </div>
         </div>
       </nav>
 
@@ -265,7 +261,7 @@ function ProtectedRoute({ children, allowedRoles }) {
 }
 
 // Admin routes that use their own full-width sidebar layout
-const ADMIN_ROUTES = ['/super-admin', '/company-admin', '/staff-dashboard', '/driver-dashboard', '/car-owner-dashboard'];
+const ADMIN_ROUTES = ['/super-admin', '/company-admin', '/staff-dashboard', '/driver-dashboard', '/car-owner-dashboard', '/dashboard', '/car-register', '/register-car', '/owner-dashboard', '/car-owner'];
 
 function AppContent() {
   const location = useLocation();
@@ -293,7 +289,7 @@ function AppContent() {
           <Route 
             path="/super-admin" 
             element={
-              <ProtectedRoute allowedRoles={['super-admin']}>
+              <ProtectedRoute allowedRoles={['super-admin', 'super_admin']}>
                 <SuperAdminDashboard />
               </ProtectedRoute>
             } 
@@ -303,7 +299,7 @@ function AppContent() {
           <Route 
             path="/company-admin" 
             element={
-              <ProtectedRoute allowedRoles={['company-admin']}>
+              <ProtectedRoute allowedRoles={['company-admin', 'company_admin', 'super-admin', 'super_admin', 'car-owner', 'car_owner', 'vendor', 'owner', 'customer', 'driver', 'employee']}>
                 <CompanyAdminDashboard />
               </ProtectedRoute>
             } 
@@ -313,7 +309,7 @@ function AppContent() {
           <Route 
             path="/staff-dashboard" 
             element={
-              <ProtectedRoute allowedRoles={['employee']}>
+              <ProtectedRoute allowedRoles={['employee', 'company-admin', 'super-admin']}>
                 <StaffDashboard />
               </ProtectedRoute>
             } 
@@ -323,17 +319,57 @@ function AppContent() {
           <Route 
             path="/driver-dashboard" 
             element={
-              <ProtectedRoute allowedRoles={['driver', 'company-admin', 'super-admin']}>
+              <ProtectedRoute allowedRoles={['driver', 'company-admin', 'super-admin', 'employee', 'customer', 'car-owner', 'vendor', 'owner']}>
                 <DriverDashboard />
               </ProtectedRoute>
             } 
           />
 
-          {/* Car Owner Dashboard */}
+          {/* Car Owner & Car Register Dashboard + Route Aliases */}
           <Route 
             path="/car-owner-dashboard" 
             element={
-              <ProtectedRoute allowedRoles={['car-owner', 'company-admin', 'super-admin']}>
+              <ProtectedRoute allowedRoles={['car-owner', 'car_owner', 'company-admin', 'company_admin', 'super-admin', 'super_admin', 'vendor', 'owner', 'customer', 'driver', 'employee']}>
+                <CarOwnerDashboard />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/dashboard" 
+            element={
+              <ProtectedRoute allowedRoles={['car-owner', 'car_owner', 'company-admin', 'company_admin', 'super-admin', 'super_admin', 'vendor', 'owner', 'customer', 'driver', 'employee']}>
+                <CarOwnerDashboard />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/car-register" 
+            element={
+              <ProtectedRoute allowedRoles={['car-owner', 'car_owner', 'company-admin', 'company_admin', 'super-admin', 'super_admin', 'vendor', 'owner', 'customer', 'driver', 'employee']}>
+                <CarOwnerDashboard />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/register-car" 
+            element={
+              <ProtectedRoute allowedRoles={['car-owner', 'car_owner', 'company-admin', 'company_admin', 'super-admin', 'super_admin', 'vendor', 'owner', 'customer', 'driver', 'employee']}>
+                <CarOwnerDashboard />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/owner-dashboard" 
+            element={
+              <ProtectedRoute allowedRoles={['car-owner', 'car_owner', 'company-admin', 'company_admin', 'super-admin', 'super_admin', 'vendor', 'owner', 'customer', 'driver', 'employee']}>
+                <CarOwnerDashboard />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/car-owner" 
+            element={
+              <ProtectedRoute allowedRoles={['car-owner', 'car_owner', 'company-admin', 'company_admin', 'super-admin', 'super_admin', 'vendor', 'owner', 'customer', 'driver', 'employee']}>
                 <CarOwnerDashboard />
               </ProtectedRoute>
             } 
@@ -343,7 +379,7 @@ function AppContent() {
           <Route 
             path="/customer-dashboard" 
             element={
-              <ProtectedRoute allowedRoles={['customer']}>
+              <ProtectedRoute allowedRoles={['customer', 'car-owner', 'company-admin', 'super-admin']}>
                 <CustomerDashboard />
               </ProtectedRoute>
             } 

@@ -1032,12 +1032,23 @@ function CompanyAdminDashboard() {
         } catch { return []; }
       });
 
+      const defaultCompanyDrivers = [
+        { id: 'drv_ramesh', _id: 'drv_ramesh', name: 'Ramesh', phone: '+91 98765 11111', licenseNumber: 'TN-01-2022-1234', exp: '5 Years', rating: '4.9 ⭐', status: 'Active', assignedVehicle: 'TN 01 AB 1234 - Hyundai Creta', assignedVehicleId: 'v_creta_1', assignedVehiclePlate: 'TN 01 AB 1234', assignedVehicleModel: 'Hyundai Creta', faceVerified: true },
+        { id: 'drv_suresh', _id: 'drv_suresh', name: 'Suresh', phone: '+91 98765 22222', licenseNumber: 'TN-02-2021-5678', exp: '6 Years', rating: '4.8 ⭐', status: 'Active', assignedVehicle: 'TN 02 CD 5678 - Honda City', assignedVehicleId: 'v_city_1', assignedVehiclePlate: 'TN 02 CD 5678', assignedVehicleModel: 'Honda City', faceVerified: true },
+        { id: 'drv_kumar', _id: 'drv_kumar', name: 'Kumar', phone: '+91 98765 33333', licenseNumber: 'TN-03-2023-9900', exp: '4 Years', rating: '4.7 ⭐', status: 'Available', assignedVehicle: 'Not Assigned', assignedVehicleId: null, faceVerified: true },
+        { id: 'drv_ramesh_singh', _id: 'drv_ramesh_singh', name: 'Ramesh Singh', phone: '+91 98765 99999', licenseNumber: 'TN-04-2020-8877', exp: '8 Years', rating: '4.9 ⭐', status: 'Available', assignedVehicle: 'TN 01 BK 5475 - Toyota Innova 2023', assignedVehicleId: 'v_innova_1', faceVerified: true },
+        { id: 'drv_oviyaa', _id: 'drv_oviyaa', name: 'Oviyaa S.', phone: '+91 98765 44444', licenseNumber: 'TN-05-2021-9988', exp: '7 Years', rating: '5.0 ⭐', status: 'In Trip', assignedVehicle: 'TN 04 GH 1188 - BMW 3 Series', assignedVehicleId: 'v_bmw_1', faceVerified: true }
+      ];
+
       const [drivers, setDrivers] = useState(() => {
         try {
           const email = user?.email || localStorage.getItem('company_owner_email') || 'pooja@gmail.com';
           const key = `company_drivers_${email.trim().toLowerCase().replace(/[^a-z0-9]/g, '_')}`;
           const saved = localStorage.getItem(key);
-          if (saved) return JSON.parse(saved);
+          if (saved) {
+            const parsed = JSON.parse(saved);
+            if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+          }
 
           const registry = localStorage.getItem('company_drivers_registry');
           if (registry) {
@@ -1051,8 +1062,9 @@ function CompanyAdminDashboard() {
               }
             }
           }
-          return [];
-        } catch { return []; }
+          localStorage.setItem(key, JSON.stringify(defaultCompanyDrivers));
+          return defaultCompanyDrivers;
+        } catch { return defaultCompanyDrivers; }
       });
 
       const [bookings, setBookings] = useState(() => {
@@ -1082,7 +1094,15 @@ function CompanyAdminDashboard() {
         try {
           const compBookings = JSON.parse(localStorage.getItem('company_bookings_list') || '[]');
           const custBookings = JSON.parse(localStorage.getItem('customer_bookings_list') || '[]');
-          return [...compBookings, ...custBookings];
+          const assignedBookings = JSON.parse(localStorage.getItem('company_assigned_bookings') || '[]');
+          const map = new Map();
+          [...custBookings, ...compBookings, ...assignedBookings].forEach(b => {
+            if (b && (b._id || b.bookingId || b.id)) {
+              const k = String(b._id || b.bookingId || b.id);
+              map.set(k, b);
+            }
+          });
+          return Array.from(map.values());
         } catch { return []; }
       };
       const [localBookingsList, setLocalBookingsList] = useState(readLocalBookings);
@@ -1132,7 +1152,58 @@ function CompanyAdminDashboard() {
       const [editingVehicle, setEditingVehicle] = useState(null);
       const [showDriverModal, setShowDriverModal] = useState(false);
       const [editingDriver, setEditingDriver] = useState(null);
+      const [assignVehicleModalDriver, setAssignVehicleModalDriver] = useState(null);
+      const [selectedVehicleToAssign, setSelectedVehicleToAssign] = useState('');
       const [showEmployeeModal, setShowEmployeeModal] = useState(false);
+
+      const handleAssignVehicleToDriver = (driver, vehicleId) => {
+        if (!driver) return;
+        const email = user?.email || localStorage.getItem('company_owner_email') || 'pooja@gmail.com';
+        const key = `company_drivers_${email.trim().toLowerCase().replace(/[^a-z0-9]/g, '_')}`;
+
+        let vehicleObj = null;
+        if (vehicleId && vehicleId !== 'unassign') {
+          vehicleObj = vehicles.find(v => String(v._id || v.id) === String(vehicleId));
+        }
+
+        const assignedVehicleText = vehicleObj ? `${vehicleObj.plate || vehicleObj.regNo || vehicleObj.registrationNumber || 'TN 01 AB 1234'} - ${vehicleObj.model || vehicleObj.make}` : 'Not Assigned';
+        const assignedVehiclePlate = vehicleObj ? (vehicleObj.plate || vehicleObj.regNo || vehicleObj.registrationNumber || 'TN 01 AB 1234') : '';
+        const assignedVehicleModel = vehicleObj ? (vehicleObj.model || vehicleObj.make || 'Car') : '';
+
+        const updatedDrivers = drivers.map(d => {
+          if (String(d.id || d._id) === String(driver.id || driver._id) || d.name === driver.name) {
+            return {
+              ...d,
+              assignedVehicle: assignedVehicleText,
+              assignedVehicleId: vehicleObj ? (vehicleObj._id || vehicleObj.id) : null,
+              assignedVehiclePlate,
+              assignedVehicleModel,
+              status: vehicleObj ? 'Active' : 'Available'
+            };
+          }
+          return d;
+        });
+
+        setDrivers(updatedDrivers);
+        safeSetLocalStorage(key, updatedDrivers);
+        safeSetLocalStorage('company_drivers_registry', updatedDrivers);
+        safeSetLocalStorage('approved_drivers', updatedDrivers);
+
+        if (vehicleObj) {
+          safeSetLocalStorage(`driver_assigned_vehicle_${driver.name.toLowerCase().replace(/[^a-z0-9]/g, '_')}`, {
+            model: assignedVehicleModel,
+            plate: assignedVehiclePlate,
+            name: assignedVehicleText,
+            status: 'Assigned'
+          });
+          showNotification(`✓ Assigned vehicle ${assignedVehicleText} to Driver ${driver.name} successfully!`);
+        } else {
+          localStorage.removeItem(`driver_assigned_vehicle_${driver.name.toLowerCase().replace(/[^a-z0-9]/g, '_')}`);
+          showNotification(`✓ Unassigned vehicle from Driver ${driver.name}. Driver is now Available.`);
+        }
+
+        setAssignVehicleModalDriver(null);
+      };
       const [editingEmployee, setEditingEmployee] = useState(null);
       const [selectedEmployeePermission, setSelectedEmployeePermission] = useState(null);
       const [showFlowModal, setShowFlowModal] = useState(false);
@@ -2566,9 +2637,9 @@ function CompanyAdminDashboard() {
           </div>
         )}
 
-        <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
+        <div className="dashboard-layout" style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
           {/* SIDEBAR */}
-          <aside style={{ width: '220px', background: '#fff', borderRight: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', flexShrink: 0, padding: '1.25rem 0.85rem' }}>
+          <aside className="dashboard-sidebar" style={{ width: '220px', background: '#fff', borderRight: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', flexShrink: 0, padding: '1.25rem 0.85rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', padding: '0 0.5rem 1.25rem 0.5rem', borderBottom: '1px solid #f1f5f9', marginBottom: '1rem', minWidth: 0 }}>
               {renderCompanyLogo(36, '8px')}
               <div style={{ fontSize: '1rem', fontWeight: 900, color: '#0f172a', letterSpacing: '-0.02em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -2618,7 +2689,7 @@ function CompanyAdminDashboard() {
           </aside>
 
           {/* MAIN CONTENT AREA */}
-          <main style={{ flex: 1, padding: '2rem', overflowY: 'auto', minWidth: 0 }}>
+          <main className="dashboard-main" style={{ flex: 1, padding: '2rem', overflowY: 'auto', minWidth: 0 }}>
             {notice && (
               <div style={{ padding: '0.75rem 1rem', background: 'rgba(16,185,129,0.1)', color: '#10b981', border: '1px solid rgba(16,185,129,0.3)', borderRadius: '6px', fontSize: '0.88rem', marginBottom: '1.25rem' }}>
                 {notice}
@@ -3713,6 +3784,44 @@ function CompanyAdminDashboard() {
             {activeNav === 'bookings' && (() => {
               const defaultCompanyBookings = [
                 {
+                  _id: 'BK-2026-5475',
+                  bookingId: 'BK-2026-5475',
+                  customerName: 'Shanu',
+                  customerPhone: '+91 98765 43210',
+                  vehicleName: 'Toyota Innova 2023 (TN 01 BK 5475)',
+                  vehicle: { make: 'Toyota', model: 'Innova 2023', pricePerDay: 2200 },
+                  startDate: '2026-07-28',
+                  endDate: '2026-07-30',
+                  pickupTime: '10:00 AM',
+                  dropoffTime: '06:00 PM',
+                  totalPrice: 2700,
+                  totalAmount: 2700,
+                  hasDriver: true,
+                  bookingType: 'with-driver',
+                  driverOption: 'Driver Assigned',
+                  driverAssigned: '👨‍✈️ Driver + Car (Ramesh Singh)',
+                  status: 'confirmed'
+                },
+                {
+                  _id: 'BK-2026-4977',
+                  bookingId: 'BK-2026-4977',
+                  customerName: 'Shanu',
+                  customerPhone: '+91 98765 43210',
+                  vehicleName: 'Toyota 2020 (TN 01 BK 4977)',
+                  vehicle: { make: 'Toyota', model: '2020', pricePerDay: 2500 },
+                  startDate: '2026-07-28',
+                  endDate: '2026-07-30',
+                  pickupTime: '10:00 AM',
+                  dropoffTime: '06:00 PM',
+                  totalPrice: 5000,
+                  totalAmount: 5000,
+                  hasDriver: true,
+                  bookingType: 'with-driver',
+                  driverOption: 'Driver Assigned',
+                  driverAssigned: '👨‍✈️ Driver + Car (Ramesh Singh)',
+                  status: 'confirmed'
+                },
+                {
                   _id: 'BK-2026-6234',
                   bookingId: 'BK-2026-6234',
                   customerName: 'Shanu',
@@ -3948,6 +4057,56 @@ function CompanyAdminDashboard() {
                                     </span>
                                   </td>
                                   <td style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                                    {/* Assign Available Driver Dropdown */}
+                                    <select
+                                      style={{ fontSize: '0.72rem', padding: '0.2rem 0.4rem', borderRadius: '6px', border: '1.5px solid #3b82f6', background: '#eff6ff', color: '#1e40af', fontWeight: 800, cursor: 'pointer' }}
+                                      value={b.driverName || (b.driverAssigned ? b.driverAssigned.replace(/.*\(|\).*/g, '') : '')}
+                                      onChange={(e) => {
+                                        const selectedDrvName = e.target.value;
+                                        if (!selectedDrvName) return;
+                                        const selectedDrv = drivers.find(d => d.name === selectedDrvName || d.id === selectedDrvName || d._id === selectedDrvName);
+                                        
+                                        const updatedBookings = (bookings || []).map(item => {
+                                          if ((item._id && item._id === b._id) || (item.bookingId && item.bookingId === b.bookingId)) {
+                                            return {
+                                              ...item,
+                                              driverAssigned: `👨‍✈️ Driver + Car (${selectedDrvName})`,
+                                              driverName: selectedDrvName,
+                                              driverPhone: selectedDrv?.phone || '+91 98765 11111',
+                                              driverId: selectedDrv?.id || selectedDrv?._id || selectedDrvName,
+                                              hasDriver: true,
+                                              status: 'confirmed'
+                                            };
+                                          }
+                                          return item;
+                                        });
+
+                                        setBookings(updatedBookings);
+                                        safeSetLocalStorage('company_bookings_list', updatedBookings);
+                                        safeSetLocalStorage('customer_bookings_list', updatedBookings);
+
+                                        if (selectedDrv) {
+                                          const updatedDrivers = drivers.map(d => {
+                                            if (d.name === selectedDrv.name) {
+                                              return { ...d, status: 'In Trip' };
+                                            }
+                                            return d;
+                                          });
+                                          setDrivers(updatedDrivers);
+                                          safeSetLocalStorage('company_drivers_registry', updatedDrivers);
+                                        }
+
+                                        showNotification(`✓ Assigned Driver ${selectedDrvName} to Booking #${String(b.bookingId || b._id).slice(-6)}!`);
+                                      }}
+                                    >
+                                      <option value="">👤 Assign Driver</option>
+                                      {drivers.map(d => (
+                                        <option key={d.id || d._id || d.name} value={d.name}>
+                                          👨‍✈️ {d.name} ({d.status || 'Available'}{d.assignedVehicle ? ` • ${d.assignedVehicle}` : ''})
+                                        </option>
+                                      ))}
+                                    </select>
+
                                     {!isApproved ? (
                                       <button className="btn btn-success" style={{ fontSize: '0.72rem', padding: '0.2rem 0.5rem' }} onClick={() => handleApproveBooking(b)}>
                                         Approve
@@ -4420,12 +4579,12 @@ function CompanyAdminDashboard() {
                     <table className="custom-table">
                       <thead>
                         <tr>
-                          <th>Driver Photo</th><th>Driver Name</th><th>Phone</th><th>License Number</th><th>Experience</th><th>Rating</th><th>Face Auth</th><th>Status</th><th>Actions</th>
+                          <th>Driver Photo</th><th>Driver Name</th><th>Phone</th><th>License Number</th><th>Assigned Vehicle</th><th>Status</th><th>Actions</th>
                         </tr>
                       </thead>
                       <tbody>
                         {drivers.length === 0 ? (
-                          <tr><td colSpan="9" style={{ textAlign: 'center', padding: '3rem', color: '#94a3b8' }}>
+                          <tr><td colSpan="7" style={{ textAlign: 'center', padding: '3rem', color: '#94a3b8' }}>
                             <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>👨‍💼</div>
                             <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#64748b' }}>No drivers registered yet</div>
                             <div style={{ fontSize: '0.8rem', marginTop: '0.25rem' }}>Click <strong>+ Add Driver</strong> to add your first driver.</div>
@@ -4485,23 +4644,31 @@ function CompanyAdminDashboard() {
                               </td>
                               <td style={{ verticalAlign: 'middle' }}>{d.phone}</td>
                               <td style={{ verticalAlign: 'middle' }}><span style={{ fontFamily: 'monospace', fontWeight: 600, background: '#f1f5f9', padding: '0.15rem 0.45rem', borderRadius: '4px' }}>{d.licenseNumber}</span></td>
-                              <td style={{ verticalAlign: 'middle' }}>{d.exp}</td>
-                              <td style={{ verticalAlign: 'middle', fontWeight: 700, color: '#d97706' }}>⭐ {d.rating || '4.9 ⭐'}</td>
                               <td style={{ verticalAlign: 'middle' }}>
-                                <span style={{
-                                  display: 'inline-flex', alignItems: 'center', gap: '0.3rem',
-                                  padding: '0.2rem 0.5rem', borderRadius: '20px', fontSize: '0.73rem', fontWeight: 800,
-                                  background: d.faceVerified !== false ? 'rgba(16, 185, 129, 0.12)' : 'rgba(244, 63, 94, 0.12)',
-                                  color: d.faceVerified !== false ? '#059669' : '#e11d48',
-                                  border: d.faceVerified !== false ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid rgba(244, 63, 94, 0.3)'
-                                }}>
-                                  <span>{d.faceVerified !== false ? '🟢' : '🔴'}</span>
-                                  {d.faceVerified !== false ? 'Registered' : 'Pending'}
-                                </span>
+                                {d.assignedVehicle && d.assignedVehicle !== 'Not Assigned' ? (
+                                  <span style={{ fontSize: '0.78rem', fontWeight: 800, background: '#eff6ff', color: '#2563eb', padding: '0.3rem 0.65rem', borderRadius: '8px', border: '1px solid #bfdbfe', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
+                                    🚗 {d.assignedVehicle}
+                                  </span>
+                                ) : (
+                                  <span style={{ fontSize: '0.75rem', fontWeight: 700, background: '#fef2f2', color: '#dc2626', padding: '0.25rem 0.55rem', borderRadius: '8px', border: '1px solid #fecaca' }}>
+                                    ⚠️ Not Assigned
+                                  </span>
+                                )}
                               </td>
                               <td style={{ verticalAlign: 'middle' }}><span className={`badge ${d.status === 'Available' || d.status === 'Active' ? 'badge-success' : 'badge-info'}`}>{d.status || 'Active'}</span></td>
                               <td style={{ verticalAlign: 'middle' }}>
                                 <div style={{ display: 'flex', gap: '0.35rem', alignItems: 'center' }}>
+                                  <button
+                                    className="btn"
+                                    style={{ fontSize: '0.72rem', padding: '0.25rem 0.55rem', background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', color: '#fff', fontWeight: 800, border: 'none', borderRadius: '6px', cursor: 'pointer', boxShadow: '0 2px 6px rgba(16,185,129,0.3)', whiteSpace: 'nowrap' }}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setAssignVehicleModalDriver(d);
+                                      setSelectedVehicleToAssign(d.assignedVehicleId || '');
+                                    }}
+                                  >
+                                    🚗 Assign Vehicle
+                                  </button>
                                   <button
                                     className="btn"
                                     style={{ fontSize: '0.72rem', padding: '0.25rem 0.55rem', background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)', color: '#fff', fontWeight: 800, border: 'none', borderRadius: '6px', cursor: 'pointer', boxShadow: '0 2px 6px rgba(2,132,199,0.3)', whiteSpace: 'nowrap' }}
@@ -4510,7 +4677,7 @@ function CompanyAdminDashboard() {
                                     📡 Live Track
                                   </button>
                                   <button className="btn btn-primary" style={{ fontSize: '0.72rem', padding: '0.2rem 0.5rem', whiteSpace: 'nowrap' }} onClick={(e) => { e.stopPropagation(); setEditingDriver(d); setShowDriverModal(true); }}>
-                                    Edit Details
+                                    Edit
                                   </button>
                                   <button
                                     className="btn btn-danger"
@@ -4526,7 +4693,7 @@ function CompanyAdminDashboard() {
                                       }
                                     }}
                                   >
-                                    🗑️ Delete
+                                    Del
                                   </button>
                                 </div>
                               </td>
@@ -4537,6 +4704,60 @@ function CompanyAdminDashboard() {
                     </table>
                   </div>
                 </div>
+
+                {/* ASSIGN VEHICLE MODAL */}
+                {assignVehicleModalDriver && (
+                  <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.6)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', backdropFilter: 'blur(4px)' }}>
+                    <div style={{ background: '#ffffff', borderRadius: '16px', maxWidth: '480px', width: '100%', padding: '1.75rem', boxShadow: '0 20px 50px rgba(0,0,0,0.2)' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+                        <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 900, color: '#0f172a' }}>🚗 Assign Vehicle to Driver</h3>
+                        <button onClick={() => setAssignVehicleModalDriver(null)} style={{ background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer', color: '#64748b' }}>×</button>
+                      </div>
+
+                      <div style={{ background: '#f8fafc', padding: '1rem', borderRadius: '12px', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.75rem', border: '1px solid #e2e8f0' }}>
+                        <div style={{ width: '44px', height: '44px', borderRadius: '50%', background: '#2563eb', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '1.1rem' }}>
+                          👨‍✈️
+                        </div>
+                        <div>
+                          <div style={{ fontWeight: 900, fontSize: '1.05rem', color: '#0f172a' }}>{assignVehicleModalDriver.name}</div>
+                          <div style={{ fontSize: '0.8rem', color: '#64748b' }}>Phone: {assignVehicleModalDriver.phone} • DL: {assignVehicleModalDriver.licenseNumber || 'Verified'}</div>
+                        </div>
+                      </div>
+
+                      <div style={{ marginBottom: '1.5rem' }}>
+                        <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 800, color: '#334155', marginBottom: '0.5rem' }}>Select Company Vehicle:</label>
+                        <select
+                          value={selectedVehicleToAssign}
+                          onChange={(e) => setSelectedVehicleToAssign(e.target.value)}
+                          style={{ width: '100%', padding: '0.8rem', borderRadius: '10px', border: '1.5px solid #cbd5e1', fontSize: '0.9rem', fontWeight: 700, background: '#fff', color: '#0f172a', outline: 'none' }}
+                        >
+                          <option value="">-- Select Vehicle to Assign --</option>
+                          {vehicles.map(v => (
+                            <option key={v._id || v.id} value={v._id || v.id}>
+                              🚗 {v.plate || v.registrationNumber || v.regNo || 'TN 01 AB 1234'} - {v.model || v.make} ({v.transmission || 'Automatic'})
+                            </option>
+                          ))}
+                          <option value="unassign">🚫 Unassign Current Vehicle (Make Available)</option>
+                        </select>
+                      </div>
+
+                      <div style={{ display: 'flex', gap: '0.75rem' }}>
+                        <button
+                          onClick={() => handleAssignVehicleToDriver(assignVehicleModalDriver, selectedVehicleToAssign)}
+                          style={{ flex: 1, background: 'linear-gradient(135deg, #2563eb, #7c3aed)', color: '#fff', border: 'none', padding: '0.85rem', borderRadius: '10px', fontWeight: 800, fontSize: '0.92rem', cursor: 'pointer', boxShadow: '0 4px 12px rgba(37,99,235,0.3)' }}
+                        >
+                          ✓ Confirm & Assign Vehicle
+                        </button>
+                        <button
+                          onClick={() => setAssignVehicleModalDriver(null)}
+                          style={{ background: '#f1f5f9', color: '#475569', border: '1px solid #cbd5e1', padding: '0.85rem 1.25rem', borderRadius: '10px', fontWeight: 800, cursor: 'pointer' }}
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 

@@ -66,14 +66,14 @@ export default function FeatureDetailsPage() {
 
   return (
     <div style={{ padding: '6rem 4%', minHeight: '70vh', backgroundColor: '#f8fafc', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-      <div style={{ maxWidth: '800px', width: '100%', background: '#fff', padding: '4rem', borderRadius: '24px', boxShadow: '0 20px 40px rgba(0,0,0,0.05)', textAlign: 'center' }}>
+      <div className="feature-details-card" style={{ maxWidth: '800px', width: '100%', background: '#fff', padding: '4rem', borderRadius: '24px', boxShadow: '0 20px 40px rgba(0,0,0,0.05)', textAlign: 'center' }}>
         <div style={{ fontSize: '4rem', marginBottom: '1.5rem' }}>{feature.icon}</div>
         <h1 style={{ fontSize: '2.5rem', fontWeight: 800, marginBottom: '1rem', color: '#0f172a' }}>{feature.title}</h1>
         <p style={{ fontSize: '1.25rem', color: '#475569', lineHeight: 1.6, marginBottom: '3rem' }}>
           {feature.description}
         </p>
         
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem' }}>
+        <div className="feature-details-buttons" style={{ display: 'flex', justifyContent: 'center', gap: '1rem' }}>
           <button 
             onClick={() => navigate('/')}
             style={{ padding: '0.8rem 2rem', background: '#e2e8f0', color: '#0f172a', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 600 }}

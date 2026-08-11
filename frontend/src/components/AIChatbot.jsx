@@ -1,29 +1,34 @@
 import React, { useState, useEffect, useRef } from 'react';
 
 const Icons = {
-  Send: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>,
-  X: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>,
-  Chat: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>,
-  Car: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 16H9m10 0h3v-3.15a1 1 0 0 0-.84-.99L16 11l-2.7-3.6a2 2 0 0 0-1.6-.8H9.3a2 2 0 0 0-1.6.8L5 11l-5.16.86a1 1 0 0 0-.84.99V16h3m10 0a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm-14 0a2 2 0 1 1-4 0 2 2 0 0 1 4 0z"/></svg>,
-  User: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+  Send: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>,
+  X: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>,
+  Plus: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>,
+  Chat: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>,
+  Robot: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>,
+  Phone: () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>,
+  WhatsApp: () => <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/></svg>
 };
 
 export default function AIChatbot({ isOpen, onClose }) {
+  const [isMinimized, setIsMinimized] = useState(false);
   const [messages, setMessages] = useState([
-    { sender: 'ai', text: 'Hello! I am the Royal AI Assistant. How can I help you with your car rental today?' }
+    { sender: 'ai', text: 'Hello! 👋 Welcome to Royal Rent Cars! I am your AI Assistant. How can I help you book or explore car rentals today?' }
   ]);
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef(null);
 
   const colors = {
-    brown: '#7B4F2C',
-    darkBrown: '#4A2F1A',
-    lightCream: '#F9F6F0',
-    creamAccent: '#EFE7DF',
-    white: '#FFFFFF',
-    textDark: '#2C1C13',
-    textMuted: '#6D5443'
+    espresso: '#4E311B',
+    darkEspresso: '#3C2414',
+    cream: '#FAF4EE',
+    lightCream: '#F6EDE4',
+    badge: '#EFE4D6',
+    border: '#EADCCF',
+    textDark: '#3C2415',
+    textMuted: '#7C6959',
+    gold: '#D49B4B'
   };
 
   const scrollToBottom = () => {
@@ -31,53 +36,88 @@ export default function AIChatbot({ isOpen, onClose }) {
   };
 
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && !isMinimized) {
       scrollToBottom();
     }
-  }, [messages, isOpen, isTyping]);
+  }, [messages, isOpen, isMinimized, isTyping]);
 
   if (!isOpen) return null;
 
-  const handleSend = () => {
-    if (!inputValue.trim()) return;
+  // Minimized Floating Pill State
+  if (isMinimized) {
+    return (
+      <div 
+        onClick={() => setIsMinimized(false)}
+        title="Royal Rent Cars AI Concierge"
+        style={{
+          position: 'fixed',
+          bottom: '28px',
+          right: '28px',
+          zIndex: 99999,
+          width: '56px',
+          height: '56px',
+          borderRadius: '50%',
+          background: colors.espresso,
+          color: '#ffffff',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          boxShadow: '0 12px 32px rgba(78, 49, 27, 0.5)',
+          cursor: 'pointer',
+          transition: 'all 0.25s cubic-bezier(0.165, 0.84, 0.44, 1)',
+          border: '2px solid rgba(255, 255, 255, 0.25)'
+        }}
+        onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.08)'; }}
+        onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
+      >
+        <Icons.Plus />
+      </div>
+    );
+  }
 
-    const userMsg = inputValue.trim();
-    setMessages(prev => [...prev, { sender: 'user', text: userMsg }]);
-    setInputValue('');
+  const handleSend = (textToSend) => {
+    const text = textToSend || inputValue;
+    if (!text.trim()) return;
+
+    setMessages(prev => [...prev, { sender: 'user', text: text.trim() }]);
+    if (!textToSend) setInputValue('');
     setIsTyping(true);
 
-    // Simulate AI processing and response
     setTimeout(() => {
-      let aiResponse = "I'm the Royal AI Assistant! I can help you with bookings, policies, and support. Could you provide a bit more detail?";
-      const lower = userMsg.toLowerCase();
-      
-      if (lower.includes('admin') || lower.includes('superadmin') || lower.includes('employee') || lower.includes('dashboard')) {
-        aiResponse = "I am a customer support assistant! For internal admin, driver, or employee dashboard access, please refer to the internal employee portal or contact the IT department.";
-      } else if (lower.includes('register') && (lower.includes('car') || lower.includes('host'))) {
-        aiResponse = "To register your car and become a host, please navigate to the 'Car Owner Dashboard'. From there, you can upload your vehicle details and documents for verification to start earning!";
-      } else if (lower.includes('register') || lower.includes('sign up') || lower.includes('login') || lower.includes('account')) {
-        aiResponse = "To register as a user, click the 'Sign In' or 'Register' button at the top of the page. You can securely create an account using your email or phone number.";
-      } else if (lower.includes('driver') && (lower.includes('identify') || lower.includes('know') || lower.includes('who') || lower.includes('contact'))) {
-        aiResponse = "Once your booking is confirmed, your assigned driver's exact details (including their name, photo, and contact number) will be securely shared with you via SMS and will be visible in your active bookings dashboard.";
-      } else if (lower.includes('contact') || lower.includes('call') || lower.includes('support') || lower.includes('help')) {
-        aiResponse = "You can contact our 24/7 support team via email at support@royal.com or call us directly at +91 98765 43210. We're always here to help you!";
-      } else if (lower.includes('book') || lower.includes('rent')) {
-        aiResponse = "To book a car, simply navigate to our homepage, select your preferred dates and location, choose a vehicle, and complete the secure payment. Your booking will be instantly confirmed!";
-      } else if (lower.includes('document') || lower.includes('id') || lower.includes('license')) {
-        aiResponse = "You will need to provide a valid Driving License and a Government-issued Photo ID (such as an Aadhaar card or Passport) at the time of pickup.";
-      } else if (lower.includes('cancel') || lower.includes('refund')) {
-        aiResponse = "You can cancel your booking for free up to 24 hours before your scheduled pickup. Refunds are processed securely within 5-7 business days directly to your original payment method.";
-      } else if (lower.includes('price') || lower.includes('cost') || lower.includes('pay')) {
-        aiResponse = "Our pricing is transparent with no hidden fees! We accept UPI, Credit/Debit cards, and Net Banking. Costs vary based on the vehicle type and rental duration.";
-      } else if (lower.includes('hello') || lower.includes('hi')) {
-        aiResponse = "Hello there! Ready to hit the road? Ask me anything about our rental services!";
-      } else if (lower.includes('confuse') || lower.includes('explain') || lower.includes('how')) {
-        aiResponse = "Don't worry, I'm here to explain exactly how it works! \n\n1. Browse: Browse our wide range of premium and luxury cars on the homepage.\n2. Select Dates: Choose when and where you want to pick up the car.\n3. Book & Pay: Complete a secure payment using UPI or Cards.\n4. Drive: Upload your license/ID, pick up your keys, and enjoy the ride!\n\nIt's fully digital, seamless, and completely secure. Let me know if you have questions about any specific step!";
+      let aiResponse = "";
+      const lower = text.toLowerCase().trim();
+
+      if (lower.includes('book') || lower.includes('booking') || lower.includes('how to') || lower.includes('process') || lower.includes('reserve')) {
+        aiResponse = "🚗 How to Book a Car on Royal Rent Cars:\n\n1️⃣ Select Pickup & Drop-off Location & Dates on the homepage.\n2️⃣ Browse available cars (Hatchback, Sedan, SUV, Luxury).\n3️⃣ Click 'Book Now' and enter your driver details.\n4️⃣ Pay securely online via UPI/Card or choose Pay at Pickup.\n5️⃣ Get instant booking confirmation & live GPS car tracking!";
+      } else if (lower.includes('hi') || lower.includes('hello') || lower.includes('hey') || lower.includes('namaste')) {
+        aiResponse = "Hello! 👋 Welcome to Royal Rent Cars! I am your AI assistant. How can I help you with car availability, pricing, or doorstep delivery today?";
+      } else if (lower.includes('price') || lower.includes('rate') || lower.includes('cost') || lower.includes('charge') || lower.includes('how much') || lower.includes('fee')) {
+        aiResponse = "💰 Transparent Pricing at Royal Rent Cars:\n\n• Economy Hatchbacks: starting at ₹1,200/day\n• Executive Sedans: starting at ₹1,500/day\n• Premium SUVs (Creta/Thar): starting at ₹1,800/day\n• Luxury Vehicles (BMW/Audi): starting at ₹3,500/day\n\nAll rates include zero hidden fees, GST breakdown, and complimentary insurance coverage!";
+      } else if (lower.includes('doc') || lower.includes('license') || lower.includes('licence') || lower.includes('aadhaar') || lower.includes('id') || lower.includes('proof')) {
+        aiResponse = "🪪 Documents Required for Car Rental:\n\n1. Original Driving Licence (minimum 1 year valid)\n2. Aadhaar Card or Passport (Photo & Address ID proof)\n\nQuick 2-minute verification during vehicle pickup!";
+      } else if (lower.includes('cancel') || lower.includes('refund') || lower.includes('policy')) {
+        aiResponse = "🛡️ Cancellation & Refund Policy:\n\n• 100% Full Refund if cancelled 24+ hours before pickup.\n• 50% Refund if cancelled within 12-24 hours.\n• Refunds credited back to your bank account within 24 hours!";
+      } else if (lower.includes('owner') || lower.includes('partner') || lower.includes('list') || lower.includes('500') || lower.includes('earn')) {
+        aiResponse = "🤝 Vehicle Partner Earnings Program:\n\nEarn a fixed ₹500 PER ACTIVE DAY for registering your vehicle on RentOS! Earnings are guaranteed whether your car is booked or unbooked.\n\nClick 'Register / Partner' at the top of the page to apply today!";
+      } else if (lower.includes('locat') || lower.includes('pickup') || lower.includes('delivery') || lower.includes('dharmapuri') || lower.includes('bangalore') || lower.includes('doorstep')) {
+        aiResponse = "📍 Doorstep Delivery & Locations:\n\nWe provide 24/7 doorstep car delivery and drop-off service across Dharmapuri, Krishnagiri, Salem, Hosur, Bangalore, and major Tamil Nadu districts!";
+      } else if (lower.includes('driver') || lower.includes('chauffeur') || lower.includes('self')) {
+        aiResponse = "👨‍✈️ Driver & Self-Drive Options:\n\nYou can choose Self-Drive or opt for a Verified Professional Chauffeur (+₹500/day) during checkout!";
+      } else if (lower.includes('deposit') || lower.includes('security') || lower.includes('advance')) {
+        aiResponse = "🔒 Refundable Security Deposit:\n\nA small security deposit (₹2,000 to ₹5,000 depending on car category) is held during rental and 100% refunded immediately upon vehicle return.";
+      } else if (lower.includes('suv')) {
+        aiResponse = "Great choice! We have top SUVs like Hyundai Creta SX, Mahindra Thar 4x4, and Toyota Fortuner ready for instant booking!";
+      } else if (lower.includes('budget')) {
+        aiResponse = "Looking for budget cars? Check out Maruti Swift ZXi and Hyundai i20 starting at just ₹1,200/day!";
+      } else if (lower.includes('luxury')) {
+        aiResponse = "Indulge in luxury! We offer BMW 3 Series, Mercedes C-Class, and Audi A6 with complimentary doorstep delivery.";
+      } else {
+        aiResponse = `I'm happy to help! You can ask me how to book a car, check rental rates, required documents, cancellation policies, or vehicle owner partner programs. You can also call our 24x7 helpline at 📞 +91 1800 200 9988!`;
       }
 
       setMessages(prev => [...prev, { sender: 'ai', text: aiResponse }]);
       setIsTyping(false);
-    }, 1500);
+    }, 800);
   };
 
   return (
@@ -86,181 +126,196 @@ export default function AIChatbot({ isOpen, onClose }) {
       bottom: '20px',
       right: '20px',
       width: '380px',
-      height: '600px',
+      height: '620px',
       backgroundColor: '#fff',
-      borderRadius: '24px',
-      boxShadow: '0 20px 60px rgba(123, 79, 44, 0.25)',
+      borderRadius: '20px',
+      boxShadow: '0 20px 60px rgba(78, 49, 27, 0.25)',
       display: 'flex',
       flexDirection: 'column',
       overflow: 'hidden',
       zIndex: 9999,
       fontFamily: "'Inter', sans-serif",
-      animation: 'slideUp 0.4s cubic-bezier(0.165, 0.84, 0.44, 1)'
+      border: `1.5px solid ${colors.border}`,
+      animation: 'slideUp 0.35s cubic-bezier(0.165, 0.84, 0.44, 1)'
     }}>
       <style>
         {`
           @keyframes slideUp {
-            from { transform: translateY(100px); opacity: 0; }
+            from { transform: translateY(80px); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
           }
-          .chat-scrollbar::-webkit-scrollbar {
-            width: 6px;
-          }
-          .chat-scrollbar::-webkit-scrollbar-track {
-            background: ${colors.lightCream};
-          }
-          .chat-scrollbar::-webkit-scrollbar-thumb {
-            background: ${colors.creamAccent};
-            border-radius: 10px;
-          }
-          .typing-dot {
-            width: 6px;
-            height: 6px;
-            background: ${colors.brown};
-            border-radius: 50%;
-            display: inline-block;
-            animation: bounce 1.4s infinite ease-in-out both;
-            margin-right: 4px;
-          }
-          .typing-dot:nth-child(1) { animation-delay: -0.32s; }
-          .typing-dot:nth-child(2) { animation-delay: -0.16s; }
-          @keyframes bounce {
-            0%, 80%, 100% { transform: scale(0); }
-            40% { transform: scale(1); }
-          }
+          .chat-scrollbar::-webkit-scrollbar { width: 5px; }
+          .chat-scrollbar::-webkit-scrollbar-track { background: ${colors.cream}; }
+          .chat-scrollbar::-webkit-scrollbar-thumb { background: ${colors.border}; border-radius: 10px; }
         `}
       </style>
 
-      {/* Header */}
+      {/* Header Bar */}
       <div style={{
-        background: colors.brown,
+        background: colors.espresso,
         color: '#fff',
-        padding: '1.5rem',
+        padding: '1.1rem 1.25rem',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        borderBottom: `1px solid ${colors.darkBrown}`
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div style={{ background: 'rgba(255,255,255,0.2)', padding: '8px', borderRadius: '50%' }}>
-            <Icons.Car />
+          <div style={{ width: '40px', height: '40px', background: colors.badge, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: colors.espresso, fontWeight: 800, fontSize: '0.9rem' }}>
+            AI
           </div>
           <div>
-            <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 700 }}>Royal AI</h3>
-            <p style={{ margin: 0, fontSize: '0.8rem', opacity: 0.9 }}>Online and ready to help</p>
+            <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800, color: '#FFFFFF' }}>Royal Rent Cars AI</h3>
+            <p style={{ margin: 0, fontSize: '0.75rem', color: colors.badge, opacity: 0.9 }}>Your Car Rental Assistant</p>
           </div>
         </div>
-        <button 
-          onClick={onClose}
-          style={{ background: 'transparent', border: 'none', color: '#fff', cursor: 'pointer', opacity: 0.8, padding: '5px' }}
-          onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
-          onMouseLeave={(e) => e.currentTarget.style.opacity = '0.8'}
-        >
-          <Icons.X />
-        </button>
+
+        {/* Top Control Buttons (Minimize + & Close X) */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <button 
+            onClick={() => setIsMinimized(true)}
+            title="Minimize"
+            style={{ width: '30px', height: '30px', borderRadius: '50%', background: 'rgba(255,255,255,0.18)', border: 'none', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.2s' }}
+          >
+            <Icons.Plus />
+          </button>
+          <button 
+            onClick={onClose}
+            title="Close"
+            style={{ width: '30px', height: '30px', borderRadius: '50%', background: 'rgba(255,255,255,0.18)', border: 'none', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.2s' }}
+          >
+            <Icons.X />
+          </button>
+        </div>
       </div>
 
-      {/* Chat Area */}
+      {/* Chat Conversation Area */}
       <div className="chat-scrollbar" style={{
         flex: 1,
-        padding: '1.5rem',
-        background: colors.lightCream,
+        padding: '1.25rem',
+        background: '#FAF6F0',
         overflowY: 'auto',
         display: 'flex',
         flexDirection: 'column',
-        gap: '1.2rem'
+        gap: '1rem'
       }}>
+        {/* Bot Greeting Header */}
+        <div style={{ background: '#FFFFFF', padding: '1rem', borderRadius: '16px', border: `1px solid ${colors.border}`, display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div style={{ fontSize: '2rem' }}>🤖</div>
+          <div>
+            <div style={{ fontWeight: 800, fontSize: '1.1rem', color: colors.textDark }}>Hello! 👋</div>
+            <div style={{ fontSize: '0.8rem', color: colors.textMuted }}>I'm your AI assistant. How can I help you today?</div>
+          </div>
+        </div>
+
         {messages.map((msg, idx) => {
           const isAi = msg.sender === 'ai';
           return (
             <div key={idx} style={{
               display: 'flex',
               flexDirection: isAi ? 'row' : 'row-reverse',
-              gap: '10px',
-              alignItems: 'flex-end'
+              gap: '8px',
+              alignItems: 'flex-start'
             }}>
-              {isAi && (
-                <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: colors.creamAccent, color: colors.brown, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  <Icons.Chat />
-                </div>
-              )}
+              <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: isAi ? colors.badge : colors.espresso, color: isAi ? colors.espresso : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '0.75rem', fontWeight: 800, marginTop: '4px' }}>
+                {isAi ? '🤖' : '👤'}
+              </div>
               <div style={{
-                maxWidth: '75%',
-                padding: '12px 16px',
-                borderRadius: isAi ? '20px 20px 20px 4px' : '20px 20px 4px 20px',
-                background: isAi ? '#fff' : colors.brown,
-                color: isAi ? colors.textDark : '#fff',
-                fontSize: '0.95rem',
-                lineHeight: 1.5,
-                whiteSpace: 'pre-wrap',
-                boxShadow: '0 4px 15px rgba(0,0,0,0.05)'
+                maxWidth: '78%',
+                padding: '0.75rem 1rem',
+                borderRadius: isAi ? '16px 16px 16px 4px' : '16px 16px 4px 16px',
+                background: isAi ? '#FFFFFF' : colors.cream,
+                border: `1px solid ${colors.border}`,
+                color: colors.textDark,
+                fontSize: '0.85rem',
+                lineHeight: 1.45,
+                boxShadow: '0 2px 6px rgba(0,0,0,0.03)'
               }}>
                 {msg.text}
               </div>
             </div>
           );
         })}
+
         {isTyping && (
-          <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end' }}>
-            <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: colors.creamAccent, color: colors.brown, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Icons.Chat />
-            </div>
-            <div style={{ padding: '16px', borderRadius: '20px 20px 20px 4px', background: '#fff', display: 'flex', alignItems: 'center' }}>
-              <div className="typing-dot"></div>
-              <div className="typing-dot"></div>
-              <div className="typing-dot"></div>
-            </div>
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: colors.badge, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem' }}>🤖</div>
+            <div style={{ padding: '0.6rem 1rem', borderRadius: '16px', background: '#fff', border: `1px solid ${colors.border}`, fontSize: '0.8rem', color: colors.textMuted }}>AI is typing...</div>
           </div>
         )}
+
+        {/* Quick Suggestion Chips */}
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '0.5rem' }}>
+          {['🚗 How to Book?', '💰 Rates & Pricing', '🪪 Required Docs', '🛡️ Cancel Policy', '🤝 Owner Partner (₹500/day)'].map((chip, idx) => (
+            <button
+              key={idx}
+              onClick={() => handleSend(chip)}
+              style={{
+                background: '#FFFFFF',
+                border: `1px solid ${colors.border}`,
+                color: colors.textDark,
+                padding: '0.45rem 0.85rem',
+                borderRadius: '20px',
+                fontSize: '0.75rem',
+                fontWeight: 600,
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                boxShadow: '0 2px 5px rgba(0,0,0,0.02)'
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.borderColor = colors.espresso; e.currentTarget.style.background = colors.cream; }}
+              onMouseLeave={(e) => { e.currentTarget.style.borderColor = colors.border; e.currentTarget.style.background = '#FFFFFF'; }}
+            >
+              {chip}
+            </button>
+          ))}
+        </div>
+
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input Area */}
-      <div style={{
-        padding: '1.5rem',
-        background: '#fff',
-        borderTop: `1px solid ${colors.creamAccent}`,
-        display: 'flex',
-        gap: '10px'
-      }}>
-        <input 
-          type="text"
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-          placeholder="Ask me anything..."
-          style={{
-            flex: 1,
-            padding: '12px 16px',
-            borderRadius: '12px',
-            border: `1.5px solid ${colors.creamAccent}`,
-            outline: 'none',
-            fontSize: '0.95rem',
-            color: colors.textDark,
-            transition: 'border-color 0.3s'
-          }}
-          onFocus={(e) => e.target.style.borderColor = colors.brown}
-          onBlur={(e) => e.target.style.borderColor = colors.creamAccent}
-        />
-        <button 
-          onClick={handleSend}
-          style={{
-            background: colors.brown,
-            color: '#fff',
-            border: 'none',
-            width: '46px',
-            height: '46px',
-            borderRadius: '12px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: 'pointer',
-            transition: 'transform 0.2s, background 0.3s'
-          }}
-          onMouseEnter={(e) => { e.currentTarget.style.background = colors.darkBrown; e.currentTarget.style.transform = 'scale(1.05)'; }}
-          onMouseLeave={(e) => { e.currentTarget.style.background = colors.brown; e.currentTarget.style.transform = 'scale(1)'; }}
+      {/* Input Field */}
+      <div style={{ padding: '0.75rem 1rem', background: '#FFFFFF', borderTop: `1px solid ${colors.border}` }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#FAF6F0', padding: '0.35rem 0.4rem 0.35rem 1rem', borderRadius: '30px', border: `1px solid ${colors.border}` }}>
+          <input 
+            type="text"
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+            placeholder="Type your message..."
+            style={{ flex: 1, border: 'none', background: 'transparent', outline: 'none', fontSize: '0.85rem', color: colors.textDark }}
+          />
+          <button 
+            onClick={() => handleSend()}
+            style={{ width: '34px', height: '34px', borderRadius: '50%', background: colors.espresso, color: '#fff', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+          >
+            <Icons.Send />
+          </button>
+        </div>
+      </div>
+
+      {/* Bottom Quick Contact Footer Bar */}
+      <div style={{ padding: '0.6rem 1rem', background: colors.cream, borderTop: `1px solid ${colors.border}`, display: 'flex', justifyContent: 'space-between', gap: '6px' }}>
+        <a 
+          href="https://wa.me/919876543210" 
+          target="_blank" 
+          rel="noreferrer"
+          style={{ flex: 1, textDecoration: 'none', background: '#FFFFFF', border: `1px solid ${colors.border}`, borderRadius: '10px', padding: '0.4rem 0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', fontSize: '0.72rem', fontWeight: 700, color: '#16a34a' }}
         >
-          <Icons.Send />
+          <Icons.WhatsApp />
+          <span>WhatsApp</span>
+        </a>
+        <a 
+          href="tel:+919876543210" 
+          style={{ flex: 1, textDecoration: 'none', background: '#FFFFFF', border: `1px solid ${colors.border}`, borderRadius: '10px', padding: '0.4rem 0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', fontSize: '0.72rem', fontWeight: 700, color: colors.espresso }}
+        >
+          <Icons.Phone />
+          <span>Call Us</span>
+        </a>
+        <button 
+          onClick={onClose}
+          style={{ flex: 1, background: colors.espresso, border: 'none', borderRadius: '10px', padding: '0.4rem 0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', fontSize: '0.72rem', fontWeight: 700, color: '#FFFFFF', cursor: 'pointer' }}
+        >
+          <Icons.X />
+          <span>Close</span>
         </button>
       </div>
     </div>

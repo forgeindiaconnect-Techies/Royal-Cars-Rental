@@ -164,18 +164,18 @@ export default function AboutSupportPage() {
       </div>
 
       {/* HERO SECTION 50/50 */}
-      <section style={{ display: 'flex', gap: '4rem', padding: '3rem 5% 5rem', alignItems: 'center' }}>
+      <section className="about-hero-section" style={{ display: 'flex', gap: '4rem', padding: '3rem 5% 5rem', alignItems: 'center' }}>
         <div style={{ flex: 1 }}>
           <div style={{ background: colors.brown, color: '#fff', padding: '0.5rem 1.2rem', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 700, display: 'inline-block', marginBottom: '1.5rem', letterSpacing: '1px' }}>
             ABOUT US
           </div>
-          <h1 style={{ fontSize: '4rem', fontWeight: 900, lineHeight: 1.1, marginBottom: '1.5rem', color: colors.textDark, letterSpacing: '-1px' }}>
+          <h1 className="about-hero-title" style={{ fontSize: '4rem', fontWeight: 900, lineHeight: 1.1, marginBottom: '1.5rem', color: colors.textDark, letterSpacing: '-1px' }}>
             Drive Better.<br/>Rent Smarter.
           </h1>
-          <p style={{ fontSize: '1.15rem', color: colors.textMuted, lineHeight: 1.7, marginBottom: '3rem', maxWidth: '480px' }}>
+          <p className="about-hero-subtitle" style={{ fontSize: '1.15rem', color: colors.textMuted, lineHeight: 1.7, marginBottom: '3rem', maxWidth: '480px' }}>
             Royal Rental Cars is your trusted travel partner. We make car rentals simple, safe, and affordable for everyone. Experience luxury on your terms.
           </p>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2.5rem' }}>
+          <div className="about-stats-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2.5rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
               <div style={{ color: colors.brown }}><Icons.Users size={36} strokeWidth={1.5} /></div>
               <div>
@@ -212,11 +212,11 @@ export default function AboutSupportPage() {
       </section>
 
       {/* POLICY SECTION (INTERLOCKING DESIGN) */}
-      <section style={{ padding: '0 5% 4rem', position: 'relative' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0', background: '#FFFFFF', borderRadius: '24px', boxShadow: '0 15px 50px rgba(123, 79, 44, 0.06)', position: 'relative', overflow: 'hidden' }}>
+      <section className="about-policy-section" style={{ padding: '0 5% 4rem', position: 'relative' }}>
+        <div className="about-policy-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0', background: '#FFFFFF', borderRadius: '24px', boxShadow: '0 15px 50px rgba(123, 79, 44, 0.06)', position: 'relative', overflow: 'hidden' }}>
           
           {/* Left Card */}
-          <div style={{ padding: '4rem', paddingRight: '5rem', display: 'flex', flexDirection: 'column' }}>
+          <div className="about-policy-card-left" style={{ padding: '4rem', paddingRight: '5rem', display: 'flex', flexDirection: 'column' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', marginBottom: '1rem' }}>
               <div style={{ width: '64px', height: '64px', borderRadius: '16px', background: colors.brown, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <Icons.FileCheck size={32} />
@@ -244,7 +244,7 @@ export default function AboutSupportPage() {
           </div>
 
           {/* Right Card */}
-          <div style={{ padding: '4rem', paddingLeft: '5rem', display: 'flex', flexDirection: 'column' }}>
+          <div className="about-policy-card-right" style={{ padding: '4rem', paddingLeft: '5rem', display: 'flex', flexDirection: 'column' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', marginBottom: '1rem' }}>
               <div style={{ width: '64px', height: '64px', borderRadius: '16px', background: colors.brown, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <Icons.Lock size={32} />
@@ -273,7 +273,7 @@ export default function AboutSupportPage() {
         </div>
 
         {/* The Interlocking Divider Line */}
-        <div style={{
+        <div className="about-policy-divider" style={{
           position: 'absolute',
           top: 0,
           bottom: '4rem',
@@ -285,7 +285,7 @@ export default function AboutSupportPage() {
         }}></div>
 
         {/* The Interlocking Shield Badge */}
-        <div style={{ 
+        <div className="about-policy-badge" style={{ 
           position: 'absolute', 
           top: 'calc(50% - 2rem)', 
           left: '50%', 
@@ -306,7 +306,7 @@ export default function AboutSupportPage() {
       </section>
 
       {/* SUPPORT SECTION (4 CARDS) */}
-      <section style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '2rem', padding: '0 5% 5rem' }}>
+      <section className="about-support-cards-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '2rem', padding: '0 5% 5rem' }}>
         <div className="premium-card">
           <IconWrapper><Icons.Headphones size={28} /></IconWrapper>
           <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '0.2rem' }}>HELP CENTER</h3>
@@ -361,7 +361,7 @@ export default function AboutSupportPage() {
       </section>
 
       {/* FAQ SECTION */}
-      <section style={{ display: 'flex', gap: '5rem', padding: '2rem 5% 5rem' }}>
+      <section className="faq-container" style={{ display: 'flex', gap: '5rem', padding: '2rem 5% 5rem' }}>
         <div style={{ flex: 1 }}>
           <div style={{ background: colors.brown, color: '#fff', padding: '0.5rem 1.2rem', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 700, display: 'inline-block', marginBottom: '1.5rem', letterSpacing: '1px' }}>
             FAQS

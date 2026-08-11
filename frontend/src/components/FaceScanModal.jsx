@@ -200,7 +200,7 @@ export default function FaceScanModal({ isOpen, actionType = 'in', onSuccess, on
       }}
     >
       <div style={{
-        width: 380, background: '#0f172a',
+        width: '90%', maxWidth: 380, background: '#0f172a',
         borderRadius: 16, overflow: 'hidden',
         boxShadow: '0 25px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.08)',
         display: 'flex', flexDirection: 'column',
