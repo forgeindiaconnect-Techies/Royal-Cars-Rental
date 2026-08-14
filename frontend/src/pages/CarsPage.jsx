@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import GoogleMapComponent from '../components/GoogleMapComponent';
 
 // Mock utility functions similar to LandingPage
 const getCompanyLogoForVehicle = (v) => {
@@ -22,6 +23,7 @@ const CarsPage = () => {
   const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'map'
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -107,9 +109,49 @@ const CarsPage = () => {
       </div>
 
       <div style={{ padding: '3rem 4%' }}>
-        <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '2rem', color: '#1c1917' }}>
-          {filteredVehicles.length} Cars Available
-        </h2>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
+          <h2 style={{ fontSize: '1.5rem', fontWeight: 800, margin: 0, color: '#1c1917' }}>
+            {filteredVehicles.length} Cars Available
+          </h2>
+
+          {/* View Mode Toggle (Grid vs Google Map) */}
+          <div style={{ display: 'flex', background: '#e7e5e4', padding: '4px', borderRadius: '10px', gap: '4px' }}>
+            <button
+              onClick={() => setViewMode('grid')}
+              style={{
+                padding: '6px 16px',
+                borderRadius: '8px',
+                border: 'none',
+                background: viewMode === 'grid' ? '#ffffff' : 'transparent',
+                color: viewMode === 'grid' ? '#1c1917' : '#78716c',
+                fontWeight: 700,
+                fontSize: '0.85rem',
+                cursor: 'pointer',
+                boxShadow: viewMode === 'grid' ? '0 2px 8px rgba(0,0,0,0.08)' : 'none',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              📱 Grid View
+            </button>
+            <button
+              onClick={() => setViewMode('map')}
+              style={{
+                padding: '6px 16px',
+                borderRadius: '8px',
+                border: 'none',
+                background: viewMode === 'map' ? '#ffffff' : 'transparent',
+                color: viewMode === 'map' ? '#2563eb' : '#78716c',
+                fontWeight: 700,
+                fontSize: '0.85rem',
+                cursor: 'pointer',
+                boxShadow: viewMode === 'map' ? '0 2px 8px rgba(0,0,0,0.08)' : 'none',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              🗺️ Google Map View
+            </button>
+          </div>
+        </div>
 
         {loading ? (
           <div style={{ textAlign: 'center', padding: '4rem', color: '#78716c', fontSize: '1.2rem' }}>Loading cars...</div>
@@ -119,6 +161,25 @@ const CarsPage = () => {
             <h3 style={{ fontSize: '1.5rem', color: '#1c1917', marginBottom: '0.5rem' }}>No cars found</h3>
             <p style={{ color: '#78716c' }}>Try adjusting your search criteria.</p>
           </div>
+        ) : viewMode === 'map' ? (
+          <GoogleMapComponent
+            height="560px"
+            zoom={12}
+            center={{ lat: 12.1211, lng: 78.1582 }}
+            cars={filteredVehicles.map((v, i) => ({
+              id: v._id || `v_${i}`,
+              name: `${v.make || ''} ${v.model || 'Car'}`,
+              price: v.pricePerDay || 2499,
+              category: v.type || v.category || 'Rental Car',
+              fuel: v.fuelType || 'Petrol',
+              transmission: v.transmission || 'Automatic',
+              image: getValidImageUrl(v.imageUrl, 'vehicle'),
+              locationName: v.companyName || v.city || 'Rental Hub',
+              lat: 12.1211 + (i % 2 === 0 ? (i + 1) * 0.006 : -(i + 1) * 0.007),
+              lng: 78.1582 + (i % 3 === 0 ? (i + 1) * 0.008 : -(i + 1) * 0.006)
+            }))}
+            onSelectCar={(car) => navigate('/')}
+          />
         ) : (
           <div className="fleet-v2-car-grid">
             {filteredVehicles.map((v, idx) => (

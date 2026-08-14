@@ -1699,9 +1699,15 @@ function CompanyAdminDashboard() {
               maxZoom: 20
             });
 
+            const osmStandard = window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+              attribution: '&copy; OpenStreetMap contributors',
+              maxZoom: 19
+            });
+
             googleStreets.addTo(map);
 
             const baseMaps = {
+              "🌍 OpenStreetMap Standard": osmStandard,
               "🗺️ Google Streets": googleStreets,
               "🛰️ Google Satellite": googleSatellite,
               "⛰️ Google Terrain": googleTerrain

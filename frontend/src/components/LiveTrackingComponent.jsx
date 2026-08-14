@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import GoogleMapComponent from './GoogleMapComponent';
 
 export default function LiveTrackingComponent() {
   const [leafletLoaded, setLeafletLoaded] = useState(false);
@@ -346,9 +347,15 @@ export default function LiveTrackingComponent() {
           maxZoom: 20
         });
 
+        const osmStandard = window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '&copy; OpenStreetMap contributors',
+          maxZoom: 19
+        });
+
         googleStreets.addTo(map);
 
         const baseMaps = {
+          "🌍 OpenStreetMap Standard": osmStandard,
           "🗺️ Google Streets": googleStreets,
           "🛰️ Google Satellite": googleSatellite,
           "⛰️ Google Terrain": googleTerrain
@@ -473,7 +480,16 @@ export default function LiveTrackingComponent() {
 
         {/* RIGHT MAP & OVERLAY ACTIVITY CARD */}
         <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
-          <div id="live-tracking-map-canvas" style={{ width: '100%', height: '100%' }}></div>
+          <GoogleMapComponent 
+            height="100%"
+            zoom={13}
+            center={{ lat: 12.1211, lng: 78.1582 }}
+            cars={[
+              { id: 'c1', name: selectedVehicle?.name || 'Mahindra Thar 4x4', price: 2999, category: 'SUV', fuel: 'Diesel', transmission: 'Manual', lat: 12.1261, lng: 78.1622, locationName: selectedVehicle?.customer?.location || 'Gundalapatti, Dharmapuri' },
+              { id: 'c2', name: 'Hyundai Creta SX', price: 2499, category: 'SUV', fuel: 'Petrol', transmission: 'Automatic', lat: 12.1151, lng: 78.1492, locationName: 'Dharmapuri Town' },
+              { id: 'c3', name: 'Maruti Swift ZXi', price: 1499, category: 'Hatchback', fuel: 'Petrol', transmission: 'Manual', lat: 12.1301, lng: 78.1512, locationName: 'Collectorate Junction' }
+            ]}
+          />
 
           {/* FLOATING TRIP & CUSTOMER CARD OVERLAY */}
           <div style={{

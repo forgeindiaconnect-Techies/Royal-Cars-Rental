@@ -18,6 +18,7 @@ import {
 import FeatureCards from '../components/FeatureCards';
 import AIFinderModal from '../components/AIFinderModal';
 import AIChatbot from '../components/AIChatbot';
+import GoogleMapComponent from '../components/GoogleMapComponent';
 
 export default function LandingPage() {
   const navigate = useNavigate();
@@ -28,6 +29,8 @@ export default function LandingPage() {
   // Search Filter States
   const [searchLocation, setSearchLocation] = useState('gundalapatti');
   const [dropoffLocation, setDropoffLocation] = useState('Dharmapuri');
+  const [pickupCoords, setPickupCoords] = useState({ lat: 12.1211, lng: 78.1582 });
+  const [dropoffCoords, setDropoffCoords] = useState({ lat: 12.9716, lng: 77.5946 });
   const [showLocationDropdown, setShowLocationDropdown] = useState(false);
   const [liveSuggestions, setLiveSuggestions] = useState([]);
   const [searchLoading, setSearchLoading] = useState(false);
@@ -677,10 +680,6 @@ export default function LandingPage() {
     return [11.9560 + latOffset, 78.0600 + lngOffset];
   };
 
-  // Dynamic Geocoding States
-  const [pickupCoords, setPickupCoords] = useState([12.1760, 78.1630]);
-  const [dropoffCoords, setDropoffCoords] = useState([12.1357, 78.1560]);
-
   // Real-time Async Geocoding Effect (Nominatim API + Local Registry)
   useEffect(() => {
     let isCancelled = false;
@@ -692,8 +691,9 @@ export default function LandingPage() {
       for (const [key, coords] of Object.entries(CITY_COORDINATES)) {
         if (q.includes(key)) {
           if (!isCancelled) {
-            if (isDropoff) setDropoffCoords(coords);
-            else setPickupCoords(coords);
+            const formatted = Array.isArray(coords) ? { lat: coords[0], lng: coords[1] } : coords;
+            if (isDropoff) setDropoffCoords(formatted);
+            else setPickupCoords(formatted);
           }
           return;
         }
@@ -707,8 +707,8 @@ export default function LandingPage() {
           const lat = parseFloat(data.features[0].geometry.coordinates[1]);
           const lon = parseFloat(data.features[0].geometry.coordinates[0]);
           if (!isNaN(lat) && !isNaN(lon)) {
-            if (isDropoff) setDropoffCoords([lat, lon]);
-            else setPickupCoords([lat, lon]);
+            if (isDropoff) setDropoffCoords({ lat, lng: lon });
+            else setPickupCoords({ lat, lng: lon });
           }
         }
       } catch (err) {
@@ -1108,7 +1108,7 @@ export default function LandingPage() {
                             onClick={() => {
                               const displayName = loc.name || loc.city || loc.state || 'Selected Location';
                               setSearchLocation(displayName);
-                              setPickupCoords([loc.lat, loc.lon]);
+                              if (loc.lat && loc.lon) setPickupCoords({ lat: Number(loc.lat), lng: Number(loc.lon) });
                               setShowLocationDropdown(false); 
                               handleSearchSubmit(null, displayName);
                             }} 
@@ -1158,7 +1158,7 @@ export default function LandingPage() {
                           onClick={() => {
                             const displayName = loc.name || loc.city || loc.state || 'Selected Location';
                             setDropoffLocation(displayName);
-                            setDropoffCoords([loc.lat, loc.lon]);
+                            if (loc.lat && loc.lon) setDropoffCoords({ lat: Number(loc.lat), lng: Number(loc.lon) });
                             setShowDropoffDropdown(false); 
                           }} 
                           style={{ padding: '0.75rem 1rem', fontSize: '0.85rem', color: '#1e293b', cursor: 'pointer', borderBottom: '1px solid #f1f5f9', display: 'flex', flexDirection: 'column', gap: '2px', transition: 'background 0.2s ease' }} 
@@ -1410,6 +1410,43 @@ export default function LandingPage() {
               <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600 }}>Satisfaction Rate</div>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* GOOGLE MAPS INTERACTIVE LOCATION & FLEET TRACKER */}
+      <section style={{ padding: '0 4%', marginTop: '2.5rem', position: 'relative', zIndex: 10, width: '100%', boxSizing: 'border-box' }}>
+        <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '22px', padding: '1.5rem', boxShadow: '0 10px 30px rgba(0,0,0,0.06)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.75rem' }}>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <span style={{ fontSize: '1.25rem' }}>🗺️</span>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#0f172a', margin: 0 }}>Interactive Google Map & Car Finder</h3>
+              </div>
+              <p style={{ fontSize: '0.8rem', color: '#64748b', margin: '4px 0 0 0' }}>
+                Explore live car locations, pick-up points, and drop-off destinations.
+              </p>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '0.78rem', color: '#475569', fontWeight: 600 }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>🟢 Pickup Pin</span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>🔴 Drop-off Pin</span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>🟠 Available Cars</span>
+            </div>
+          </div>
+
+          <GoogleMapComponent
+            height="460px"
+            zoom={12}
+            pickupLocation={searchLocation}
+            pickupCoords={pickupCoords}
+            dropoffLocation={dropoffLocation}
+            dropoffCoords={dropoffCoords}
+            cars={[
+              { id: 'c1', name: 'Mahindra Thar 4x4', price: 2999, category: 'SUV', fuel: 'Diesel', transmission: 'Manual', lat: (pickupCoords?.lat || 12.1211) + 0.006, lng: (pickupCoords?.lng || 78.1582) + 0.005, locationName: searchLocation || 'Gundalapatti Hub' },
+              { id: 'c2', name: 'Hyundai Creta SX', price: 2499, category: 'SUV', fuel: 'Petrol', transmission: 'Automatic', lat: (pickupCoords?.lat || 12.1211) - 0.007, lng: (pickupCoords?.lng || 78.1582) - 0.008, locationName: 'Town Station' },
+              { id: 'c3', name: 'Maruti Swift ZXi', price: 1499, category: 'Hatchback', fuel: 'Petrol', transmission: 'Manual', lat: (pickupCoords?.lat || 12.1211) + 0.004, lng: (pickupCoords?.lng || 78.1582) - 0.006, locationName: 'Central Square' },
+            ]}
+            onSelectCar={(car) => navigate('/cars')}
+          />
         </div>
       </section>
 

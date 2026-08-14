@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import BookingChatModal from '../components/BookingChatModal';
+import GoogleMapComponent from '../components/GoogleMapComponent';
 
 export default function CustomerDashboard() {
   const { token, logout, user } = useAuth();
@@ -945,11 +946,14 @@ export default function CustomerDashboard() {
                 
                 {/* Live Interactive Map Screen */}
                 <div style={{ position: 'relative', height: '520px', borderRadius: '12px', overflow: 'hidden', border: '1px solid #cbd5e1' }}>
-                  <iframe 
-                    title="Live Tracking Map" 
-                    src="https://maps.google.com/maps?q=28.6139,77.2090&z=14&output=embed" 
-                    style={{ width: '100%', height: '100%', border: 'none' }}
-                  ></iframe>
+                  <GoogleMapComponent 
+                    height="100%" 
+                    zoom={13}
+                    pickupLocation="Delhi Airport Hub"
+                    dropoffLocation="Connaught Place, New Delhi"
+                    pickupCoords={{ lat: 28.5562, lng: 77.1000 }}
+                    dropoffCoords={{ lat: 28.6315, lng: 77.2167 }}
+                  />
 
                   <div style={{ position: 'absolute', top: '15px', left: '15px', background: 'rgba(15,23,42,0.9)', backdropFilter: 'blur(10px)', padding: '0.65rem 1rem', borderRadius: '10px', color: '#fff', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                     <span style={{ width: '10px', height: '10px', background: '#10b981', borderRadius: '50%', boxShadow: '0 0 10px #10b981' }}></span>

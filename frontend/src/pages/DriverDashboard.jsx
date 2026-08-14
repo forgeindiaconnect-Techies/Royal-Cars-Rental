@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import FaceScanModal from '../components/FaceScanModal';
 import BookingChatModal from '../components/BookingChatModal';
 import { getValidImageUrl, handleImageError } from '../utils/imageUtils';
+import GoogleMapComponent from '../components/GoogleMapComponent';
 
 export default function DriverDashboard() {
   const { token, logout, user } = useAuth();
@@ -1790,7 +1791,17 @@ export default function DriverDashboard() {
                   </h4>
 
                   <div style={{ flex: 1, position: 'relative', borderRadius: '8px', overflow: 'hidden', border: '1px solid #cbd5e1' }}>
-                    <div id="driver-live-map-canvas" style={{ width: '100%', height: '100%', minHeight: '250px' }}></div>
+                    <GoogleMapComponent
+                      height="100%"
+                      zoom={14}
+                      showRoute={true}
+                      driverCoords={gpsCoords}
+                      pickupCoords={{ lat: 13.0827, lng: 80.2707 }}
+                      dropoffCoords={{ lat: 11.9416, lng: 79.8083 }}
+                      pickupLocation="Chennai Airport Terminal 2"
+                      dropoffLocation="Pondicherry Rock Beach"
+                      customerInfo={{ name: "Shanu (Customer)", phone: "+91 98421 99887" }}
+                    />
                   </div>
                 </div>
               </div>
@@ -1998,6 +2009,21 @@ export default function DriverDashboard() {
                       <div>📞 <strong>Phone Number:</strong> {trip.customerPhone}</div>
                       <div>🚗 <strong>Assigned Car:</strong> {trip.vehicleName}</div>
                       <div>📝 <strong>Pickup Instructions:</strong> <em>{trip.notes}</em></div>
+
+                      {/* Interactive Route Navigation Map to Customer Pickup */}
+                      <div style={{ height: '300px', borderRadius: '10px', overflow: 'hidden', marginTop: '1rem', border: '1px solid #cbd5e1' }}>
+                        <GoogleMapComponent
+                          height="100%"
+                          zoom={13}
+                          showRoute={true}
+                          driverCoords={gpsCoords}
+                          pickupCoords={{ lat: 13.0827, lng: 80.2707 }}
+                          dropoffCoords={{ lat: 11.9416, lng: 79.8083 }}
+                          pickupLocation={trip.pickupLocation}
+                          dropoffLocation={trip.dropLocation}
+                          customerInfo={{ name: trip.customerName, phone: trip.customerPhone }}
+                        />
+                      </div>
                     </div>
 
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem', borderTop: '1px solid #f1f5f9', paddingTop: '0.85rem' }}>
@@ -2479,11 +2505,11 @@ export default function DriverDashboard() {
                 </div>
 
                 <div style={{ position: 'relative', height: '270px', borderRadius: '12px', overflow: 'hidden', border: '1px solid #cbd5e1', marginBottom: '1.25rem' }}>
-                  <iframe 
-                    title="Live Driver Location Map Modal" 
-                    src={`https://maps.google.com/maps?q=${gpsCoords.lat},${gpsCoords.lng}&z=15&output=embed`} 
-                    style={{ width: '100%', height: '100%', border: 'none' }}
-                  ></iframe>
+                  <GoogleMapComponent 
+                    center={gpsCoords} 
+                    height="100%" 
+                    zoom={15} 
+                  />
                 </div>
 
                 <div style={{ display: 'flex', gap: '0.75rem' }}>

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import FaceScanModal from '../components/FaceScanModal';
 import { getValidImageUrl, handleImageError } from '../utils/imageUtils';
+import GoogleMapComponent from '../components/GoogleMapComponent';
 
 export default function StaffDashboard() {
   const { token, logout, user } = useAuth();
@@ -502,6 +503,7 @@ export default function StaffDashboard() {
 
   const NAV_ITEMS = [
     { id: 'dashboard',   label: 'Dashboard' },
+    { id: 'depot-map',   label: '📍 Depot & Vehicle Map' },
     { id: 'attendance',  label: 'Attendance Logs' },
     { id: 'tasks',       label: 'My Tasks' },
     { id: 'support',     label: 'Support / Issues' },
@@ -1301,6 +1303,25 @@ export default function StaffDashboard() {
                     </div>
                   ))
                 )}
+              </div>
+            </div>
+          )}
+
+          {/* DEPOT & VEHICLE MAP */}
+          {activeNav === 'depot-map' && (
+            <div style={{ animation: 'fadeIn 0.3s ease-out' }}>
+              <div style={{ marginBottom: '1.5rem' }}>
+                <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#0f172a', margin: 0 }}>📍 Depot & Vehicle Location Map</h2>
+                <p style={{ color: '#64748b', fontSize: '0.88rem', margin: '4px 0 0 0' }}>Real-time location map for vehicle check-ins, depot hubs, and return locations.</p>
+              </div>
+
+              <div style={{ background: '#ffffff', padding: '1.25rem', borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 4px 20px rgba(0,0,0,0.04)' }}>
+                <GoogleMapComponent 
+                  height="560px" 
+                  zoom={13} 
+                  pickupLocation="Central Fleet Depot"
+                  center={{ lat: 12.1211, lng: 78.1582 }}
+                />
               </div>
             </div>
           )}

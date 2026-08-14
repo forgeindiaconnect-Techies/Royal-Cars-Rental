@@ -3,49 +3,60 @@
    ========================================================================== */
 
 :root {
-  /* Warm Espresso & Soft Beige Luxury Theme Tokens */
-  --bg-primary: #fdfbf7;
-  --bg-secondary: #faf4ee;
-  --bg-card: #faf4ee;
+  /* Royal Rental Cars Espresso & Warm Cognac Theme Tokens */
+  --brand-brown-dark: #3B2113;
+  --brand-brown-primary: #6E472B;
+  --brand-brown-accent: #8B5E3C;
+  --brand-brown-hover: #52341F;
+  --brand-gold-cognac: #D49563;
+  --dark-bg-hero: #120D0A;
+  --dark-bg-section: #1A120E;
+  --dark-bg-footer: #0F0B09;
+  --light-bg-card: #FCF9F5;
+  --light-bg-body: #FAF6F0;
+
+  --bg-primary: #FAF6F0;
+  --bg-secondary: #FCF9F5;
+  --bg-card: #ffffff;
   --bg-card-inner: #f6ede4;
   --bg-input: #ffffff;
   
   --border-color: #e8d8c8;
-  --border-focus: #4e311b;
+  --border-focus: #6E472B;
   --border-dashed: #d9c5b2;
-  --border-input: #eadccf;
+  --border-input: #e5d5c5;
 
-  --text-primary: #3c2415;
-  --text-secondary: #7c6959;
-  --text-muted: #9c8a7b;
+  --text-primary: #3B2113;
+  --text-secondary: #6E5A4D;
+  --text-muted: #9E8B7E;
 
   /* Accent Colors */
-  --accent-espresso: #4e311b;
-  --accent-espresso-hover: #3c2414;
-  --accent-gold: #d49b4b;
+  --accent-espresso: #6E472B;
+  --accent-espresso-hover: #52341F;
+  --accent-gold: #D49563;
   --accent-badge: #efe4d6;
-  --accent-blue: #4e311b;
-  --accent-purple: #4e311b;
+  --accent-blue: #6E472B;
+  --accent-purple: #6E472B;
   --accent-emerald: #10b981;
   --accent-rose: #f43f5e;
-  --accent-amber: #d49b4b;
+  --accent-amber: #D49563;
 
   /* Gradients */
-  --grad-primary: linear-gradient(135deg, #4e311b 0%, #3c2414 100%);
-  --grad-gold: linear-gradient(135deg, #d49b4b 0%, #b88235 100%);
-  --grad-cream: linear-gradient(180deg, #fdfbf7 0%, #faf4ee 100%);
-  --grad-dark: linear-gradient(180deg, #3c2415 0%, #29180d 100%);
+  --grad-primary: linear-gradient(135deg, #6E472B 0%, #3B2113 100%);
+  --grad-gold: linear-gradient(135deg, #D49563 0%, #B87A48 100%);
+  --grad-cream: linear-gradient(180deg, #FAF6F0 0%, #FCF9F5 100%);
+  --grad-dark: linear-gradient(180deg, #1A120E 0%, #120D0A 100%);
   
   /* Typography */
   --font-heading: 'Outfit', sans-serif;
   --font-body: 'Inter', sans-serif;
 
   /* Shadows & Glows */
-  --glow-espresso: 0 4px 14px rgba(78, 49, 27, 0.25);
-  --glow-gold: 0 4px 14px rgba(212, 155, 75, 0.2);
-  --glow-blue: 0 4px 14px rgba(78, 49, 27, 0.25);
-  --shadow-sm: 0 2px 8px rgba(60, 36, 21, 0.04);
-  --shadow-md: 0 10px 25px rgba(60, 36, 21, 0.08);
+  --glow-espresso: 0 4px 14px rgba(110, 71, 43, 0.25);
+  --glow-gold: 0 4px 14px rgba(212, 149, 99, 0.2);
+  --glow-blue: 0 4px 14px rgba(110, 71, 43, 0.25);
+  --shadow-sm: 0 2px 8px rgba(59, 33, 19, 0.04);
+  --shadow-md: 0 10px 25px rgba(59, 33, 19, 0.08);
   
   /* Borders & Radius */
   --radius-sm: 8px;
@@ -53,6 +64,7 @@
   --radius-lg: 20px;
   --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
 
 .location-form-grid {
   grid-template-columns: 1fr 1fr;
@@ -1634,3 +1646,200 @@ html {
   color: #8c5a2b;
 }
 
+/* ==========================================================================
+   ROYAL RENTAL CARS - RICH ESPRESSO & WARM COGNAC LANDING PAGE STYLING
+   ========================================================================== */
+.royal-nav {
+  background: #120D0A;
+  padding: 1.1rem 5%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.royal-nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+}
+.royal-nav-links {
+  display: flex;
+  align-items: center;
+  gap: 1.75rem;
+}
+.royal-nav-links a {
+  color: #e5d8cc;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.88rem;
+  transition: color 0.2s;
+}
+.royal-nav-links a:hover {
+  color: #D49563;
+}
+.royal-hero {
+  background: radial-gradient(circle at 65% 45%, #2a1b12 0%, #120D0A 75%);
+  padding: 4.5rem 5% 7.5rem 5%;
+  color: #ffffff;
+  position: relative;
+  overflow: hidden;
+}
+.royal-hero-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 3rem;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+.royal-hero-left {
+  max-width: 540px;
+}
+.royal-hero-tag {
+  color: #D49563;
+  font-size: 0.82rem;
+  letter-spacing: 2px;
+  font-weight: 800;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+  display: block;
+}
+.royal-hero-title {
+  font-size: 3.6rem;
+  font-weight: 900;
+  line-height: 1.12;
+  color: #ffffff;
+  margin-bottom: 1.25rem;
+  font-family: 'Outfit', sans-serif;
+}
+.royal-hero-title span {
+  color: #D49563;
+}
+.royal-hero-desc {
+  color: #b8a698;
+  font-size: 1.05rem;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+}
+.royal-btn-brown {
+  background: #6E472B;
+  color: #ffffff;
+  border: none;
+  padding: 0.85rem 1.8rem;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 14px rgba(110, 71, 43, 0.4);
+}
+.royal-btn-brown:hover {
+  background: #8B5E3C;
+  transform: translateY(-2px);
+}
+.royal-btn-outline-white {
+  background: transparent;
+  color: #ffffff;
+  border: 1px solid rgba(255,255,255,0.4);
+  padding: 0.85rem 1.8rem;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.royal-btn-outline-white:hover {
+  border-color: #ffffff;
+  background: rgba(255,255,255,0.1);
+}
+.royal-search-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 1.75rem 2rem;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.18);
+  border: 1px solid #e8dcd0;
+  max-width: 1200px;
+  margin: -4rem auto 3.5rem auto;
+  position: relative;
+  z-index: 20;
+}
+.royal-trust-badges {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid #f2e9e1;
+  flex-wrap: wrap;
+}
+.royal-trust-badge-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.royal-category-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 1.5rem;
+}
+.royal-category-card {
+  background: #ffffff;
+  border: 1px solid #e8dcd0;
+  border-radius: 14px;
+  padding: 1.25rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(59, 33, 19, 0.03);
+}
+.royal-category-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 30px rgba(59, 33, 19, 0.1);
+  border-color: #D49563;
+}
+.royal-why-us {
+  background: #18100C;
+  color: #ffffff;
+  padding: 5rem 5%;
+}
+.royal-feature-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 1.25rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+.royal-stats-bar {
+  background: #FCF9F5;
+  border: 1px solid #e8dcd0;
+  border-radius: 16px;
+  padding: 1.75rem 3rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 3rem auto;
+  box-shadow: 0 8px 25px rgba(59, 33, 19, 0.05);
+}
+.royal-cta-banner {
+  background: linear-gradient(135deg, #6E472B 0%, #3B2113 100%);
+  border-radius: 16px;
+  padding: 2.5rem 3rem;
+  color: #ffffff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 3rem auto 4rem auto;
+  box-shadow: 0 12px 35px rgba(59, 33, 19, 0.25);
+}
+.royal-footer {
+  background: #0F0B09;
+  color: #c9b9ad;
+  padding: 4rem 5% 2rem 5%;
+}
