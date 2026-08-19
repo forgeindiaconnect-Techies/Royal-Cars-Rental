@@ -263,15 +263,6 @@
   .dashboard-layout {
     flex-direction: column !important;
   }
-  .dashboard-sidebar {
-    width: 100% !important;
-    height: auto !important;
-    max-height: 350px !important;
-    overflow-y: auto !important;
-    border-right: none !important;
-    border-bottom: 1px solid #e2e8f0 !important;
-    position: relative !important;
-  }
   .dashboard-main {
     padding: 1rem !important;
   }
