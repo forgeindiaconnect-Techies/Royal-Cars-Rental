@@ -1981,10 +1981,10 @@ html {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  min-height: 82vh;
+  min-height: 72vh;
   display: flex;
   align-items: center;
-  padding: 7rem 4vw 11rem 4vw;
+  padding: 6rem 4vw 8.5rem 4vw;
   color: #ffffff;
   width: 100%;
   box-sizing: border-box;
@@ -1993,7 +1993,7 @@ html {
 .rd-hero-overlay {
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: linear-gradient(180deg, rgba(10, 14, 23, 0.5) 0%, rgba(10, 14, 23, 0.78) 65%, rgba(10, 14, 23, 0.98) 100%);
+  background: linear-gradient(180deg, rgba(10, 14, 23, 0.45) 0%, rgba(10, 14, 23, 0.72) 65%, rgba(10, 14, 23, 0.95) 100%);
   z-index: 1;
 }
 
@@ -2065,7 +2065,7 @@ html {
 .rd-hero-widget-wrapper {
   max-width: 1400px;
   width: 100%;
-  margin: -4.5rem auto 3.5rem auto;
+  margin: -6rem auto 3.5rem auto;
   display: flex;
   flex-direction: column;
   gap: 1.75rem;
@@ -2077,13 +2077,13 @@ html {
 .rd-search-card {
   background: #ffffff;
   border-radius: 24px;
-  padding: 2rem 2.25rem;
-  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.12);
+  padding: 2.25rem 2.5rem;
+  box-shadow: 0 25px 65px rgba(15, 23, 42, 0.18), 0 4px 16px rgba(0, 0, 0, 0.05);
   width: 100%;
   box-sizing: border-box;
   margin: 0;
   position: relative;
-  border: 1px solid #e2e8f0;
+  border: 1px solid rgba(226, 232, 240, 0.9);
   animation: heroEntrance 0.8s cubic-bezier(0.16, 1, 0.3, 1) ease-out;
 }
 
