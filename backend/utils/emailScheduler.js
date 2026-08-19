@@ -29,31 +29,32 @@ const scheduleOrSendEmail = async ({
   targetMinute = 0,
   relatedType = 'custom',
   relatedId = null,
+  sendImmediately = false
 }) => {
   if (!to || !subject || !html) {
     throw new Error('Missing required email parameters: to, subject, html');
   }
 
   const now = new Date();
-  let targetTime = new Date();
+  const targetDateObj = scheduledDate ? new Date(scheduledDate) : new Date();
 
-  if (scheduledDate) {
-    targetTime = new Date(scheduledDate);
-  }
+  // Strip time components to compare calendar days (Today vs Future)
+  const todayDateOnly = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const targetDateOnly = new Date(targetDateObj.getFullYear(), targetDateObj.getMonth(), targetDateObj.getDate());
 
-  // Set time to 10:00 AM on the target scheduled date
-  targetTime.setHours(targetHour, targetMinute, 0, 0);
+  const isFutureDay = targetDateOnly.getTime() > todayDateOnly.getTime();
 
-  // If targetTime is in the future (e.g., tomorrow morning at 10 AM or later today)
-  if (targetTime.getTime() > now.getTime()) {
-    console.log(`\n\x1b[35m========================================================================\x1b[0m`);
-    console.log(`\x1b[35m[AUTOMATED 10:00 AM EMAIL SCHEDULER QUEUED]\x1b[0m`);
+  // RULE 1: If scheduled for TODAY, PAST DATE, or sendImmediately is true -> SEND IMMEDIATELY TODAY ITSELF!
+  if (!isFutureDay || sendImmediately) {
+    console.log(`\n\x1b[32m========================================================================\x1b[0m`);
+    console.log(`\x1b[32m[EMAIL SCHEDULER DISPATCHING TODAY IMMEDIATELY]\x1b[0m`);
     console.log(`  📩 Recipient    : ${to}`);
     console.log(`  📌 Subject      : ${subject}`);
-    console.log(`  📅 Scheduled Day: ${targetTime.toDateString()}`);
-    console.log(`  ⏰ Send Time    : ${targetTime.toLocaleTimeString()} (10:00 AM Target)`);
-    console.log(`  🛑 Status       : SUPPRESSED TODAY (Will auto-send at 10:00 AM on target date)`);
-    console.log(`\x1b[35m========================================================================\x1b[0m\n`);
+    console.log(`  📅 Scheduled Day: Today (${now.toDateString()})`);
+    console.log(`  🚀 Action       : Dispatching email today itself without delay!`);
+    console.log(`\x1b[32m========================================================================\x1b[0m\n`);
+
+    const dispatchResult = await sendEmail({ to, subject, html, text });
 
     const scheduledRecord = await ScheduledEmail.create({
       to,
@@ -61,26 +62,36 @@ const scheduleOrSendEmail = async ({
       subject,
       html,
       text,
-      scheduledDate: new Date(scheduledDate || targetTime),
-      scheduledTime: targetTime,
-      status: 'pending',
+      scheduledDate: targetDateObj,
+      scheduledTime: now,
+      status: dispatchResult.success ? 'sent' : 'failed',
+      sentAt: dispatchResult.success ? new Date() : null,
+      error: dispatchResult.error || '',
       relatedType,
       relatedId,
     });
 
     return {
-      success: true,
-      scheduled: true,
-      status: 'pending',
-      scheduledTime: targetTime,
-      message: `Email scheduled for 10:00 AM on ${targetTime.toDateString()}. Immediate dispatch suppressed today.`,
+      success: dispatchResult.success,
+      scheduled: false,
+      status: dispatchResult.success ? 'sent' : 'failed',
+      message: dispatchResult.success ? 'Email sent immediately today!' : (dispatchResult.error || 'Email dispatch failed'),
       scheduledEmailId: scheduledRecord._id,
     };
   }
 
-  // If target time is past or right now, dispatch immediately
-  console.log(`[EMAIL SCHEDULER] Immediate dispatch condition met for ${to}`);
-  const dispatchResult = await sendEmail({ to, subject, html, text });
+  // RULE 2: If scheduled for TOMORROW or FUTURE DATE -> Queue for 10:00 AM on that future date!
+  let targetTime = new Date(targetDateObj);
+  targetTime.setHours(targetHour, targetMinute, 0, 0);
+
+  console.log(`\n\x1b[35m========================================================================\x1b[0m`);
+  console.log(`\x1b[35m[AUTOMATED 10:00 AM FUTURE EMAIL SCHEDULER QUEUED]\x1b[0m`);
+  console.log(`  📩 Recipient    : ${to}`);
+  console.log(`  📌 Subject      : ${subject}`);
+  console.log(`  📅 Scheduled Day: ${targetTime.toDateString()} (Future Date)`);
+  console.log(`  ⏰ Target Time  : ${targetTime.toLocaleTimeString()} (10:00 AM Dispatch)`);
+  console.log(`  🛑 Status       : QUEUED FOR FUTURE DISPATCH (Will auto-send at 10:00 AM on target date)`);
+  console.log(`\x1b[35m========================================================================\x1b[0m\n`);
 
   const scheduledRecord = await ScheduledEmail.create({
     to,
@@ -88,20 +99,19 @@ const scheduleOrSendEmail = async ({
     subject,
     html,
     text,
-    scheduledDate: new Date(scheduledDate || now),
+    scheduledDate: targetDateObj,
     scheduledTime: targetTime,
-    status: dispatchResult.success ? 'sent' : 'failed',
-    sentAt: dispatchResult.success ? new Date() : null,
-    error: dispatchResult.error || '',
+    status: 'pending',
     relatedType,
     relatedId,
   });
 
   return {
-    success: dispatchResult.success,
-    scheduled: false,
-    status: dispatchResult.success ? 'sent' : 'failed',
-    message: dispatchResult.success ? 'Email sent immediately' : dispatchResult.error,
+    success: true,
+    scheduled: true,
+    status: 'pending',
+    scheduledTime: targetTime,
+    message: `Email scheduled for 10:00 AM on ${targetTime.toDateString()}.`,
     scheduledEmailId: scheduledRecord._id,
   };
 };
