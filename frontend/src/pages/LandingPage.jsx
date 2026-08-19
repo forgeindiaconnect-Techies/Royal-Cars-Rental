@@ -1657,23 +1657,23 @@ export default function LandingPage() {
                 <span className="fleet-v2-car-badge">🔥 {98 - (idx % 5)}% Match</span>
                 <img src={getValidImageUrl(v.imageUrl, 'vehicle')} onError={e => handleImageError(e, 'vehicle')} alt={v.model} className="fleet-v2-car-img" />
               </div>
-              <div style={{ padding: '1.2rem', display: 'flex', flexDirection: 'column', flex: 1 }}>
+              <div style={{ padding: '0.5rem 0 0 0', display: 'flex', flexDirection: 'column', flex: 1 }}>
                 <div className="fleet-v2-car-title">{v.make} {v.model}</div>
                 <div className="fleet-v2-car-specs">
                   <span>💺 {v.seats || 5} Seats</span>
                   <span>⛽ {v.fuelType || 'Petrol'}</span>
-                  <span>⚙️ {v.transmission || 'Automatic'}</span>
+                  <span>⚙️ {v.transmission || 'Auto'}</span>
                 </div>
                 <div className="fleet-v2-car-price-row" style={{ marginTop: 'auto' }}>
                   <div>
                     <span className="fleet-v2-price">₹{v.pricePerDay}</span>
-                    <span style={{ fontSize: '0.78rem', color: '#6b5a4b' }}> / day</span>
+                    <span style={{ fontSize: '0.74rem', color: '#64748b' }}> / day</span>
                   </div>
                   <div className="fleet-v2-rating">⭐ 4.8 ({120 + idx * 7})</div>
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', marginTop: '0.85rem' }}>
-                  <button onClick={(e) => { e.stopPropagation(); setDetailVehicle(v); }} className="fleet-v2-btn-outline" style={{ padding: '0.55rem', fontSize: '0.78rem' }}>Details</button>
-                  <button onClick={(e) => { e.stopPropagation(); setBookingVehicle(v); }} className="rd-btn-gold" style={{ padding: '0.55rem', fontSize: '0.78rem', justifyContent: 'center' }}>Book Now</button>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.45rem', marginTop: '0.65rem' }}>
+                  <button onClick={(e) => { e.stopPropagation(); setDetailVehicle(v); }} className="fleet-v2-btn-outline" style={{ padding: '0.45rem', fontSize: '0.76rem', borderRadius: '8px' }}>Details</button>
+                  <button onClick={(e) => { e.stopPropagation(); setBookingVehicle(v); }} className="rd-btn-gold" style={{ padding: '0.45rem', fontSize: '0.76rem', borderRadius: '8px', justifyContent: 'center' }}>Book Now</button>
                 </div>
               </div>
             </div>
