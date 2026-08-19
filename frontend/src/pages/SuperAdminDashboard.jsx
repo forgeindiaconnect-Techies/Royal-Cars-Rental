@@ -3214,42 +3214,58 @@ function ReportsPanel({ onBack }) {
 }
 
 /* ─────────────────────────────────────────────────────────────────
-   SETTINGS PANEL
+   SETTINGS PANEL (SUPPORT CALL & WHATSAPP PHONE EDIT MANAGEMENT)
 ───────────────────────────────────────────────────────────────── */
 function SettingsPanel({ onBack }) {
-  const [activeTab, setActiveTab] = useState('st-profile');
+  const [activeTab, setActiveTab] = useState('phone-whatsapp');
+  
+  // Phone & WhatsApp Settings State
+  const [phone, setPhone] = useState(() => localStorage.getItem('platform_support_phone') || '+91 95173 68420');
+  const [whatsapp, setWhatsapp] = useState(() => localStorage.getItem('platform_whatsapp_phone') || '919517368420');
+  const [email, setEmail] = useState(() => localStorage.getItem('platform_support_email') || 'admin@royalrentcars.com');
+  const [whatsappMsg, setWhatsappMsg] = useState(() => localStorage.getItem('platform_whatsapp_msg') || 'Hello Royal Drive! I want to inquire about car rental.');
   const [notice, setNotice] = useState('');
 
-  const [currPass, setCurrPass] = useState('');
-  const [newPass, setNewPass]   = useState('');
-  const [confPass, setConfPass] = useState('');
+  // Admin Profile / Password State
+  const [adminName, setAdminName]   = useState('Super Admin');
+  const [adminEmail, setAdminEmail] = useState('admin@royaldrivecars.com');
+  const [currPass, setCurrPass]     = useState('');
+  const [newPass, setNewPass]       = useState('');
+  const [confPass, setConfPass]     = useState('');
 
-  const [adminName, setAdminName]   = useState('Forge India Admin');
-  const [adminEmail, setAdminEmail] = useState('admin@forgeindia.com');
-  const [adminPhone, setAdminPhone] = useState('+91 98765 43210');
+  const handleSaveContactSettings = (e) => {
+    e.preventDefault();
+    if (!phone.trim() || !whatsapp.trim()) {
+      alert('⚠️ Phone and WhatsApp numbers cannot be empty!');
+      return;
+    }
 
-  const showNotice = (msg) => {
-    setNotice(msg);
-    setTimeout(() => setNotice(''), 4000);
+    const cleanPhone = phone.trim();
+    const cleanWhatsapp = whatsapp.trim();
+    const cleanEmail = email.trim();
+    const cleanMsg = whatsappMsg.trim();
+
+    localStorage.setItem('platform_support_phone', cleanPhone);
+    localStorage.setItem('platform_whatsapp_phone', cleanWhatsapp);
+    localStorage.setItem('platform_support_email', cleanEmail);
+    localStorage.setItem('platform_whatsapp_msg', cleanMsg);
+
+    // Dispatch custom event to notify all components
+    window.dispatchEvent(new Event('platform_contact_updated'));
+
+    setNotice('✓ Platform Support Call & WhatsApp numbers saved successfully! Platform numbers updated live across the website.');
+    setTimeout(() => setNotice(''), 5000);
   };
 
   const handlePasswordChange = (e) => {
     e.preventDefault();
     if (newPass !== confPass) {
-      alert('New password and confirm password do not match!');
+      alert('⚠️ New passwords do not match!');
       return;
     }
-    if (newPass.length < 6) {
-      alert('Password must be at least 6 characters.');
-      return;
-    }
-    showNotice('Super Admin password updated successfully!');
+    setNotice('✓ Super Admin Password updated successfully!');
     setCurrPass(''); setNewPass(''); setConfPass('');
-  };
-
-  const handleProfileSave = (e) => {
-    e.preventDefault();
-    showNotice('Admin profile details updated successfully!');
+    setTimeout(() => setNotice(''), 5000);
   };
 
   return (
@@ -3258,133 +3274,245 @@ function SettingsPanel({ onBack }) {
 
       <div style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
-          <h2 style={{ fontSize: '1.6rem', fontFamily: 'var(--font-heading)', marginBottom: '0.2rem' }}>Account Settings</h2>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem' }}>Super Admin profile management and credentials</p>
+          <h2 style={{ fontSize: '1.6rem', fontWeight: 900, color: '#0f172a', margin: 0 }}>⚙️ Platform Settings & Contact Desk</h2>
+          <p style={{ color: '#64748b', fontSize: '0.88rem', margin: '0.2rem 0 0 0' }}>Manage platform-wide support call numbers, WhatsApp contact, default welcome message, and admin security.</p>
         </div>
 
-        <div style={{ display: 'flex', gap: '0.4rem', background: '#fff', padding: '0.25rem', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+        <div style={{ display: 'flex', gap: '0.4rem', background: '#fff', padding: '0.25rem', borderRadius: '10px', border: '1px solid #cbd5e1' }}>
           <button
-            onClick={() => setActiveTab('st-profile')}
+            type="button"
+            onClick={() => setActiveTab('phone-whatsapp')}
             style={{
-              padding: '0.45rem 1rem', borderRadius: '6px', fontSize: '0.82rem', fontWeight: 700, cursor: 'pointer', border: 'none',
-              background: activeTab === 'st-profile' ? 'var(--accent-blue)' : 'transparent',
-              color: activeTab === 'st-profile' ? '#fff' : 'var(--text-primary)',
+              padding: '0.45rem 0.95rem', borderRadius: '8px', fontSize: '0.82rem', fontWeight: 800, cursor: 'pointer', border: 'none',
+              background: activeTab === 'phone-whatsapp' ? '#2563eb' : 'transparent',
+              color: activeTab === 'phone-whatsapp' ? '#ffffff' : '#64748b',
+              transition: 'all 0.2s ease'
             }}
           >
-            👤 Admin Profile
+            📞 Call & WhatsApp Number Edit
           </button>
           <button
-            onClick={() => setActiveTab('st-password')}
+            type="button"
+            onClick={() => setActiveTab('st-profile')}
             style={{
-              padding: '0.45rem 1rem', borderRadius: '6px', fontSize: '0.82rem', fontWeight: 700, cursor: 'pointer', border: 'none',
-              background: activeTab === 'st-password' ? 'var(--accent-rose)' : 'transparent',
-              color: activeTab === 'st-password' ? '#fff' : 'var(--text-primary)',
+              padding: '0.45rem 0.95rem', borderRadius: '8px', fontSize: '0.82rem', fontWeight: 800, cursor: 'pointer', border: 'none',
+              background: activeTab === 'st-profile' ? '#2563eb' : 'transparent',
+              color: activeTab === 'st-profile' ? '#ffffff' : '#64748b',
+              transition: 'all 0.2s ease'
             }}
           >
-            🔒 Change Password
+            👤 Admin Profile & Password
           </button>
         </div>
       </div>
 
       {notice && (
-        <div style={{ padding: '0.75rem 1rem', background: 'rgba(16,185,129,0.1)', color: '#10b981', border: '1px solid rgba(16,185,129,0.3)', borderRadius: '6px', fontSize: '0.88rem', marginBottom: '1.25rem' }}>
-          ✓ {notice}
+        <div style={{ padding: '0.85rem 1.15rem', background: '#f0fdf4', color: '#15803d', border: '1px solid #86efac', borderRadius: '12px', fontSize: '0.88rem', fontWeight: 800, marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <span>✓</span> {notice}
         </div>
       )}
 
-      {activeTab === 'st-profile' ? (
-        <div className="card" style={{ padding: '2rem', maxWidth: '600px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', marginBottom: '1.75rem', paddingBottom: '1.25rem', borderBottom: '1px solid var(--border-color)' }}>
-            <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'var(--grad-primary)', color: '#fff', fontSize: '1.8rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              👤
+      {activeTab === 'phone-whatsapp' ? (
+        <div style={{ display: 'grid', gridTemplateColumns: '1.3fr 1fr', gap: '1.5rem' }}>
+          
+          {/* EDIT FORM CARD */}
+          <div className="card" style={{ padding: '1.75rem', background: '#ffffff', borderRadius: '18px', border: '1px solid #e2e8f0', boxShadow: '0 4px 16px rgba(0,0,0,0.03)' }}>
+            <div style={{ borderBottom: '1px solid #e2e8f0', paddingBottom: '1rem', marginBottom: '1.25rem' }}>
+              <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 900, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <span style={{ fontSize: '1.3rem' }}>📞</span> Call & WhatsApp Number Management
+              </h3>
+              <div style={{ fontSize: '0.78rem', color: '#64748b', marginTop: '0.2rem' }}>
+                Update the official customer helpline phone and WhatsApp contact. Changes reflect instantly across all pages and footers.
+              </div>
             </div>
-            <div>
-              <h3 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.2rem', marginBottom: '0.2rem' }}>{adminName}</h3>
-              <div style={{ fontSize: '0.82rem', color: 'var(--accent-blue)', fontWeight: 700 }}>Super Administrator</div>
-              <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '2px' }}>{adminEmail}</div>
-            </div>
+
+            <form onSubmit={handleSaveContactSettings} style={{ display: 'flex', flexDirection: 'column', gap: '1.15rem' }}>
+              
+              {/* Field 1: Support Phone Number */}
+              <div>
+                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 800, color: '#1e293b', marginBottom: '0.4rem' }}>
+                  📞 Platform Support Call Phone Number *
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="+91 95173 68420"
+                  value={phone}
+                  onChange={e => setPhone(e.target.value)}
+                  style={{ width: '100%', height: '46px', padding: '0 0.85rem', borderRadius: '10px', border: '1px solid #cbd5e1', background: '#f8fafc', fontSize: '0.9rem', fontWeight: 700, color: '#0f172a', outline: 'none', boxSizing: 'border-box' }}
+                />
+                <div style={{ fontSize: '0.72rem', color: '#64748b', marginTop: '0.25rem' }}>
+                  Customer call button on header & footer dials this number directly (`tel:${phone}`)
+                </div>
+              </div>
+
+              {/* Field 2: WhatsApp Number */}
+              <div>
+                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 800, color: '#1e293b', marginBottom: '0.4rem' }}>
+                  💬 Official WhatsApp Number *
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="919517368420 or +91 95173 68420"
+                  value={whatsapp}
+                  onChange={e => setWhatsapp(e.target.value)}
+                  style={{ width: '100%', height: '46px', padding: '0 0.85rem', borderRadius: '10px', border: '1px solid #cbd5e1', background: '#f8fafc', fontSize: '0.9rem', fontWeight: 700, color: '#0f172a', outline: 'none', boxSizing: 'border-box' }}
+                />
+                <div style={{ fontSize: '0.72rem', color: '#64748b', marginTop: '0.25rem' }}>
+                  Footer WhatsApp icon links to (`https://wa.me/${whatsapp.replace(/[^0-9]/g, '')}`)
+                </div>
+              </div>
+
+              {/* Field 3: Support Email */}
+              <div>
+                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 800, color: '#1e293b', marginBottom: '0.4rem' }}>
+                  📧 Support Email Address *
+                </label>
+                <input
+                  type="email"
+                  required
+                  placeholder="admin@royalrentcars.com"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  style={{ width: '100%', height: '46px', padding: '0 0.85rem', borderRadius: '10px', border: '1px solid #cbd5e1', background: '#f8fafc', fontSize: '0.9rem', fontWeight: 700, color: '#0f172a', outline: 'none', boxSizing: 'border-box' }}
+                />
+              </div>
+
+              {/* Field 4: WhatsApp Default Welcome Message */}
+              <div>
+                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 800, color: '#1e293b', marginBottom: '0.4rem' }}>
+                  💬 Default WhatsApp Auto-Message
+                </label>
+                <input
+                  type="text"
+                  placeholder="Hello Royal Drive! I want to inquire about car rental."
+                  value={whatsappMsg}
+                  onChange={e => setWhatsappMsg(e.target.value)}
+                  style={{ width: '100%', height: '46px', padding: '0 0.85rem', borderRadius: '10px', border: '1px solid #cbd5e1', background: '#f8fafc', fontSize: '0.88rem', fontWeight: 600, color: '#0f172a', outline: 'none', boxSizing: 'border-box' }}
+                />
+              </div>
+
+              {/* Action Buttons */}
+              <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem' }}>
+                <button
+                  type="submit"
+                  style={{
+                    flex: 1, height: '48px', background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
+                    color: '#ffffff', border: 'none', borderRadius: '12px', fontWeight: 900, fontSize: '0.9rem',
+                    cursor: 'pointer', boxShadow: '0 6px 20px rgba(37, 99, 235, 0.3)', transition: 'all 0.2s'
+                  }}
+                >
+                  💾 Save & Update Live Numbers
+                </button>
+              </div>
+            </form>
           </div>
 
-          <form onSubmit={handleProfileSave}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <div className="form-group">
-                <label className="form-label">Full Name</label>
-                <input type="text" className="form-control" value={adminName} onChange={e => setAdminName(e.target.value)} required />
-              </div>
-              <div className="form-group">
-                <label className="form-label">Email Address (Super Admin)</label>
-                <input type="email" className="form-control" value={adminEmail} onChange={e => setAdminEmail(e.target.value)} required />
-              </div>
-              <div className="form-group">
-                <label className="form-label">Phone Number</label>
-                <input type="text" className="form-control" value={adminPhone} onChange={e => setAdminPhone(e.target.value)} />
-              </div>
-              <div className="form-group">
-                <label className="form-label">Role & Privileges</label>
-                <input type="text" className="form-control" value="Super Administrator (Full System Access)" disabled style={{ background: 'var(--bg-primary)' }} />
+          {/* LIVE PREVIEW & TEST CARD */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+            
+            {/* Card 1: Live Preview Badge */}
+            <div className="card" style={{ padding: '1.5rem', background: '#0b0e14', color: '#ffffff', borderRadius: '18px', border: '1px solid rgba(255,255,255,0.1)' }}>
+              <div style={{ fontSize: '0.78rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '0.85rem' }}>
+                📱 Live Website Badge Preview
               </div>
 
-              <button type="submit" className="btn btn-primary" style={{ marginTop: '0.5rem' }}>
-                Save Profile Changes
-              </button>
+              <div style={{ background: '#161e2e', padding: '1rem', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.08)', marginBottom: '1rem' }}>
+                <div style={{ fontSize: '0.75rem', color: '#94a3b8', marginBottom: '4px' }}>Call Support Helpline:</div>
+                <div style={{ fontSize: '1.15rem', fontWeight: 900, color: '#60a5fa', fontFamily: 'monospace' }}>
+                  📞 {phone || 'Not set'}
+                </div>
+              </div>
+
+              <div style={{ background: '#161e2e', padding: '1rem', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.08)', marginBottom: '1.25rem' }}>
+                <div style={{ fontSize: '0.75rem', color: '#94a3b8', marginBottom: '4px' }}>WhatsApp Direct Number:</div>
+                <div style={{ fontSize: '1.15rem', fontWeight: 900, color: '#34d399', fontFamily: 'monospace' }}>
+                  💬 {whatsapp || 'Not set'}
+                </div>
+              </div>
+
+              {/* Test Buttons */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                <a
+                  href={`tel:${phone.replace(/\s+/g, '')}`}
+                  style={{
+                    background: '#2563eb', color: '#ffffff', textDecoration: 'none',
+                    padding: '0.65rem', borderRadius: '10px', fontWeight: 800, fontSize: '0.8rem',
+                    textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px'
+                  }}
+                >
+                  📞 Test Call
+                </a>
+
+                <a
+                  href={`https://wa.me/${whatsapp.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(whatsappMsg)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    background: '#25D366', color: '#ffffff', textDecoration: 'none',
+                    padding: '0.65rem', borderRadius: '10px', fontWeight: 800, fontSize: '0.8rem',
+                    textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px'
+                  }}
+                >
+                  💬 Test WhatsApp
+                </a>
+              </div>
             </div>
-          </form>
 
-          {/* DANGER ZONE: RESET ALL APP DATA */}
-          <div style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid #fecaca' }}>
-            <h4 style={{ color: '#dc2626', fontSize: '0.95rem', fontWeight: 800, marginBottom: '0.4rem' }}>🗑️ Clear All Stored System Data</h4>
-            <p style={{ fontSize: '0.8rem', color: '#64748b', marginBottom: '1rem' }}>
-              Delete all created test companies, pending registrations, drivers, car owners, and bookings without affecting system code or functions.
-            </p>
-            <button
-              type="button"
-              className="btn btn-danger"
-              style={{ background: '#dc2626', color: '#fff', padding: '0.65rem 1.25rem', fontWeight: 800, fontSize: '0.85rem', borderRadius: '8px', cursor: 'pointer' }}
-              onClick={() => {
-                if (window.confirm('Are you sure you want to DELETE ALL registered data (companies, drivers, car owners, bookings)? Functions will remain completely intact.')) {
-                  localStorage.removeItem('pending_companies');
-                  localStorage.removeItem('approved_companies');
-                  localStorage.removeItem('pending_car_owners');
-                  localStorage.removeItem('approved_car_owners');
-                  localStorage.removeItem('pending_drivers');
-                  localStorage.removeItem('approved_drivers');
-                  localStorage.removeItem('company_drivers_registry');
-                  localStorage.removeItem('company_staff_list');
-                  localStorage.removeItem('company_vehicles_registry');
-                  localStorage.removeItem('company_bookings_registry');
-                  localStorage.removeItem('customer_bookings_list');
-                  localStorage.removeItem('company_customer_verifications');
-                  alert('✓ All stored system data deleted successfully! Functions remain completely intact.');
-                  window.location.reload();
-                }
-              }}
-            >
-              🗑️ Delete All Stored System Data
-            </button>
+            {/* Card 2: Help Tip */}
+            <div className="card" style={{ padding: '1.25rem', background: '#eff6ff', borderRadius: '16px', border: '1px solid #bfdbfe' }}>
+              <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#1e40af', marginBottom: '0.35rem' }}>
+                💡 Super Admin Tip
+              </div>
+              <div style={{ fontSize: '0.78rem', color: '#1e3a8a', lineHeight: 1.5 }}>
+                Saving phone or WhatsApp numbers here updates the contact numbers shown in the website header, footer, and contact modals for all customers without requiring code changes!
+              </div>
+            </div>
+
           </div>
+
         </div>
       ) : (
-        <div className="card" style={{ padding: '2rem', maxWidth: '520px' }}>
-          <h3 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.15rem', marginBottom: '1.25rem' }}>Update Super Admin Password</h3>
-          <form onSubmit={handlePasswordChange}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <div className="form-group">
-                <label className="form-label">Current Password</label>
-                <input type="password" className="form-control" value={currPass} onChange={e => setCurrPass(e.target.value)} placeholder="Enter current password" required />
-              </div>
-              <div className="form-group">
-                <label className="form-label">New Password</label>
-                <input type="password" className="form-control" value={newPass} onChange={e => setNewPass(e.target.value)} placeholder="Min 6 characters" required />
-              </div>
-              <div className="form-group">
-                <label className="form-label">Confirm New Password</label>
-                <input type="password" className="form-control" value={confPass} onChange={e => setConfPass(e.target.value)} placeholder="Re-enter new password" required />
-              </div>
+        /* ADMIN PROFILE & PASSWORD FORM */
+        <div className="card" style={{ padding: '2rem', maxWidth: '600px', background: '#ffffff', borderRadius: '18px', border: '1px solid #e2e8f0' }}>
+          <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 900, color: '#0f172a', marginBottom: '1.25rem' }}>
+            👤 Update Super Admin Profile & Password
+          </h3>
 
-              <button type="submit" className="btn btn-primary" style={{ marginTop: '0.5rem', background: 'var(--accent-rose)' }}>
-                Update Password
-              </button>
+          <form onSubmit={handlePasswordChange} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div>
+              <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 800, color: '#334155', marginBottom: '4px' }}>Admin Full Name</label>
+              <input type="text" value={adminName} onChange={e => setAdminName(e.target.value)} style={{ width: '100%', height: '42px', padding: '0 0.75rem', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.88rem' }} />
             </div>
+
+            <div>
+              <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 800, color: '#334155', marginBottom: '4px' }}>Admin Email</label>
+              <input type="email" value={adminEmail} onChange={e => setAdminEmail(e.target.value)} style={{ width: '100%', height: '42px', padding: '0 0.75rem', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.88rem' }} />
+            </div>
+
+            <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: '1rem', marginTop: '0.5rem' }}>
+              <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#0f172a', marginBottom: '0.85rem' }}>Change Login Password</div>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#475569', marginBottom: '4px' }}>Current Password</label>
+                  <input type="password" value={currPass} onChange={e => setCurrPass(e.target.value)} style={{ width: '100%', height: '42px', padding: '0 0.75rem', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.88rem' }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#475569', marginBottom: '4px' }}>New Password</label>
+                  <input type="password" value={newPass} onChange={e => setNewPass(e.target.value)} style={{ width: '100%', height: '42px', padding: '0 0.75rem', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.88rem' }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#475569', marginBottom: '4px' }}>Confirm New Password</label>
+                  <input type="password" value={confPass} onChange={e => setConfPass(e.target.value)} style={{ width: '100%', height: '42px', padding: '0 0.75rem', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.88rem' }} />
+                </div>
+              </div>
+            </div>
+
+            <button type="submit" style={{ height: '46px', background: '#2563eb', color: '#fff', border: 'none', borderRadius: '10px', fontWeight: 800, fontSize: '0.88rem', cursor: 'pointer', marginTop: '0.5rem' }}>
+              Update Profile & Password
+            </button>
           </form>
         </div>
       )}
