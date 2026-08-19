@@ -3000,6 +3000,16 @@ img, video, canvas, svg, iframe {
 /* 7. Modal & Form Display Sizing */
 .custom-modal-overlay {
   padding: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.custom-modal-content {
+  max-height: 88vh;
+  overflow-y: auto;
+  box-sizing: border-box;
 }
 
 @media (max-width: 640px) {
@@ -3007,6 +3017,7 @@ img, video, canvas, svg, iframe {
     max-width: 100% !important;
     padding: 1.25rem !important;
     border-radius: 16px !important;
+    max-height: 92vh !important;
   }
 }
 
@@ -3018,6 +3029,56 @@ img, video, canvas, svg, iframe {
     bottom: 0.75rem !important;
   }
 }
+
+/* 9. Header & Navigation Bar Sizing */
+@media (max-width: 992px) {
+  .nav-menu-desktop {
+    display: none !important;
+  }
+  .nav-hamburger-mobile {
+    display: flex !important;
+  }
+}
+
+/* 10. Dashboard Responsive Sidebar & Panel Layout */
+@media (max-width: 1024px) {
+  .dashboard-layout {
+    flex-direction: column !important;
+  }
+  .dashboard-sidebar {
+    width: 100% !important;
+    height: auto !important;
+    position: relative !important;
+  }
+}
+
+/* 11. Global Card equal height flex column alignment */
+.rd-feature-card,
+.fleet-v2-car-card,
+.rd-category-card,
+.rd-location-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+/* 12. Fluid Typography Classes */
+.fluid-h1 {
+  font-size: clamp(2rem, 4.5vw, 4.5rem);
+  line-height: 1.1;
+}
+
+.fluid-h2 {
+  font-size: clamp(1.6rem, 3vw, 2.75rem);
+  line-height: 1.2;
+}
+
+.fluid-subtext {
+  font-size: clamp(0.95rem, 1.3vw, 1.25rem);
+  line-height: 1.6;
+}
+
 
 
 
