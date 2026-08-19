@@ -29,6 +29,28 @@ export default function LandingPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isAiChatbotOpen, setIsAiChatbotOpen] = useState(false);
   const [isSpeedDialOpen, setIsSpeedDialOpen] = useState(false);
+
+  // Dynamic Support Phone & WhatsApp Number State (Editable by Super Admin)
+  const [supportPhone, setSupportPhone] = useState(() => localStorage.getItem('platform_support_phone') || '+91 95173 68420');
+  const [supportWhatsapp, setSupportWhatsapp] = useState(() => localStorage.getItem('platform_whatsapp_phone') || '919517368420');
+  const [supportEmail, setSupportEmail] = useState(() => localStorage.getItem('platform_support_email') || 'admin@royalrentcars.com');
+  const [whatsappMsg, setWhatsappMsg] = useState(() => localStorage.getItem('platform_whatsapp_msg') || 'Hello Royal Drive! I want to inquire about car rental.');
+
+  useEffect(() => {
+    const syncContactNumbers = () => {
+      setSupportPhone(localStorage.getItem('platform_support_phone') || '+91 95173 68420');
+      setSupportWhatsapp(localStorage.getItem('platform_whatsapp_phone') || '919517368420');
+      setSupportEmail(localStorage.getItem('platform_support_email') || 'admin@royalrentcars.com');
+      setWhatsappMsg(localStorage.getItem('platform_whatsapp_msg') || 'Hello Royal Drive! I want to inquire about car rental.');
+    };
+    window.addEventListener('storage', syncContactNumbers);
+    window.addEventListener('platform_contact_updated', syncContactNumbers);
+    return () => {
+      window.removeEventListener('storage', syncContactNumbers);
+      window.removeEventListener('platform_contact_updated', syncContactNumbers);
+    };
+  }, []);
+
   // Search Filter States
   const [searchLocation, setSearchLocation] = useState('gundalapatti');
   const [dropoffLocation, setDropoffLocation] = useState('Dharmapuri');
@@ -1706,10 +1728,10 @@ export default function LandingPage() {
             <div style={{ display: 'flex', gap: '0.85rem', marginTop: '1rem', alignItems: 'center' }}>
               {/* 1. WhatsApp Icon (Official Green) */}
               <a
-                href="https://wa.me/919517368420?text=Hello%20Royal%20Drive!%20I%20want%20to%20inquire%20about%20car%20rental."
+                href={`https://wa.me/${supportWhatsapp.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(whatsappMsg)}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                title="Chat on WhatsApp"
+                title={`Chat on WhatsApp (${supportWhatsapp})`}
                 style={{
                   width: '42px', height: '42px', borderRadius: '50%',
                   background: '#25D366', color: '#ffffff',
@@ -1807,10 +1829,14 @@ export default function LandingPage() {
             <h4 style={{ color: '#ffffff', fontSize: '0.95rem', fontWeight: 800, marginBottom: '1.25rem' }}>Contact Us</h4>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '1rem', fontSize: '0.88rem', color: '#94a3b8' }}>
               <li style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-                <span style={{ color: '#d4a359' }}>📞</span> +91 95173 68420
+                <a href={`tel:${supportPhone.replace(/\s+/g, '')}`} style={{ color: 'inherit', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <span style={{ color: '#d4a359' }}>📞</span> {supportPhone}
+                </a>
               </li>
               <li style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-                <span style={{ color: '#d4a359' }}>✉️</span> admin@royalrentcars.com
+                <a href={`mailto:${supportEmail}`} style={{ color: 'inherit', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <span style={{ color: '#d4a359' }}>✉️</span> {supportEmail}
+                </a>
               </li>
               <li style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
                 <span style={{ color: '#d4a359' }}>📍</span> Gundalapatti Bypass Hub,<br />Dharmapuri, Tamil Nadu, India
