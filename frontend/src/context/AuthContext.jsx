@@ -367,10 +367,20 @@ export const AuthProvider = ({ children }) => {
     if (newUser) setUser(newUser);
   };
 
-  // Logout handler
+  // Logout handler (Complete Session & Storage Purge)
   const logout = () => {
     sessionStorage.removeItem('token');
     localStorage.removeItem('token');
+    localStorage.removeItem('driver_user');
+    localStorage.removeItem('staff_user');
+    localStorage.removeItem('car_owner_user');
+    localStorage.removeItem('user');
+    localStorage.removeItem('rentos_user');
+    localStorage.removeItem('rentos_token');
+    localStorage.removeItem('company_status');
+    localStorage.removeItem('company_name');
+    localStorage.removeItem('company_pending_approval');
+    sessionStorage.clear();
     setToken('');
     setUser(null);
   };

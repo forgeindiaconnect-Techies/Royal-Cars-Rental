@@ -144,7 +144,7 @@ function Navbar() {
               <>
                 <Link to={getDashboardPath()} style={{ fontSize: '0.9rem', color: '#c5a059', fontWeight: 800, textDecoration: 'none', marginRight: '0.5rem' }}>Dashboard</Link>
                 <button 
-                  onClick={() => { logout(); navigate('/'); setIsMobileMenuOpen(false); }}
+                  onClick={() => { logout(); navigate('/auth'); setIsMobileMenuOpen(false); }}
                   style={{
                     background: 'rgba(255, 255, 255, 0.1)',
                     border: '1px solid rgba(255, 255, 255, 0.3)',
