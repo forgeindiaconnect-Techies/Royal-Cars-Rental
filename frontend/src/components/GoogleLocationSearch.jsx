@@ -120,10 +120,27 @@ export default function GoogleLocationSearch({
         const data = await res.json();
         if (data.features && data.features.length > 0) {
           const props = data.features[0].properties || {};
-          const addr = [props.name, props.street, props.city || props.district, props.state, props.country]
-            .filter(Boolean)
-            .join(', ');
-          setPinnedAddress(addr || `${lat.toFixed(4)}, ${lng.toFixed(4)}`);
+          const houseNo = props.housenumber || props.house_number || props.building || props.door_number;
+          const doorStr = houseNo ? `Door No. ${houseNo}` : null;
+          const streetStr = props.street || props.road || props.pedestrian;
+          const nameCandidate = props.name;
+          const isPoiName = nameCandidate && (
+            nameCandidate.toLowerCase().includes('clinic') ||
+            nameCandidate.toLowerCase().includes('hospital') ||
+            nameCandidate.toLowerCase().includes('dental') ||
+            nameCandidate.toLowerCase().includes('store') ||
+            nameCandidate.toLowerCase().includes('shop') ||
+            nameCandidate.toLowerCase().includes('bank')
+          );
+          const cleanName = (!isPoiName && nameCandidate !== streetStr) ? nameCandidate : null;
+          const locality = props.district || props.suburb || props.neighbourhood || props.city || props.town || props.village;
+          const state = props.state;
+
+          const parts = [doorStr, cleanName, streetStr, locality, state].filter(Boolean);
+          const uniqueParts = [...new Set(parts)];
+          const addr = uniqueParts.length > 0 ? uniqueParts.join(', ') : `Location (${lat.toFixed(4)}, ${lng.toFixed(4)})`;
+
+          setPinnedAddress(addr);
           return;
         }
       }

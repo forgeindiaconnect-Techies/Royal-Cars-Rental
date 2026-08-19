@@ -66,6 +66,95 @@ export default function GoogleMapComponent({
   const [googleLoaded, setGoogleLoaded] = useState(false);
   const [selectedCar, setSelectedCar] = useState(null);
 
+  // Clean Address Formatter: Door No. + Street + Locality + District + State (Filters out generic dental clinics & store names)
+  const formatReverseAddress = (props, lat, lng) => {
+    if (!props) return `Location (${lat.toFixed(4)}, ${lng.toFixed(4)})`;
+
+    // 1. Door / House Number
+    const houseNo = props.housenumber || props.house_number || props.building || props.door_number || props['addr:housenumber'];
+    const doorStr = houseNo ? `Door No. ${houseNo}` : null;
+
+    // 2. Street / Road Name
+    const streetStr = props.street || props.road || props.pedestrian;
+
+    // 3. POI Filter (remove generic dental clinic, hospital, shop names unless no street is present)
+    const nameCandidate = props.name;
+    const isPoiName = nameCandidate && (
+      nameCandidate.toLowerCase().includes('clinic') ||
+      nameCandidate.toLowerCase().includes('hospital') ||
+      nameCandidate.toLowerCase().includes('dental') ||
+      nameCandidate.toLowerCase().includes('store') ||
+      nameCandidate.toLowerCase().includes('shop') ||
+      nameCandidate.toLowerCase().includes('bank') ||
+      nameCandidate.toLowerCase().includes('atm')
+    );
+
+    const cleanName = (!isPoiName && nameCandidate !== streetStr) ? nameCandidate : null;
+
+    // 4. Locality / District / State
+    const locality = props.district || props.suburb || props.neighbourhood || props.city || props.town || props.village;
+    const state = props.state;
+
+    const parts = [doorStr, cleanName, streetStr, locality, state].filter(Boolean);
+    const uniqueParts = [...new Set(parts)];
+
+    if (uniqueParts.length > 0) {
+      return uniqueParts.join(', ');
+    }
+
+    return `Location (${lat.toFixed(4)}, ${lng.toFixed(4)})`;
+  };
+
+  const [userGpsCoords, setUserGpsCoords] = useState(null);
+  const [locatingGps, setLocatingGps] = useState(false);
+
+  const handleLocateUserPosition = () => {
+    if (!navigator.geolocation) {
+      alert('Geolocation is not supported by your browser.');
+      return;
+    }
+
+    setLocatingGps(true);
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
+        const coords = { lat, lng };
+
+        setUserGpsCoords(coords);
+
+        if (googleMapRef.current && window.google) {
+          googleMapRef.current.panTo(coords);
+          googleMapRef.current.setZoom(15);
+        }
+        if (leafletMapRef.current) {
+          leafletMapRef.current.flyTo([lat, lng], 15);
+        }
+
+        try {
+          const res = await fetch(`https://photon.komoot.io/reverse?lat=${lat}&lon=${lng}`);
+          if (res.ok) {
+            const data = await res.json();
+            if (data.features && data.features.length > 0) {
+              const addrStr = formatReverseAddress(data.features[0].properties, lat, lng);
+              if (onMapClick) onMapClick(addrStr, coords);
+              setLocatingGps(false);
+              return;
+            }
+          }
+        } catch (err) {}
+
+        if (onMapClick) onMapClick(`My Live Location (${lat.toFixed(4)}, ${lng.toFixed(4)})`, coords);
+        setLocatingGps(false);
+      },
+      (err) => {
+        setLocatingGps(false);
+        alert('Unable to access live GPS location. Please check location permissions in your browser.');
+      },
+      { enableHighAccuracy: true, timeout: 8000 }
+    );
+  };
+
   // SVG Data URL for realistic Car Marker Icon on Google Maps
   const createCarSvgIcon = (color = '#2563eb') => {
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="${color}" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -166,11 +255,8 @@ export default function GoogleMapComponent({
             if (res.ok) {
               const data = await res.json();
               if (data.features && data.features.length > 0) {
-                const props = data.features[0].properties || {};
-                const addr = [props.name, props.street, props.city || props.district, props.state]
-                  .filter(Boolean)
-                  .join(', ');
-                if (onMapClick) onMapClick(addr || `${lat.toFixed(4)}, ${lng.toFixed(4)}`, coords);
+                const addrStr = formatReverseAddress(data.features[0].properties, lat, lng);
+                if (onMapClick) onMapClick(addrStr, coords);
                 return;
               }
             }
@@ -266,6 +352,27 @@ export default function GoogleMapComponent({
         });
       }
 
+      // 🧍‍♂️ User Live GPS Location Marker (Person Icon Badge)
+      if (userGpsCoords) {
+        const uMarker = new google.maps.Marker({
+          position: userGpsCoords,
+          map: googleMapRef.current,
+          title: '🧍‍♂️ You Are Here (My Live Location)',
+          icon: {
+            url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(`
+              <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="#2563eb" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="7" r="4" fill="#2563eb"/>
+                <path d="M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/>
+              </svg>
+            `)}`,
+            scaledSize: new google.maps.Size(46, 46)
+          }
+        });
+        googleMarkersRef.current.push(uMarker);
+        bounds.extend(uMarker.getPosition());
+        hasValidCoords = true;
+      }
+
       // 🏎️ Available Cars (Custom Car SVG Badges)
       const baseLat = initialCenter.lat || 12.1211;
       const baseLng = initialCenter.lng || 78.1582;
@@ -352,11 +459,8 @@ export default function GoogleMapComponent({
             if (res.ok) {
               const data = await res.json();
               if (data.features && data.features.length > 0) {
-                const props = data.features[0].properties || {};
-                const addr = [props.name, props.street, props.city || props.district, props.state]
-                  .filter(Boolean)
-                  .join(', ');
-                if (onMapClick) onMapClick(addr || `${lat.toFixed(4)}, ${lng.toFixed(4)}`, coords);
+                const addrStr = formatReverseAddress(data.features[0].properties, lat, lng);
+                if (onMapClick) onMapClick(addrStr, coords);
                 return;
               }
             }
@@ -365,6 +469,30 @@ export default function GoogleMapComponent({
         });
 
         const markersGroup = window.L.featureGroup();
+
+        // 🧍‍♂️ User Live GPS Location Marker (Person Icon Badge)
+        if (userGpsCoords) {
+          const userIcon = window.L.divIcon({
+            className: 'custom-leaflet-user-pin',
+            html: `
+              <div style="display:flex; flex-direction:column; align-items:center;">
+                <div style="background:#2563eb; color:#fff; padding:5px 12px; border-radius:20px; font-weight:900; font-size:11px; box-shadow:0 4px 16px rgba(37,99,235,0.6); white-space:nowrap; border:2px solid #fff; display:flex; align-items:center; gap:5px;">
+                  <span style="font-size:14px;">🧍‍♂️</span> You Are Here
+                </div>
+                <div style="width:14px; height:14px; background:#2563eb; border-radius:50%; border:3px solid #fff; margin-top:2px; box-shadow:0 0 12px #2563eb;"></div>
+              </div>
+            `,
+            iconSize: [160, 44],
+            iconAnchor: [80, 22]
+          });
+          const uMarker = window.L.marker([userGpsCoords.lat, userGpsCoords.lng], { icon: userIcon }).bindPopup(`
+            <div style="font-family:sans-serif; padding:4px;">
+              <strong style="color:#2563eb;">🧍‍♂️ You Are Here</strong><br/>
+              <span style="font-size:12px; color:#334155;">My Live GPS Position</span>
+            </div>
+          `);
+          markersGroup.addLayer(uMarker);
+        }
 
         // 🚗 Driver / Vehicle Location Marker (Realistic Car Badge)
         if (drvCoords) {
@@ -580,6 +708,36 @@ export default function GoogleMapComponent({
         <span>{useFallback ? 'OpenStreetMap Live Map' : 'Google Maps Live'}</span>
         {showRoute && <span style={{ color: '#38bdf8', marginLeft: '4px' }}>• 🛣️ Route Active</span>}
       </div>
+
+      {/* 🧍‍♂️ LIVE GPS LOCATION BUTTON */}
+      <button
+        type="button"
+        onClick={handleLocateUserPosition}
+        title="Detect My Live GPS Location (Person Icon)"
+        style={{
+          position: 'absolute',
+          top: '10px',
+          right: '10px',
+          zIndex: 400,
+          background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
+          color: '#ffffff',
+          padding: '6px 14px',
+          borderRadius: '20px',
+          fontSize: '0.78rem',
+          fontWeight: 800,
+          display: 'flex',
+          alignItems: 'center',
+          gap: '6px',
+          border: '1.5px solid #ffffff',
+          boxShadow: '0 4px 14px rgba(37, 99, 235, 0.45)',
+          cursor: 'pointer',
+          transition: 'all 0.25s ease'
+        }}
+        onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.04)'}
+        onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+      >
+        <span style={{ fontSize: '0.95rem' }}>🧍‍♂️</span> {locatingGps ? 'Locating Live Position...' : 'Locate My Position'}
+      </button>
 
       {/* SELECTED CAR POPUP OVERLAY */}
       {selectedCar && (
