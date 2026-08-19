@@ -2061,11 +2061,25 @@ html {
   border-color: #ffffff;
 }
 
+/* White Section Layer Overlapping Bottom of Dark Hero Section */
+.rd-white-overlap-section {
+  position: relative;
+  width: 100%;
+  background: #ffffff;
+  margin-top: -4.5rem;
+  border-top-left-radius: 36px;
+  border-top-right-radius: 36px;
+  padding: 0 4% 3.5rem 4%;
+  box-sizing: border-box;
+  z-index: 10;
+  box-shadow: 0 -12px 35px rgba(0, 0, 0, 0.12);
+}
+
 /* Unified Floating Search & Feature Container */
 .rd-hero-widget-wrapper {
   max-width: 1400px;
   width: 100%;
-  margin: -6rem auto 3.5rem auto;
+  margin: -4rem auto 0 auto;
   display: flex;
   flex-direction: column;
   gap: 1.75rem;

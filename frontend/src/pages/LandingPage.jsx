@@ -1092,8 +1092,8 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* 3. FLOATING SEARCH CARD & FEATURE BADGES (UNIFIED MAX-WIDTH CONTAINER) */}
-      <section className="reveal-on-scroll" style={{ width: '100%', padding: '0 4%', boxSizing: 'border-box' }}>
+      {/* 3. WHITE OVERLAP SECTION WITH FLOATING SEARCH CARD & FEATURE BADGES */}
+      <section className="rd-white-overlap-section reveal-on-scroll">
         <div className="rd-hero-widget-wrapper">
           
           {/* FLOATING SEARCH CARD */}
