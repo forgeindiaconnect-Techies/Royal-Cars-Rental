@@ -2064,32 +2064,33 @@ html {
 /* 100% Wide Floating Search Widget Card */
 .rd-search-card {
   background: #ffffff;
-  border-radius: 28px;
-  padding: 2.5rem 3.5vw;
-  box-shadow: 0 28px 70px rgba(0, 0, 0, 0.18);
+  border-radius: 24px;
+  padding: 2rem 2.5vw;
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.12);
   width: 94vw;
   max-width: 1600px;
   box-sizing: border-box;
-  margin: -7rem auto 5rem auto;
+  margin: -4.5rem auto 4.5rem auto;
   position: relative;
   z-index: 20;
   border: 1px solid #e2e8f0;
+  animation: heroEntrance 0.8s cubic-bezier(0.16, 1, 0.3, 1) ease-out;
 }
 
 .rd-search-header {
   display: flex;
   align-items: center;
   gap: 0.85rem;
-  font-size: 1.45rem;
+  font-size: 1.35rem;
   font-weight: 900;
   color: #0f172a;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
 }
 
 .rd-search-grid {
   display: grid;
-  grid-template-columns: 1.5fr 1fr 1fr 1fr 1.3fr;
-  gap: 1.75rem;
+  grid-template-columns: 1.6fr 1fr 1fr 1fr 1.2fr;
+  gap: 1.35rem;
   align-items: end;
   width: 100%;
 }
@@ -2114,33 +2115,68 @@ html {
   background: #f8fafc;
   border: 1px solid #cbd5e1;
   border-radius: 16px;
-  padding: 0.9rem 1.25rem;
-  transition: border-color 0.2s;
+  padding: 0.85rem 1.1rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
   width: 100%;
   box-sizing: border-box;
 }
 
 .rd-input-wrapper:focus-within {
-  border-color: var(--rd-gold-primary);
+  border-color: #2563eb;
   background: #ffffff;
-  box-shadow: 0 0 0 4px rgba(212, 163, 89, 0.18);
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
 }
 
 .rd-input-wrapper input, .rd-input-wrapper select {
   border: none;
   background: transparent;
   width: 100%;
-  font-size: 0.98rem;
+  font-size: 0.95rem;
   font-weight: 600;
   color: #0f172a;
   outline: none;
+}
+
+/* Pick on Map Hover Effect */
+.pick-on-map-btn:hover {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+  color: #ffffff !important;
+  border-color: #3b82f6 !important;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.35) !important;
+}
+
+.pick-on-map-btn:hover .map-btn-icon {
+  transform: translateX(3px) scale(1.1);
+}
+
+/* Keyframe Animations */
+@keyframes slideUpModal {
+  from { opacity: 0; transform: translateY(40px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes markerPopIn {
+  0% { transform: scale(0); opacity: 0; }
+  70% { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes markerPulse {
+  0% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.6); }
+  70% { box-shadow: 0 0 0 12px rgba(37, 99, 235, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); }
+}
+
+.custom-leaflet-marker {
+  animation: markerPopIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) ease-out;
 }
 
 /* Full Width Benefit Badges */
 .rd-features-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 2.25rem;
+  gap: 2rem;
   width: 94vw;
   max-width: 1600px;
   box-sizing: border-box;
@@ -2150,44 +2186,58 @@ html {
 
 .rd-feature-card {
   background: #ffffff;
-  border: 1px solid #f1f5f9;
-  border-radius: 24px;
-  padding: 2.25rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 22px;
+  padding: 1.85rem 1.6rem;
   display: flex;
   align-items: center;
-  gap: 1.35rem;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.03);
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  gap: 1.25rem;
+  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.04);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease;
 }
 
 .rd-feature-card:hover {
   transform: translateY(-6px);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.09);
+  box-shadow: 0 18px 36px rgba(37, 99, 235, 0.1);
+  border-color: rgba(37, 99, 235, 0.25);
 }
 
 .rd-feature-icon {
-  width: 64px;
-  height: 64px;
-  border-radius: 20px;
-  background: #fef9c3;
-  color: #b45309;
+  width: 60px;
+  height: 60px;
+  border-radius: 18px;
+  background: #eff6ff;
+  color: #2563eb;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.75rem;
   flex-shrink: 0;
+  border: 1px solid #dbeafe;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.rd-feature-card:hover .rd-feature-icon {
+  background: #2563eb;
+  color: #ffffff;
+  border-color: #2563eb;
+  transform: scale(1.08);
+}
+
+.rd-feature-card:hover .rd-feature-icon svg {
+  stroke: #ffffff !important;
 }
 
 .rd-feature-title {
-  font-size: 1.15rem;
+  font-size: 1.08rem;
   font-weight: 800;
   color: #0f172a;
-  margin-bottom: 0.3rem;
+  margin-bottom: 0.25rem;
 }
 
 .rd-feature-sub {
-  font-size: 0.88rem;
+  font-size: 0.85rem;
   color: #64748b;
+  line-height: 1.4;
 }
 
 /* Popular Car Categories Section - Full Width */

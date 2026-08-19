@@ -353,24 +353,25 @@ export default function GoogleLocationSearch({
             type="button"
             onClick={() => setIsMapModalOpen(true)}
             title="Search & Pick on Map"
+            className="pick-on-map-btn"
             style={{
-              padding: '0 0.95rem',
-              background: 'linear-gradient(135deg, #1e293b, #0f172a)',
-              color: '#d4a359',
-              border: '1px solid rgba(212,163,89,0.4)',
+              padding: '0 1rem',
+              background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
+              color: '#38bdf8',
+              border: '1px solid rgba(56, 189, 248, 0.35)',
               borderRadius: '12px',
               fontWeight: 800,
-              fontSize: '0.85rem',
+              fontSize: '0.82rem',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
-              gap: '0.4rem',
+              gap: '0.45rem',
               whiteSpace: 'nowrap',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-              transition: 'all 0.2s ease'
+              boxShadow: '0 4px 12px rgba(15,23,42,0.15)',
+              transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
             }}
           >
-            <span>🗺️</span> Pick on Map
+            <span className="map-btn-icon" style={{ transition: 'transform 0.3s ease', display: 'inline-block' }}>🗺️</span> Pick on Map
           </button>
         )}
       </div>
@@ -399,7 +400,8 @@ export default function GoogleLocationSearch({
             border: '1px solid #cbd5e1',
             display: 'flex',
             flexDirection: 'column',
-            maxHeight: '90vh'
+            maxHeight: '90vh',
+            animation: 'slideUpModal 0.35s cubic-bezier(0.16, 1, 0.3, 1)'
           }}>
             {/* Modal Header */}
             <div style={{
