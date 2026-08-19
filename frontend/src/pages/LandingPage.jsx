@@ -2406,29 +2406,50 @@ export default function LandingPage() {
                   onClick={() => {
                     sessionStorage.setItem('royal_welcome_shown', 'true');
                     setShowWelcomeModal(false);
-                    navigate('/auth');
+                    if (user) {
+                      switch (user.role) {
+                        case 'super-admin': navigate('/super-admin'); break;
+                        case 'company-admin': navigate('/company-admin'); break;
+                        case 'employee': navigate('/staff-dashboard'); break;
+                        case 'driver': navigate('/driver-dashboard'); break;
+                        case 'car-owner': navigate('/car-owner-dashboard'); break;
+                        case 'customer': navigate('/customer-dashboard'); break;
+                        default: navigate('/auth'); break;
+                      }
+                    } else {
+                      navigate('/auth');
+                    }
                   }}
                   style={{
                     padding: '0.7rem', borderRadius: '10px', background: '#f8fafc',
                     color: '#0f172a', border: '1px solid #cbd5e1', fontWeight: 800,
-                    fontSize: '0.85rem', cursor: 'pointer'
+                    fontSize: '0.85rem', cursor: 'pointer', transition: 'all 0.2s ease',
+                    boxShadow: '0 2px 6px rgba(0,0,0,0.05)'
                   }}
+                  onMouseEnter={e => e.currentTarget.style.background = '#e2e8f0'}
+                  onMouseLeave={e => e.currentTarget.style.background = '#f8fafc'}
                 >
-                  🔑 Customer / Admin Login
+                  🔑 {user ? 'Go to My Account' : 'Customer / Admin Login'}
                 </button>
                 <button
                   onClick={() => {
                     sessionStorage.setItem('royal_welcome_shown', 'true');
                     setShowWelcomeModal(false);
-                    setShowMultiRoleRegModal(true);
+                    if (user && (user.role === 'company-admin' || user.role === 'super-admin' || user.role === 'car-owner')) {
+                      navigate(user.role === 'super-admin' ? '/super-admin' : user.role === 'car-owner' ? '/car-owner-dashboard' : '/company-admin');
+                    } else {
+                      setShowMultiRoleRegModal(true);
+                    }
                   }}
                   style={{
                     padding: '0.7rem', borderRadius: '10px', background: '#ecfdf5',
                     color: '#059669', border: '1px solid #a7f3d0', fontWeight: 800,
-                    fontSize: '0.85rem', cursor: 'pointer'
+                    fontSize: '0.85rem', cursor: 'pointer', transition: 'all 0.2s ease'
                   }}
+                  onMouseEnter={e => e.currentTarget.style.background = '#d1fae5'}
+                  onMouseLeave={e => e.currentTarget.style.background = '#ecfdf5'}
                 >
-                  🤝 Join as Partner
+                  🤝 {user ? 'Partner Console' : 'Join as Partner'}
                 </button>
               </div>
             </div>
