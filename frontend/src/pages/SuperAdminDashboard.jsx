@@ -136,6 +136,81 @@ function TopHeader({ activeNav, notifications = [], unreadCount = 0, showNotific
           )}
         </div>
 
+/* ─────────────────────────────────────────────────────────────────
+   TOP HEADER
+───────────────────────────────────────────────────────────────── */
+function TopHeader({ activeNav, notifications, unreadCount, showNotificationsDropdown, onOpenProfile, onToggleNotifications, isMobileSidebarOpen, onToggleMobileSidebar }) {
+  return (
+    <header style={{
+      height: '65px', background: '#FFFFFF', borderBottom: '1px solid #EADCCF',
+      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      padding: '0 1.25rem', flexShrink: 0, boxShadow: '0 2px 10px rgba(59, 33, 19, 0.04)'
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+        {/* Mobile Hamburger Toggle Button (3 small lines) */}
+        <button
+          onClick={onToggleMobileSidebar}
+          className="dashboard-mobile-toggle-btn"
+          aria-label="Toggle Dashboard Navigation"
+        >
+          {isMobileSidebarOpen ? '✕' : '☰'}
+        </button>
+
+        <div style={{ fontFamily: 'var(--font-heading)', fontSize: '1.15rem', fontWeight: 900, color: '#3C2415' }}>
+          Admin Console <span style={{ fontSize: '0.9rem', color: '#8B5E3C', fontWeight: 600 }}>/ {activeNav ? activeNav.replace('-', ' ').toUpperCase() : 'DASHBOARD'}</span>
+        </div>
+      </div>
+
+      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+        {/* Notification Bell */}
+        <div style={{ position: 'relative' }}>
+          <button 
+            onClick={onToggleNotifications}
+            style={{
+              background: 'transparent', border: 'none', cursor: 'pointer', fontSize: '1.25rem', padding: '0.3rem', position: 'relative'
+            }}
+          >
+            🔔
+            {unreadCount > 0 && (
+              <span style={{
+                position: 'absolute', top: '0px', right: '0px', background: '#D49B4B', color: '#fff', fontSize: '0.65rem', fontWeight: 700, borderRadius: '50%', width: '16px', height: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center'
+              }}>
+                {unreadCount}
+              </span>
+            )}
+          </button>
+          {showNotificationsDropdown && (
+            <div style={{
+              position: 'absolute', top: '100%', right: 0, width: '320px', background: '#fff', border: '1px solid #EADCCF', borderRadius: '12px', boxShadow: '0 10px 30px rgba(78,49,27,0.1)', zIndex: 1000, marginTop: '0.5rem', padding: '0.5rem 0'
+            }}>
+              <div style={{ padding: '0.5rem 1rem', borderBottom: '1px solid #EADCCF', fontWeight: 700, fontSize: '0.88rem', color: '#3C2415', display: 'flex', justifyContent: 'space-between' }}>
+                <span>Notification History</span>
+                <span style={{ color: '#7C6959', fontWeight: 500, fontSize: '0.75rem' }}>({notifications.length})</span>
+              </div>
+              <div style={{ maxHeight: '280px', overflowY: 'auto' }}>
+                {notifications.length === 0 ? (
+                  <div style={{ padding: '2rem 1rem', textAlign: 'center', color: '#7C6959', fontSize: '0.8rem' }}>
+                    No notifications yet
+                  </div>
+                ) : (
+                  notifications.map((n) => (
+                    <div key={n._id} style={{ padding: '0.75rem 1rem', borderBottom: '1px solid #FAF4EE', fontSize: '0.78rem', textAlign: 'left' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.2rem' }}>
+                        <span style={{ fontWeight: 700, color: '#3C2415' }}>{n.title}</span>
+                        <span style={{ color: '#7C6959', fontSize: '0.68rem' }}>{new Date(n.createdAt).toLocaleDateString()}</span>
+                      </div>
+                      <div style={{ color: '#7C6959', lineHeight: '1.3' }}>{n.message}</div>
+                      <div style={{ fontSize: '0.65rem', color: '#D49B4B', marginTop: '0.25rem', fontWeight: 600 }}>
+                        Sender: {n.senderRole === 'super-admin' ? 'Platform Admin' : 'Company Manager'}
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+
         {/* Super Admin Identity Badge */}
         <div 
           onClick={() => onOpenProfile && onOpenProfile()} 
@@ -158,59 +233,79 @@ function TopHeader({ activeNav, notifications = [], unreadCount = 0, showNotific
 /* ─────────────────────────────────────────────────────────────────
    SIDEBAR
 ───────────────────────────────────────────────────────────────── */
-function Sidebar({ activeNav, onNavChange, onLogout }) {
+function Sidebar({ activeNav, onNavChange, onLogout, isMobileOpen, onCloseMobile }) {
   return (
-    <aside className="dashboard-sidebar" style={{
-      width: '220px', height: '100%', background: '#100C09',
-      borderRight: '1px solid rgba(255,255,255,0.08)',
-      display: 'flex', flexDirection: 'column', flexShrink: 0, overflowY: 'hidden',
-    }}>
-      <div style={{ padding: '1.25rem 1.25rem', borderBottom: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', gap: '10px' }}>
-        <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'linear-gradient(135deg, #D49B4B 0%, #B88235 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', boxShadow: '0 4px 12px rgba(212,155,75,0.4)' }}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="m2 4 3 12h14l3-12-6 7-4-8-4 8-6-7z"/><path d="M5 20h14"/></svg>
-        </div>
-        <div>
-          <div style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '0.95rem', color: '#D49B4B', letterSpacing: '-0.02em' }}>
-            Super Admin
+    <>
+      {/* Mobile Drawer Overlay Backdrop */}
+      {isMobileOpen && (
+        <div 
+          className="dashboard-sidebar-backdrop"
+          onClick={onCloseMobile}
+        />
+      )}
+
+      <aside className={`dashboard-sidebar ${isMobileOpen ? 'mobile-drawer-active' : ''}`} style={{
+        width: '220px', height: '100%', background: '#100C09',
+        borderRight: '1px solid rgba(255,255,255,0.08)',
+        display: 'flex', flexDirection: 'column', flexShrink: 0, overflowY: 'hidden',
+      }}>
+        <div style={{ padding: '1.25rem 1.25rem', borderBottom: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'linear-gradient(135deg, #D49B4B 0%, #B88235 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', boxShadow: '0 4px 12px rgba(212,155,75,0.4)' }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="m2 4 3 12h14l3-12-6 7-4-8-4 8-6-7z"/><path d="M5 20h14"/></svg>
+            </div>
+            <div>
+              <div style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '0.95rem', color: '#D49B4B', letterSpacing: '-0.02em' }}>
+                Super Admin
+              </div>
+              <div style={{ fontSize: '0.68rem', color: '#A89886', marginTop: '1px' }}>Platform Control Console</div>
+            </div>
           </div>
-          <div style={{ fontSize: '0.68rem', color: '#A89886', marginTop: '1px' }}>Platform Control Console</div>
+
+          <button 
+            onClick={onCloseMobile}
+            className="dashboard-sidebar-close-btn"
+            aria-label="Close Navigation Drawer"
+          >
+            ✕
+          </button>
         </div>
-      </div>
-      <nav style={{ flex: 1, padding: '0.75rem 0.6rem', overflowY: 'auto' }}>
-        {NAV_ITEMS.map(item => {
-          const isActive = activeNav === item.id;
-          return (
-            <button key={item.id} onClick={() => onNavChange(item.id)} style={{
-              display: 'block', width: '100%', padding: '0.7rem 1rem',
-              margin: '0.2rem 0',
-              background: isActive ? 'linear-gradient(135deg, #D49B4B 0%, #C58F3E 100%)' : 'transparent',
-              border: 'none', borderRadius: '8px',
-              cursor: 'pointer', color: isActive ? '#FFFFFF' : '#E0D5C7',
-              fontWeight: isActive ? 800 : 500, fontSize: '0.85rem',
-              fontFamily: 'var(--font-body)', textAlign: 'left', transition: 'all 0.2s ease',
-              boxShadow: isActive ? '0 4px 12px rgba(212, 155, 75, 0.35)' : 'none'
-            }}
-            onMouseEnter={e => { if (!isActive) { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; e.currentTarget.style.color = '#D49B4B'; } }}
-            onMouseLeave={e => { if (!isActive) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#E0D5C7'; } }}
-            >
-              {item.label}
-            </button>
-          );
-        })}
-      </nav>
-      <div style={{ padding: '0.75rem', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
-        <button onClick={onLogout} style={{
-          display: 'block', width: '100%', padding: '0.6rem 1rem',
-          background: 'transparent', border: '1px solid rgba(212, 155, 75, 0.4)',
-          borderRadius: '8px', cursor: 'pointer', color: '#D49B4B',
-          fontWeight: 700, fontSize: '0.82rem', fontFamily: 'var(--font-body)', textAlign: 'center',
-          transition: 'all 0.2s ease',
-        }}
-        onMouseEnter={e => e.currentTarget.style.background = 'rgba(212,155,75,0.1)'}
-        onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-        >Sign Out</button>
-      </div>
-    </aside>
+        <nav style={{ flex: 1, padding: '0.75rem 0.6rem', overflowY: 'auto' }}>
+          {NAV_ITEMS.map(item => {
+            const isActive = activeNav === item.id;
+            return (
+              <button key={item.id} onClick={() => { onNavChange(item.id); if (onCloseMobile) onCloseMobile(); }} style={{
+                display: 'block', width: '100%', padding: '0.7rem 1rem',
+                margin: '0.2rem 0',
+                background: isActive ? 'linear-gradient(135deg, #D49B4B 0%, #C58F3E 100%)' : 'transparent',
+                border: 'none', borderRadius: '8px',
+                cursor: 'pointer', color: isActive ? '#FFFFFF' : '#E0D5C7',
+                fontWeight: isActive ? 800 : 500, fontSize: '0.85rem',
+                fontFamily: 'var(--font-body)', textAlign: 'left', transition: 'all 0.2s ease',
+                boxShadow: isActive ? '0 4px 12px rgba(212, 155, 75, 0.35)' : 'none'
+              }}
+              onMouseEnter={e => { if (!isActive) { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; e.currentTarget.style.color = '#D49B4B'; } }}
+              onMouseLeave={e => { if (!isActive) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#E0D5C7'; } }}
+              >
+                {item.label}
+              </button>
+            );
+          })}
+        </nav>
+        <div style={{ padding: '0.75rem', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+          <button onClick={() => { if (onCloseMobile) onCloseMobile(); onLogout(); }} style={{
+            display: 'block', width: '100%', padding: '0.6rem 1rem',
+            background: 'transparent', border: '1px solid rgba(212, 155, 75, 0.4)',
+            borderRadius: '8px', cursor: 'pointer', color: '#D49B4B',
+            fontWeight: 700, fontSize: '0.82rem', fontFamily: 'var(--font-body)', textAlign: 'center',
+            transition: 'all 0.2s ease',
+          }}
+          onMouseEnter={e => e.currentTarget.style.background = 'rgba(212,155,75,0.1)'}
+          onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+          >Sign Out</button>
+        </div>
+      </aside>
+    </>
   );
 }
 
@@ -4168,6 +4263,7 @@ export default function SuperAdminDashboard() {
   const [loading, setLoading]           = useState(true);
   const [activeNav, setActiveNav]       = useState('dashboard');
   const [activeSub, setActiveSub]       = useState(null);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   // Notification States
   const [notifications, setNotifications] = useState([]);
@@ -5929,6 +6025,8 @@ export default function SuperAdminDashboard() {
         unreadCount={unreadCount}
         showNotificationsDropdown={showNotificationsDropdown}
         onOpenProfile={() => setActiveNav('profile')}
+        isMobileSidebarOpen={isMobileSidebarOpen}
+        onToggleMobileSidebar={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
         onToggleNotifications={() => {
           setShowNotificationsDropdown(!showNotificationsDropdown);
           if (!showNotificationsDropdown) {
@@ -5937,8 +6035,14 @@ export default function SuperAdminDashboard() {
           }
         }}
       />
-      <div className="dashboard-layout" style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
-        <Sidebar activeNav={activeNav} onNavChange={handleNavChange} onLogout={logout} />
+      <div className="dashboard-layout" style={{ display: 'flex', flex: 1, overflow: 'hidden', position: 'relative' }}>
+        <Sidebar 
+          activeNav={activeNav} 
+          onNavChange={handleNavChange} 
+          onLogout={logout} 
+          isMobileOpen={isMobileSidebarOpen}
+          onCloseMobile={() => setIsMobileSidebarOpen(false)}
+        />
         <main className="dashboard-main" style={{ flex: 1, padding: '2rem', overflowY: 'auto', overflowX: 'auto', minWidth: 0 }}>
           {renderPanel()}
         </main>

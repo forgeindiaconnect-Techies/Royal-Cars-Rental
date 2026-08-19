@@ -266,7 +266,7 @@ const ADMIN_ROUTES = ['/super-admin', '/company-admin', '/staff-dashboard', '/dr
 function AppContent() {
   const location = useLocation();
   const isAdminRoute = ADMIN_ROUTES.some(r => location.pathname.startsWith(r)) || location.pathname.startsWith('/subscription') || location.pathname.startsWith('/reset-password');
-  const hideNavbar = location.pathname === '/' || location.pathname.startsWith('/subscription') || location.pathname.startsWith('/reset-password');
+  const hideNavbar = location.pathname === '/' || isAdminRoute;
 
   return (
     <div className="app-container">
