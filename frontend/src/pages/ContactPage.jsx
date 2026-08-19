@@ -13,17 +13,39 @@ export default function ContactPage() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
+
+    const fetchApiSettings = () => {
+      fetch('/api/settings/public')
+        .then(res => res.json())
+        .then(data => {
+          if (data.success && data.settings) {
+            if (data.settings.supportPhone) setSupportPhone(data.settings.supportPhone);
+            if (data.settings.whatsappPhone) setSupportWhatsapp(data.settings.whatsappPhone);
+            if (data.settings.supportEmail) setSupportEmail(data.settings.supportEmail);
+            if (data.settings.whatsappMsg) setWhatsappMsg(data.settings.whatsappMsg);
+          }
+        })
+        .catch(() => {});
+    };
+
+    fetchApiSettings();
+
     const syncContactNumbers = () => {
       setSupportPhone(localStorage.getItem('platform_support_phone') || '+91 95173 68420');
       setSupportWhatsapp(localStorage.getItem('platform_whatsapp_phone') || '919517368420');
       setSupportEmail(localStorage.getItem('platform_support_email') || 'admin@royalrentcars.com');
       setWhatsappMsg(localStorage.getItem('platform_whatsapp_msg') || 'Hello Royal Drive! I want to inquire about car rental.');
+      fetchApiSettings();
     };
+
     window.addEventListener('storage', syncContactNumbers);
     window.addEventListener('platform_contact_updated', syncContactNumbers);
+    const interval = setInterval(fetchApiSettings, 10000);
+
     return () => {
       window.removeEventListener('storage', syncContactNumbers);
       window.removeEventListener('platform_contact_updated', syncContactNumbers);
+      clearInterval(interval);
     };
   }, []);
 

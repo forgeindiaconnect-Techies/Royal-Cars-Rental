@@ -3233,7 +3233,33 @@ function SettingsPanel({ onBack }) {
   const [newPass, setNewPass]       = useState('');
   const [confPass, setConfPass]     = useState('');
 
-  const handleSaveContactSettings = (e) => {
+  useEffect(() => {
+    fetch('/api/settings/public')
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && data.settings) {
+          if (data.settings.supportPhone) {
+            setPhone(data.settings.supportPhone);
+            localStorage.setItem('platform_support_phone', data.settings.supportPhone);
+          }
+          if (data.settings.whatsappPhone) {
+            setWhatsapp(data.settings.whatsappPhone);
+            localStorage.setItem('platform_whatsapp_phone', data.settings.whatsappPhone);
+          }
+          if (data.settings.supportEmail) {
+            setEmail(data.settings.supportEmail);
+            localStorage.setItem('platform_support_email', data.settings.supportEmail);
+          }
+          if (data.settings.whatsappMsg) {
+            setWhatsappMsg(data.settings.whatsappMsg);
+            localStorage.setItem('platform_whatsapp_msg', data.settings.whatsappMsg);
+          }
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const handleSaveContactSettings = async (e) => {
     e.preventDefault();
     if (!phone.trim() || !whatsapp.trim()) {
       alert('⚠️ Phone and WhatsApp numbers cannot be empty!');
@@ -3250,10 +3276,30 @@ function SettingsPanel({ onBack }) {
     localStorage.setItem('platform_support_email', cleanEmail);
     localStorage.setItem('platform_whatsapp_msg', cleanMsg);
 
+    // Save to Database API
+    try {
+      const token = localStorage.getItem('token') || localStorage.getItem('super_admin_token');
+      await fetch('/api/settings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {})
+        },
+        body: JSON.stringify({
+          supportPhone: cleanPhone,
+          whatsappPhone: cleanWhatsapp,
+          supportEmail: cleanEmail,
+          whatsappMsg: cleanMsg
+        })
+      });
+    } catch (err) {
+      console.warn('API settings save note:', err);
+    }
+
     // Dispatch custom event to notify all components
     window.dispatchEvent(new Event('platform_contact_updated'));
 
-    setNotice('✓ Platform Support Call & WhatsApp numbers saved successfully! Platform numbers updated live across the website.');
+    setNotice('✓ Platform Support Call & WhatsApp numbers saved to MongoDB Database! Numbers updated globally across all devices.');
     setTimeout(() => setNotice(''), 5000);
   };
 

@@ -42,6 +42,7 @@ app.use('/api/notifications', require('./routes/notificationRoutes'));
 app.use('/api/chat', require('./routes/chatRoutes'));
 app.use('/api/locations', require('./routes/locationRoutes'));
 app.use('/api/scheduled-emails', require('./routes/scheduledEmailRoutes'));
+app.use('/api/settings', require('./routes/settingsRoutes'));
 
 // Root / Health check Route
 app.get('/', (req, res) => {
