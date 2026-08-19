@@ -19,6 +19,24 @@ export default function AIChatbot({ isOpen, onClose }) {
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef(null);
 
+  const [supportPhone, setSupportPhone] = useState(() => localStorage.getItem('platform_support_phone') || '+91 95173 68420');
+  const [supportWhatsapp, setSupportWhatsapp] = useState(() => localStorage.getItem('platform_whatsapp_phone') || '919517368420');
+  const [whatsappMsg, setWhatsappMsg] = useState(() => localStorage.getItem('platform_whatsapp_msg') || 'Hello Royal Drive! I want to inquire about car rental.');
+
+  useEffect(() => {
+    const syncContactNumbers = () => {
+      setSupportPhone(localStorage.getItem('platform_support_phone') || '+91 95173 68420');
+      setSupportWhatsapp(localStorage.getItem('platform_whatsapp_phone') || '919517368420');
+      setWhatsappMsg(localStorage.getItem('platform_whatsapp_msg') || 'Hello Royal Drive! I want to inquire about car rental.');
+    };
+    window.addEventListener('storage', syncContactNumbers);
+    window.addEventListener('platform_contact_updated', syncContactNumbers);
+    return () => {
+      window.removeEventListener('storage', syncContactNumbers);
+      window.removeEventListener('platform_contact_updated', syncContactNumbers);
+    };
+  }, []);
+
   const colors = {
     espresso: '#4E311B',
     darkEspresso: '#3C2414',
@@ -295,7 +313,7 @@ export default function AIChatbot({ isOpen, onClose }) {
       {/* Bottom Quick Contact Footer Bar */}
       <div style={{ padding: '0.6rem 1rem', background: colors.cream, borderTop: `1px solid ${colors.border}`, display: 'flex', justifyContent: 'space-between', gap: '6px' }}>
         <a 
-          href="https://wa.me/919876543210" 
+          href={`https://wa.me/${supportWhatsapp.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(whatsappMsg)}`} 
           target="_blank" 
           rel="noreferrer"
           style={{ flex: 1, textDecoration: 'none', background: '#FFFFFF', border: `1px solid ${colors.border}`, borderRadius: '10px', padding: '0.4rem 0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', fontSize: '0.72rem', fontWeight: 700, color: '#16a34a' }}
@@ -304,7 +322,7 @@ export default function AIChatbot({ isOpen, onClose }) {
           <span>WhatsApp</span>
         </a>
         <a 
-          href="tel:+919876543210" 
+          href={`tel:${supportPhone.replace(/\s+/g, '')}`} 
           style={{ flex: 1, textDecoration: 'none', background: '#FFFFFF', border: `1px solid ${colors.border}`, borderRadius: '10px', padding: '0.4rem 0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', fontSize: '0.72rem', fontWeight: 700, color: colors.espresso }}
         >
           <Icons.Phone />

@@ -10,6 +10,26 @@ export default function CarOwnerDashboard() {
   const [showResubmitModal, setShowResubmitModal] = useState(false);
   const [showAgreementModal, setShowAgreementModal] = useState(false);
 
+  const [supportPhone, setSupportPhone] = useState(() => localStorage.getItem('platform_support_phone') || '+91 95173 68420');
+  const [supportWhatsapp, setSupportWhatsapp] = useState(() => localStorage.getItem('platform_whatsapp_phone') || '919517368420');
+  const [supportEmail, setSupportEmail] = useState(() => localStorage.getItem('platform_support_email') || 'admin@royalrentcars.com');
+  const [whatsappMsg, setWhatsappMsg] = useState(() => localStorage.getItem('platform_whatsapp_msg') || 'Hello Royal Drive! I want to inquire about car rental.');
+
+  useEffect(() => {
+    const syncContactNumbers = () => {
+      setSupportPhone(localStorage.getItem('platform_support_phone') || '+91 95173 68420');
+      setSupportWhatsapp(localStorage.getItem('platform_whatsapp_phone') || '919517368420');
+      setSupportEmail(localStorage.getItem('platform_support_email') || 'admin@royalrentcars.com');
+      setWhatsappMsg(localStorage.getItem('platform_whatsapp_msg') || 'Hello Royal Drive! I want to inquire about car rental.');
+    };
+    window.addEventListener('storage', syncContactNumbers);
+    window.addEventListener('platform_contact_updated', syncContactNumbers);
+    return () => {
+      window.removeEventListener('storage', syncContactNumbers);
+      window.removeEventListener('platform_contact_updated', syncContactNumbers);
+    };
+  }, []);
+
   // 1. RESOLVE OWNER RECORD & STATUS FROM LOCALSTORAGE
   const [ownerRecord, setOwnerRecord] = useState(() => {
     try {
@@ -1380,7 +1400,7 @@ export default function CarOwnerDashboard() {
                   <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#00a884', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem', fontWeight: 900 }}>📞</div>
                   <div>
                     <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 700 }}>24x7 Partner Helpline</div>
-                    <a href="tel:+9118002009988" style={{ fontSize: '0.92rem', fontWeight: 900, color: '#0f172a', textDecoration: 'none' }}>+91 1800 200 9988</a>
+                    <a href={`tel:${supportPhone.replace(/\s+/g, '')}`} style={{ fontSize: '0.92rem', fontWeight: 900, color: '#0f172a', textDecoration: 'none' }}>{supportPhone}</a>
                   </div>
                 </div>
 
@@ -1388,7 +1408,7 @@ export default function CarOwnerDashboard() {
                   <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#eff6ff', color: '#2563eb', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem', fontWeight: 900 }}>✉️</div>
                   <div>
                     <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 700 }}>Official Support Email</div>
-                    <a href="mailto:admin@forgeindia.com" style={{ fontSize: '0.88rem', fontWeight: 800, color: '#2563eb', textDecoration: 'none' }}>admin@forgeindia.com</a>
+                    <a href={`mailto:${supportEmail}`} style={{ fontSize: '0.88rem', fontWeight: 800, color: '#2563eb', textDecoration: 'none' }}>{supportEmail}</a>
                   </div>
                 </div>
 
@@ -1396,7 +1416,7 @@ export default function CarOwnerDashboard() {
                   <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#dcfce7', color: '#15803d', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem', fontWeight: 900 }}>💬</div>
                   <div>
                     <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 700 }}>WhatsApp Direct Desk</div>
-                    <a href="https://wa.me/919876543210" target="_blank" rel="noreferrer" style={{ fontSize: '0.88rem', fontWeight: 800, color: '#15803d', textDecoration: 'none' }}>+91 98765 43210</a>
+                    <a href={`https://wa.me/${supportWhatsapp.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(whatsappMsg)}`} target="_blank" rel="noreferrer" style={{ fontSize: '0.88rem', fontWeight: 800, color: '#15803d', textDecoration: 'none' }}>{supportWhatsapp}</a>
                   </div>
                 </div>
 
@@ -1426,7 +1446,7 @@ export default function CarOwnerDashboard() {
                       </div>
                     </div>
                   </div>
-                  <a href="tel:+9118002009988" title="Call Helpline" style={{ color: '#ffffff', textDecoration: 'none', background: 'rgba(255,255,255,0.15)', padding: '0.4rem 0.75rem', borderRadius: '16px', fontSize: '0.78rem', fontWeight: 700 }}>
+                  <a href={`tel:${supportPhone.replace(/\s+/g, '')}`} title="Call Helpline" style={{ color: '#ffffff', textDecoration: 'none', background: 'rgba(255,255,255,0.15)', padding: '0.4rem 0.75rem', borderRadius: '16px', fontSize: '0.78rem', fontWeight: 700 }}>
                     📞 Helpline
                   </a>
                 </div>

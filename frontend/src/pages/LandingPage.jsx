@@ -2761,14 +2761,14 @@ export default function LandingPage() {
 
               {/* 2. 🟢 WhatsApp Super Admin Option */}
               <a 
-                href="https://wa.me/919517368420?text=Hello%20Super%20Admin%2C%20I%20have%20an%20inquiry%20regarding%20RentOS%20car%20rental." 
+                href={`https://wa.me/${supportWhatsapp.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(whatsappMsg)}`} 
                 target="_blank" 
                 rel="noopener noreferrer"
                 onClick={() => setIsSpeedDialOpen(false)}
                 style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', cursor: 'pointer' }}
               >
                 <span style={{ background: '#0f172a', color: '#ffffff', padding: '6px 14px', borderRadius: '10px', fontSize: '0.82rem', fontWeight: 800, boxShadow: '0 6px 20px rgba(0,0,0,0.25)', border: '1px solid rgba(255,255,255,0.15)', whiteSpace: 'nowrap' }}>
-                  💬 WhatsApp Super Admin
+                  💬 WhatsApp Support ({supportWhatsapp})
                 </span>
                 <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'linear-gradient(135deg, #25d366, #128c7e)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.3rem', boxShadow: '0 6px 20px rgba(37,211,102,0.45)', border: '2px solid #fff' }}>
                   💬
@@ -2777,12 +2777,12 @@ export default function LandingPage() {
 
               {/* 3. 📞 Call Super Admin Option */}
               <a 
-                href="tel:+919517368420"
+                href={`tel:${supportPhone.replace(/\s+/g, '')}`}
                 onClick={() => setIsSpeedDialOpen(false)}
                 style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', cursor: 'pointer' }}
               >
                 <span style={{ background: '#0f172a', color: '#ffffff', padding: '6px 14px', borderRadius: '10px', fontSize: '0.82rem', fontWeight: 800, boxShadow: '0 6px 20px rgba(0,0,0,0.25)', border: '1px solid rgba(255,255,255,0.15)', whiteSpace: 'nowrap' }}>
-                  📞 Call Super Admin (+91 95173 68420)
+                  📞 Call Support ({supportPhone})
                 </span>
                 <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'linear-gradient(135deg, #d4a359, #b87a28)', color: '#0f172a', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem', boxShadow: '0 6px 20px rgba(212,163,89,0.45)', border: '2px solid #fff' }}>
                   📞

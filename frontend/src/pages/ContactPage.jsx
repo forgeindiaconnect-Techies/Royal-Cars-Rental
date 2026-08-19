@@ -6,8 +6,25 @@ export default function ContactPage() {
   const [formData, setFormData] = useState({ name: '', email: '', phone: '', message: '' });
   const [submitted, setSubmitted] = useState(false);
 
+  const [supportPhone, setSupportPhone] = useState(() => localStorage.getItem('platform_support_phone') || '+91 95173 68420');
+  const [supportWhatsapp, setSupportWhatsapp] = useState(() => localStorage.getItem('platform_whatsapp_phone') || '919517368420');
+  const [supportEmail, setSupportEmail] = useState(() => localStorage.getItem('platform_support_email') || 'admin@royalrentcars.com');
+  const [whatsappMsg, setWhatsappMsg] = useState(() => localStorage.getItem('platform_whatsapp_msg') || 'Hello Royal Drive! I want to inquire about car rental.');
+
   useEffect(() => {
     window.scrollTo(0, 0);
+    const syncContactNumbers = () => {
+      setSupportPhone(localStorage.getItem('platform_support_phone') || '+91 95173 68420');
+      setSupportWhatsapp(localStorage.getItem('platform_whatsapp_phone') || '919517368420');
+      setSupportEmail(localStorage.getItem('platform_support_email') || 'admin@royalrentcars.com');
+      setWhatsappMsg(localStorage.getItem('platform_whatsapp_msg') || 'Hello Royal Drive! I want to inquire about car rental.');
+    };
+    window.addEventListener('storage', syncContactNumbers);
+    window.addEventListener('platform_contact_updated', syncContactNumbers);
+    return () => {
+      window.removeEventListener('storage', syncContactNumbers);
+      window.removeEventListener('platform_contact_updated', syncContactNumbers);
+    };
   }, []);
 
   const handleSubmit = (e) => {
@@ -57,7 +74,9 @@ export default function ContactPage() {
                 <div style={{ width: '40px', height: '40px', background: '#eff6ff', color: '#2563eb', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '1.2rem' }}>📞</div>
                 <div>
                   <h4 style={{ margin: '0 0 0.25rem', color: '#0f172a', fontSize: '1rem', fontWeight: 700 }}>Phone Number</h4>
-                  <p style={{ margin: 0, color: '#475569', fontSize: '0.9rem', lineHeight: 1.5 }}>+91 95173 68420<br/>+91 80000 12345 (Support)</p>
+                  <p style={{ margin: 0, color: '#475569', fontSize: '0.9rem', lineHeight: 1.5 }}>
+                    <a href={`tel:${supportPhone.replace(/\s+/g, '')}`} style={{ color: 'inherit', textDecoration: 'none', fontWeight: 700 }}>{supportPhone}</a>
+                  </p>
                 </div>
               </div>
 
@@ -65,7 +84,9 @@ export default function ContactPage() {
                 <div style={{ width: '40px', height: '40px', background: '#eff6ff', color: '#2563eb', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '1.2rem' }}>✉️</div>
                 <div>
                   <h4 style={{ margin: '0 0 0.25rem', color: '#0f172a', fontSize: '1rem', fontWeight: 700 }}>Email Address</h4>
-                  <p style={{ margin: 0, color: '#475569', fontSize: '0.9rem' }}>support@royalrentcars.com<br/>bookings@royalrentcars.com</p>
+                  <p style={{ margin: 0, color: '#475569', fontSize: '0.9rem' }}>
+                    <a href={`mailto:${supportEmail}`} style={{ color: 'inherit', textDecoration: 'none', fontWeight: 700 }}>{supportEmail}</a>
+                  </p>
                 </div>
               </div>
 
@@ -79,10 +100,10 @@ export default function ContactPage() {
             </div>
 
             <div style={{ display: 'flex', gap: '1rem', marginTop: '2.5rem' }}>
-              <a href="https://wa.me/919517368420" target="_blank" rel="noreferrer" style={{ flex: 1, background: '#25D366', color: '#fff', textDecoration: 'none', padding: '0.85rem', borderRadius: '8px', fontWeight: 700, textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', boxShadow: '0 4px 14px rgba(37,211,102,0.3)', transition: 'all 0.2s' }}>
+              <a href={`https://wa.me/${supportWhatsapp.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(whatsappMsg)}`} target="_blank" rel="noreferrer" style={{ flex: 1, background: '#25D366', color: '#fff', textDecoration: 'none', padding: '0.85rem', borderRadius: '8px', fontWeight: 700, textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', boxShadow: '0 4px 14px rgba(37,211,102,0.3)', transition: 'all 0.2s' }}>
                 <span style={{ fontSize: '1.2rem' }}>💬</span> WhatsApp
               </a>
-              <a href="tel:+919517368420" style={{ flex: 1, background: '#2563eb', color: '#fff', textDecoration: 'none', padding: '0.85rem', borderRadius: '8px', fontWeight: 700, textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', boxShadow: '0 4px 14px rgba(37,99,235,0.3)', transition: 'all 0.2s' }}>
+              <a href={`tel:${supportPhone.replace(/\s+/g, '')}`} style={{ flex: 1, background: '#2563eb', color: '#fff', textDecoration: 'none', padding: '0.85rem', borderRadius: '8px', fontWeight: 700, textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', boxShadow: '0 4px 14px rgba(37,99,235,0.3)', transition: 'all 0.2s' }}>
                 <span style={{ fontSize: '1.2rem' }}>📞</span> Call Now
               </a>
             </div>
