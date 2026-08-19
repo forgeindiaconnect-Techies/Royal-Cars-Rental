@@ -267,13 +267,13 @@ export default function GoogleLocationSearch({
   return (
     <div className={`rentos-location-search ${className}`} style={{ position: 'relative', width: '100%', ...style }}>
       {label && (
-        <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, color: '#d4a359', marginBottom: '6px', letterSpacing: '0.5px' }}>
-          {icon} {label}
+        <label className="rd-input-label" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem', fontWeight: 700, color: '#475569', height: '22px', marginBottom: '8px', boxSizing: 'border-box' }}>
+          <span style={{ color: '#2563eb' }}>📍</span> {label}
         </label>
       )}
 
-      <div style={{ display: 'flex', gap: '6px', width: '100%' }}>
-        <div style={{ position: 'relative', flex: 1 }}>
+      <div style={{ display: 'flex', gap: '8px', width: '100%', height: '52px', alignItems: 'center' }}>
+        <div style={{ position: 'relative', flex: 1, height: '52px' }}>
           <input
             ref={inputRef}
             type="text"
@@ -283,16 +283,17 @@ export default function GoogleLocationSearch({
             placeholder={placeholder}
             style={{
               width: '100%',
-              padding: '0.75rem 1rem',
+              height: '52px',
+              padding: '0 1rem',
               fontSize: '0.92rem',
               color: '#0f172a',
-              background: '#ffffff',
-              border: '1.5px solid #cbd5e1',
+              background: '#f8fafc',
+              border: '1px solid #cbd5e1',
               borderRadius: '12px',
               outline: 'none',
               boxSizing: 'border-box',
               fontWeight: 600,
-              boxShadow: '0 2px 6px rgba(0,0,0,0.04)',
+              boxShadow: 'none',
               transition: 'all 0.2s ease'
             }}
           />
@@ -355,6 +356,7 @@ export default function GoogleLocationSearch({
             title="Search & Pick on Map"
             className="pick-on-map-btn"
             style={{
+              height: '52px',
               padding: '0 1rem',
               background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
               color: '#38bdf8',
@@ -365,8 +367,11 @@ export default function GoogleLocationSearch({
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
+              justifyContent: 'center',
               gap: '0.45rem',
               whiteSpace: 'nowrap',
+              boxSizing: 'border-box',
+              flexShrink: 0,
               boxShadow: '0 4px 12px rgba(15,23,42,0.15)',
               transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
             }}

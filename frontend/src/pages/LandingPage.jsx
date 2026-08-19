@@ -1092,145 +1092,157 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* 3. FLOATING SEARCH CARD ("Find Your Perfect Car") */}
-      <section className="reveal-on-scroll" style={{ padding: '0 4%' }}>
-        <div className="rd-search-card">
-          <div className="rd-search-header">
-            <span style={{ fontSize: '1.25rem' }}>🚗</span> Find Your Perfect Car
-          </div>
-
-          <form onSubmit={handleSearchSubmit} className="rd-search-grid">
-            {/* Pick-up Location with Interactive Map Search & Pin Picker */}
-            <div className="rd-input-group" style={{ gridColumn: 'span 1' }}>
-              <GoogleLocationSearch
-                label="Pick-up Location"
-                value={searchLocation}
-                onChange={(name, coords) => {
-                  setSearchLocation(name);
-                  if (coords) setPickupCoords(coords);
-                  handleSearchSubmit(null, name);
-                }}
-                placeholder="Search city, district, airport..."
-              />
+      {/* 3. FLOATING SEARCH CARD & FEATURE BADGES (UNIFIED MAX-WIDTH CONTAINER) */}
+      <section className="reveal-on-scroll" style={{ width: '100%', padding: '0 4%', boxSizing: 'border-box' }}>
+        <div className="rd-hero-widget-wrapper">
+          
+          {/* FLOATING SEARCH CARD */}
+          <div className="rd-search-card">
+            <div className="rd-search-header">
+              <span style={{ fontSize: '1.25rem' }}>🚗</span> Find Your Perfect Car
             </div>
 
-            {/* Pick-up Date */}
-            <div className="rd-input-group">
-              <label className="rd-input-label">Pick-up Date</label>
-              <div className="rd-input-wrapper">
-                <span style={{ color: '#d4a359', fontSize: '1rem' }}>📅</span>
-                <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} />
+            <form onSubmit={handleSearchSubmit} className="rd-search-grid">
+              {/* Pick-up Location with Interactive Map Search & Pin Picker */}
+              <div className="rd-input-group">
+                <GoogleLocationSearch
+                  label="Pick-up Location"
+                  value={searchLocation}
+                  onChange={(name, coords) => {
+                    setSearchLocation(name);
+                    if (coords) setPickupCoords(coords);
+                    handleSearchSubmit(null, name);
+                  }}
+                  placeholder="Search city, district, airport..."
+                />
+              </div>
+
+              {/* Pick-up Date */}
+              <div className="rd-input-group">
+                <label className="rd-input-label" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem', fontWeight: 700, color: '#475569', height: '22px', marginBottom: '8px', boxSizing: 'border-box' }}>
+                  <span style={{ color: '#2563eb' }}>📅</span> Pick-up Date
+                </label>
+                <div className="rd-input-wrapper" style={{ height: '52px' }}>
+                  <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} style={{ height: '100%' }} />
+                </div>
+              </div>
+
+              {/* Pick-up Time */}
+              <div className="rd-input-group">
+                <label className="rd-input-label" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem', fontWeight: 700, color: '#475569', height: '22px', marginBottom: '8px', boxSizing: 'border-box' }}>
+                  <span style={{ color: '#2563eb' }}>🕒</span> Pick-up Time
+                </label>
+                <div className="rd-input-wrapper" style={{ height: '52px' }}>
+                  <input type="time" defaultValue="10:00" style={{ height: '100%' }} />
+                </div>
+              </div>
+
+              {/* Drop-off Date */}
+              <div className="rd-input-group">
+                <label className="rd-input-label" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem', fontWeight: 700, color: '#475569', height: '22px', marginBottom: '8px', boxSizing: 'border-box' }}>
+                  <span style={{ color: '#2563eb' }}>📅</span> Drop-off Date
+                </label>
+                <div className="rd-input-wrapper" style={{ height: '52px' }}>
+                  <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} style={{ height: '100%' }} />
+                </div>
+              </div>
+
+              {/* Search Button */}
+              <div className="rd-input-group">
+                <div style={{ height: '22px', marginBottom: '8px', boxSizing: 'border-box' }}></div>
+                <button
+                  type="submit"
+                  disabled={isSearching}
+                  className="rd-btn-gold search-submit-btn"
+                  style={{
+                    width: '100%',
+                    height: '52px',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    padding: '0 1rem',
+                    borderRadius: '12px',
+                    fontSize: '0.95rem',
+                    fontWeight: 800,
+                    cursor: isSearching ? 'wait' : 'pointer',
+                    transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+                    boxSizing: 'border-box'
+                  }}
+                >
+                  {isSearching ? (
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', justifyContent: 'center' }}>
+                      <svg style={{ animation: 'spin 1s linear infinite' }} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                        <circle cx="12" cy="12" r="10" strokeOpacity="0.25" />
+                        <path d="M12 2a10 10 0 0 1 10 10" />
+                      </svg>
+                      Finding cars...
+                    </span>
+                  ) : (
+                    '🔍 Search Cars'
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+
+          {/* 4. VALUE PROPOSITION FEATURE BADGES */}
+          <div className="rd-features-grid">
+            <div className="rd-feature-card stagger-1">
+              <div className="rd-feature-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                  <path d="m9 12 2 2 4-4"/>
+                </svg>
+              </div>
+              <div>
+                <div className="rd-feature-title">Best Price Guarantee</div>
+                <div className="rd-feature-sub">Get the best deals always</div>
               </div>
             </div>
 
-            {/* Pick-up Time */}
-            <div className="rd-input-group">
-              <label className="rd-input-label">Pick-up Time</label>
-              <div className="rd-input-wrapper">
-                <span style={{ color: '#d4a359', fontSize: '1rem' }}>🕒</span>
-                <input type="time" defaultValue="10:00" />
+            <div className="rd-feature-card stagger-2">
+              <div className="rd-feature-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 1 12.3V16c0 .6.4 1 1 1h2"/>
+                  <circle cx="7" cy="17" r="2"/>
+                  <circle cx="17" cy="17" r="2"/>
+                </svg>
+              </div>
+              <div>
+                <div className="rd-feature-title">Wide Range of Cars</div>
+                <div className="rd-feature-sub">From economy to luxury we've got it all</div>
               </div>
             </div>
 
-            {/* Drop-off Date */}
-            <div className="rd-input-group">
-              <label className="rd-input-label">Drop-off Date</label>
-              <div className="rd-input-wrapper">
-                <span style={{ color: '#d4a359', fontSize: '1rem' }}>📅</span>
-                <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} />
+            <div className="rd-feature-card stagger-3">
+              <div className="rd-feature-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect width="18" height="18" x="3" y="4" rx="2" ry="2"/>
+                  <line x1="16" x2="16" y1="2" y2="6"/>
+                  <line x1="8" x2="8" y1="2" y2="6"/>
+                  <line x1="3" x2="21" y1="10" y2="10"/>
+                  <path d="m9 16 2 2 4-4"/>
+                </svg>
+              </div>
+              <div>
+                <div className="rd-feature-title">Easy Booking</div>
+                <div className="rd-feature-sub">Book in minutes with simple steps</div>
               </div>
             </div>
 
-            {/* Search Button */}
-            <div>
-              <button
-                type="submit"
-                disabled={isSearching}
-                className="rd-btn-gold search-submit-btn"
-                style={{
-                  width: '100%',
-                  justifyContent: 'center',
-                  padding: '0.85rem 1rem',
-                  borderRadius: '14px',
-                  fontSize: '0.92rem',
-                  fontWeight: 800,
-                  cursor: isSearching ? 'wait' : 'pointer',
-                  transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
-                }}
-              >
-                {isSearching ? (
-                  <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', justifyContent: 'center' }}>
-                    <svg style={{ animation: 'spin 1s linear infinite' }} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
-                      <circle cx="12" cy="12" r="10" strokeOpacity="0.25" />
-                      <path d="M12 2a10 10 0 0 1 10 10" />
-                    </svg>
-                    Finding available cars...
-                  </span>
-                ) : (
-                  '🔍 Search Cars'
-                )}
-              </button>
+            <div className="rd-feature-card stagger-4">
+              <div className="rd-feature-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M3 18v-6a9 9 0 0 1 18 0v6"/>
+                  <path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/>
+                </svg>
+              </div>
+              <div>
+                <div className="rd-feature-title">24/7 Support</div>
+                <div className="rd-feature-sub">We are here to help you anytime</div>
+              </div>
             </div>
-          </form>
-        </div>
-      </section>
+          </div>
 
-      {/* 4. VALUE PROPOSITION FEATURE BADGES */}
-      <section className="rd-features-grid reveal-on-scroll">
-        <div className="rd-feature-card stagger-1">
-          <div className="rd-feature-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-              <path d="m9 12 2 2 4-4"/>
-            </svg>
-          </div>
-          <div>
-            <div className="rd-feature-title">Best Price Guarantee</div>
-            <div className="rd-feature-sub">Get the best deals always</div>
-          </div>
-        </div>
-
-        <div className="rd-feature-card stagger-2">
-          <div className="rd-feature-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 1 12.3V16c0 .6.4 1 1 1h2"/>
-              <circle cx="7" cy="17" r="2"/>
-              <circle cx="17" cy="17" r="2"/>
-            </svg>
-          </div>
-          <div>
-            <div className="rd-feature-title">Wide Range of Cars</div>
-            <div className="rd-feature-sub">From economy to luxury we've got it all</div>
-          </div>
-        </div>
-
-        <div className="rd-feature-card stagger-3">
-          <div className="rd-feature-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-              <rect width="18" height="18" x="3" y="4" rx="2" ry="2"/>
-              <line x1="16" x2="16" y1="2" y2="6"/>
-              <line x1="8" x2="8" y1="2" y2="6"/>
-              <line x1="3" x2="21" y1="10" y2="10"/>
-              <path d="m9 16 2 2 4-4"/>
-            </svg>
-          </div>
-          <div>
-            <div className="rd-feature-title">Easy Booking</div>
-            <div className="rd-feature-sub">Book in minutes with simple steps</div>
-          </div>
-        </div>
-
-        <div className="rd-feature-card stagger-4">
-          <div className="rd-feature-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M3 18v-6a9 9 0 0 1 18 0v6"/>
-              <path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/>
-            </svg>
-          </div>
-          <div>
-            <div className="rd-feature-title">24/7 Support</div>
-            <div className="rd-feature-sub">We are here to help you anytime</div>
-          </div>
         </div>
       </section>
 
