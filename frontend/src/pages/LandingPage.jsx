@@ -1119,12 +1119,60 @@ export default function LandingPage() {
           <a href="/contact" className="rd-nav-link" onClick={(e) => { e.preventDefault(); navigate('/contact'); }}>Contact</a>
         </div>
 
-        <div style={{ display: 'flex', gap: '0.8rem', alignItems: 'center' }}>
+        <div className="rd-nav-right-actions" style={{ display: 'flex', gap: '0.8rem', alignItems: 'center' }}>
           <button className="rd-btn-gold" onClick={() => navigate('/auth')}>
             Login / Sign Up
           </button>
         </div>
+
+        {/* Mobile Hamburger Toggle Button (☰ / ✕) */}
+        <button 
+          className="rd-hamburger-btn"
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          aria-label="Toggle Navigation Menu"
+        >
+          {mobileMenuOpen ? '✕' : '☰'}
+        </button>
       </nav>
+
+      {/* MOBILE NAVIGATION DRAWER OVERLAY */}
+      {mobileMenuOpen && (
+        <div className="rd-mobile-drawer-overlay" onClick={() => setMobileMenuOpen(false)}>
+          <div className="rd-mobile-drawer-content" onClick={(e) => e.stopPropagation()}>
+            <div className="rd-mobile-drawer-header">
+              <div className="rd-brand-logo" onClick={() => { setMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
+                <div className="rd-brand-icon">👑</div>
+                <div className="rd-brand-text">
+                  <span className="rd-brand-title">Royal Drive</span>
+                  <span className="rd-brand-subtitle">CAR RENTALS</span>
+                </div>
+              </div>
+              <button className="rd-mobile-close-btn" onClick={() => setMobileMenuOpen(false)} aria-label="Close Menu">
+                ✕
+              </button>
+            </div>
+
+            <div className="rd-mobile-nav-links">
+              <a href="#home" className="rd-mobile-nav-link" onClick={() => setMobileMenuOpen(false)}>Home</a>
+              <a href="#fleets" className="rd-mobile-nav-link" onClick={() => setMobileMenuOpen(false)}>Fleet &amp; Cars</a>
+              <a href="#locations" className="rd-mobile-nav-link" onClick={() => setMobileMenuOpen(false)}>Locations</a>
+              <a href="#services" className="rd-mobile-nav-link" onClick={() => setMobileMenuOpen(false)}>Services</a>
+              <a href="/about" className="rd-mobile-nav-link" onClick={(e) => { e.preventDefault(); setMobileMenuOpen(false); navigate('/about'); }}>About Us</a>
+              <a href="/contact" className="rd-mobile-nav-link" onClick={(e) => { e.preventDefault(); setMobileMenuOpen(false); navigate('/contact'); }}>Contact</a>
+            </div>
+
+            <div style={{ marginTop: 'auto', paddingTop: '1.5rem' }}>
+              <button 
+                className="rd-btn-gold" 
+                style={{ width: '100%', justifyContent: 'center' }} 
+                onClick={() => { setMobileMenuOpen(false); navigate('/auth'); }}
+              >
+                Login / Sign Up
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 2. HERO SECTION */}
       <section id="home" className="rd-hero" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=2000&q=80')" }}>

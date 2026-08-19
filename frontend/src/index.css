@@ -3074,10 +3074,121 @@ img, video, canvas, svg, iframe {
   line-height: 1.2;
 }
 
-.fluid-subtext {
-  font-size: clamp(0.95rem, 1.3vw, 1.25rem);
-  line-height: 1.6;
+/* 13. Mobile Navigation Hamburger & Drawer Styles */
+.rd-hamburger-btn {
+  display: none;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  font-size: 1.5rem;
+  font-weight: 800;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  z-index: 10001;
 }
+
+.rd-hamburger-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+@media (max-width: 992px) {
+  .rd-nav-links, .rd-nav-right-actions {
+    display: none !important;
+  }
+  .rd-hamburger-btn {
+    display: flex !important;
+  }
+}
+
+/* Mobile Navigation Drawer Full-Screen Overlay */
+.rd-mobile-drawer-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(10, 14, 23, 0.85);
+  backdrop-filter: blur(12px);
+  z-index: 999999;
+  display: flex;
+  justify-content: flex-end;
+  animation: fadeIn 0.25s ease-out;
+}
+
+.rd-mobile-drawer-content {
+  width: 85%;
+  max-width: 340px;
+  height: 100%;
+  background: #120D0A;
+  border-left: 1px solid rgba(212, 163, 89, 0.25);
+  padding: 1.5rem 1.75rem;
+  display: flex;
+  flex-direction: column;
+  box-shadow: -10px 0 35px rgba(0, 0, 0, 0.5);
+  animation: slideLeft 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideLeft {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+.rd-mobile-drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 1.5rem;
+}
+
+.rd-mobile-close-btn {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  font-size: 1.2rem;
+  font-weight: 900;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.rd-mobile-close-btn:hover {
+  background: #ef4444;
+  border-color: #ef4444;
+}
+
+.rd-mobile-nav-links {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.rd-mobile-nav-link {
+  color: #e2e8f0;
+  text-decoration: none;
+  font-size: 1.1rem;
+  font-weight: 700;
+  padding: 0.6rem 0.8rem;
+  border-radius: 10px;
+  transition: all 0.2s ease;
+}
+
+.rd-mobile-nav-link:hover {
+  background: rgba(212, 163, 89, 0.15);
+  color: #d4a359;
+}
+
 
 
 
