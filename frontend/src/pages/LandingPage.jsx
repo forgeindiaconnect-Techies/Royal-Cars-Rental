@@ -189,7 +189,10 @@ export default function LandingPage() {
   // Car Owner Form State
   const [ownerFormData, setOwnerFormData] = useState({
     name: '', phone: '', email: '', password: '', aadhaar: '', carName: '', plate: '', pricePerDay: 2000,
-    insuranceFileName: '', rcFileName: '', aadhaarFileName: ''
+    insuranceFileName: '', rcFileName: '', aadhaarFileName: '',
+    carPhotoMode: 'upload', // 'upload' | 'url'
+    carPhotos: ['', '', '', ''],
+    carPhotoUrls: ['', '', '', '']
   });
 
   // Driver Form State
@@ -396,18 +399,16 @@ export default function LandingPage() {
   useEffect(() => {
     const fetchLocations = async () => {
       try {
-        const res = await fetch(`/api/locations?t=${Date.now()}`, {
-          headers: {
-            'Cache-Control': 'no-cache',
-            'Pragma': 'no-cache'
+        const res = await fetch(`/api/locations?t=${Date.now()}`);
+        const cType = res.headers.get('content-type') || '';
+        if (res.ok && cType.includes('application/json')) {
+          const data = await res.json();
+          if (data.success) {
+            setPopularLocations(data.data.filter(loc => loc.status === 'active'));
           }
-        });
-        const data = await res.json();
-        if (data.success) {
-          setPopularLocations(data.data.filter(loc => loc.status === 'active'));
         }
       } catch (err) {
-        console.error('Failed to fetch popular locations', err);
+        console.warn('Notice fetching popular locations:', err.message);
       }
     };
     fetchLocations();
@@ -497,7 +498,8 @@ export default function LandingPage() {
     const fetchPartnersAndFleet = async () => {
       try {
         const res = await fetch('/api/customer/companies');
-        if (res.ok) {
+        const cType = res.headers.get('content-type') || '';
+        if (res.ok && cType.includes('application/json')) {
           const data = await res.json();
           if (data.success) {
             // Filter out suspended or inactive companies strictly
@@ -511,7 +513,8 @@ export default function LandingPage() {
 
       try {
         const vRes = await fetch('/api/customer/vehicles');
-        if (vRes.ok) {
+        const vCType = vRes.headers.get('content-type') || '';
+        if (vRes.ok && vCType.includes('application/json')) {
           const vData = await vRes.json();
           if (vData.success) {
             const activeVehicles = (vData.vehicles || []).filter(v => {
@@ -1538,6 +1541,12 @@ export default function LandingPage() {
                 <span className="rd-brand-title">Royal Drive</span>
                 <span className="rd-brand-subtitle">CAR RENTALS</span>
               </div>
+              <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#ffffff', marginBottom: '0.5rem' }}>
+                1. Choose Location
+              </h3>
+              <p style={{ fontSize: '0.85rem', color: '#D1D5DB', lineHeight: '1.5', margin: 0 }}>
+                Select your pick-up and drop-off location
+              </p>
             </div>
             <p style={{ fontSize: '0.88rem', color: '#94a3b8', lineHeight: 1.6, marginBottom: '1.5rem', maxWidth: '300px' }}>
               Your trusted car rental partner for every journey. Drive better, drive Royal Drive.
@@ -1986,9 +1995,114 @@ export default function LandingPage() {
                     <label style={{ fontSize: '0.75rem', fontWeight: 800, color: ownerDocError && !ownerFormData.aadhaarFileName ? '#dc2626' : '#2563eb' }}>🪪 Upload Aadhaar Card File (Compulsory) *</label>
                     <input type="file" required accept=".pdf,image/*" onChange={e => setOwnerFormData({ ...ownerFormData, aadhaarFileName: e.target.files[0]?.name || '' })} style={{ width: '100%', padding: '0.4rem', borderRadius: '8px', border: ownerDocError && !ownerFormData.aadhaarFileName ? '1.5px solid #dc2626' : '1px dashed #2563eb', fontSize: '0.78rem', background: '#eff6ff' }} />
                   </div>
+
+                  {/* 🚗 CAR PHOTOS UPLOAD & URL MODE SECTION (3 TO 4 PHOTOS) */}
+                  <div style={{ gridColumn: 'span 2', background: '#faf5ff', padding: '0.85rem', borderRadius: '12px', border: '1px solid #e9d5ff', marginTop: '0.25rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.65rem' }}>
+                      <label style={{ fontSize: '0.78rem', fontWeight: 900, color: '#7c3aed', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        🚗 Upload Vehicle Photos (3 to 4 Photos Compulsory) *
+                      </label>
+                      
+                      <div style={{ display: 'flex', gap: '0.3rem', background: '#f3e8ff', padding: '2px', borderRadius: '8px' }}>
+                        <button
+                          type="button"
+                          onClick={() => setOwnerFormData({ ...ownerFormData, carPhotoMode: 'upload' })}
+                          style={{
+                            background: ownerFormData.carPhotoMode === 'upload' ? '#7c3aed' : 'transparent',
+                            color: ownerFormData.carPhotoMode === 'upload' ? '#ffffff' : '#6b21a8',
+                            border: 'none',
+                            padding: '0.22rem 0.6rem',
+                            borderRadius: '6px',
+                            fontSize: '0.72rem',
+                            fontWeight: 800,
+                            cursor: 'pointer'
+                          }}
+                        >
+                          📁 Upload Files
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setOwnerFormData({ ...ownerFormData, carPhotoMode: 'url' })}
+                          style={{
+                            background: ownerFormData.carPhotoMode === 'url' ? '#7c3aed' : 'transparent',
+                            color: ownerFormData.carPhotoMode === 'url' ? '#ffffff' : '#6b21a8',
+                            border: 'none',
+                            padding: '0.22rem 0.6rem',
+                            borderRadius: '6px',
+                            fontSize: '0.72rem',
+                            fontWeight: 800,
+                            cursor: 'pointer'
+                          }}
+                        >
+                          🔗 Paste URLs
+                        </button>
+                      </div>
+                    </div>
+
+                    {ownerFormData.carPhotoMode === 'upload' ? (
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.55rem' }}>
+                        {['Photo 1 (Front View)', 'Photo 2 (Rear View)', 'Photo 3 (Side View)', 'Photo 4 (Interior View)'].map((label, idx) => (
+                          <div key={idx} style={{ background: '#ffffff', padding: '0.45rem', borderRadius: '8px', border: '1px dashed #a855f7' }}>
+                            <div style={{ fontSize: '0.68rem', fontWeight: 800, color: '#6b21a8', marginBottom: '3px' }}>{label}</div>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) => {
+                                const file = e.target.files[0];
+                                if (file) {
+                                  const reader = new FileReader();
+                                  reader.onload = (evt) => {
+                                    const updated = [...(ownerFormData.carPhotos || ['', '', '', ''])];
+                                    updated[idx] = evt.target.result;
+                                    setOwnerFormData({ ...ownerFormData, carPhotos: updated });
+                                  };
+                                  reader.readAsDataURL(file);
+                                }
+                              }}
+                              style={{ width: '100%', fontSize: '0.7rem', color: '#475569' }}
+                            />
+                            {ownerFormData.carPhotos && ownerFormData.carPhotos[idx] && (
+                              <img
+                                src={ownerFormData.carPhotos[idx]}
+                                alt={`Preview ${idx + 1}`}
+                                style={{ width: '100%', height: '48px', objectFit: 'cover', borderRadius: '6px', marginTop: '4px', border: '1px solid #c084fc' }}
+                              />
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.55rem' }}>
+                        {['URL 1 (Front View)', 'URL 2 (Rear View)', 'URL 3 (Side View)', 'URL 4 (Interior View)'].map((label, idx) => (
+                          <div key={idx} style={{ background: '#ffffff', padding: '0.45rem', borderRadius: '8px', border: '1px solid #cbd5e1' }}>
+                            <div style={{ fontSize: '0.68rem', fontWeight: 800, color: '#6b21a8', marginBottom: '3px' }}>{label}</div>
+                            <input
+                              type="text"
+                              placeholder="https://images.unsplash..."
+                              value={(ownerFormData.carPhotoUrls && ownerFormData.carPhotoUrls[idx]) || ''}
+                              onChange={(e) => {
+                                const updated = [...(ownerFormData.carPhotoUrls || ['', '', '', ''])];
+                                updated[idx] = e.target.value;
+                                setOwnerFormData({ ...ownerFormData, carPhotoUrls: updated });
+                              }}
+                              style={{ width: '100%', padding: '0.35rem 0.5rem', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.74rem', outline: 'none' }}
+                            />
+                            {ownerFormData.carPhotoUrls && ownerFormData.carPhotoUrls[idx] && (
+                              <img
+                                src={ownerFormData.carPhotoUrls[idx]}
+                                alt={`Preview ${idx + 1}`}
+                                style={{ width: '100%', height: '48px', objectFit: 'cover', borderRadius: '6px', marginTop: '4px', border: '1px solid #c084fc' }}
+                                onError={(e) => { e.target.style.display = 'none'; }}
+                              />
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
 
-                <button type="submit" style={{ width: '100%', background: '#2563eb', color: '#fff', border: 'none', padding: '0.8rem', borderRadius: '10px', fontWeight: 900, fontSize: '0.9rem', cursor: 'pointer' }}>
+                <button type="submit" style={{ width: '100%', background: '#2563eb', color: '#fff', border: 'none', padding: '0.8rem', borderRadius: '10px', fontWeight: 900, fontSize: '0.9rem', cursor: 'pointer', marginTop: '1rem' }}>
                   🚀 Submit Application to Super Admin
                 </button>
               </form>

@@ -227,30 +227,69 @@ export default function LiveTrackingComponent() {
 
   const selectedVehicle = ACTIVE_VEHICLES.find(v => v.id === selectedVehicleId) || ACTIVE_VEHICLES[0];
 
-  // Open Chat Handler
+  // Open Chat Handler for Tracked Driver
   const handleOpenChat = () => {
+    const driverName = selectedVehicle?.customer?.name || 'Sathya';
+    const vehicleName = selectedVehicle?.name || 'Hyundai Creta SX';
+    const code = selectedVehicle?.code || '#CO-101';
+    const lastAct = selectedVehicle?.activities ? selectedVehicle.activities[selectedVehicle.activities.length - 1] : null;
+    const locationName = lastAct?.title || 'Pidamaneri Main Road';
+
     setChatMessages([
-      { sender: 'customer', text: `Hello Admin! I am currently operating ${selectedVehicle.name} (${selectedVehicle.code}) near ${selectedVehicle.activities[selectedVehicle.activities.length - 1]?.title || 'my destination'}.` },
-      { sender: 'admin', text: `Hello ${selectedVehicle.customer.name}! We can see your live GPS tracking is active. Is everything going smoothly with your trip?` }
+      { sender: 'customer', text: `Hello Admin! I am currently operating ${vehicleName} (${code}) near ${locationName}.` },
+      { sender: 'admin', text: `Hello ${driverName}! We can see your live GPS tracking is active. Is everything going smoothly with your trip?` }
     ]);
     setShowChatModal(true);
   };
 
-  // Send Chat Message Handler
+  // Send Chat Message Handler (Driver Reply)
   const handleSendMessage = (e) => {
     if (e) e.preventDefault();
     if (!chatInputText.trim()) return;
 
-    const newMsg = { sender: 'admin', text: chatInputText.trim() };
+    const userText = chatInputText.trim();
+    const newMsg = { sender: 'admin', text: userText };
     setChatMessages(prev => [...prev, newMsg]);
     setChatInputText('');
 
+    const driverName = selectedVehicle?.customer?.name || 'Sathya';
+    const vehicleName = selectedVehicle?.name || 'Hyundai Creta SX';
+    const code = selectedVehicle?.code || '#CO-101';
+    const lastAct = selectedVehicle?.activities ? selectedVehicle.activities[selectedVehicle.activities.length - 1] : null;
+    const locationName = lastAct?.title || 'Pidamaneri Main Road';
+    const speed = lastAct?.speed || '35 km/h';
+
     setTimeout(() => {
+      let driverReply = '';
+      const q = userText.toLowerCase();
+
+      if (q.includes('location') || q.includes('where') || q.includes('place') || q.includes('near')) {
+        driverReply = `Hello Admin! ${driverName} here. I am currently operating ${vehicleName} (${code}) near ${locationName}.`;
+      } else if (q.includes('speed') || q.includes('fast') || q.includes('km')) {
+        driverReply = `My current driving speed is ${speed} near ${locationName}. All safety telemetry parameters are optimal.`;
+      } else if (q.includes('status') || q.includes('how') || q.includes('fine') || q.includes('good') || q.includes('smooth')) {
+        driverReply = `Everything is clear and driving smoothly! Reaching ${locationName} as scheduled.`;
+      } else {
+        driverReply = `Thanks for the response! ${driverName} here operating ${vehicleName} (${code}) near ${locationName}. Everything is clear and driving smoothly.`;
+      }
+
       setChatMessages(prev => [
         ...prev,
-        { sender: 'customer', text: `Thanks for the response! Everything is clear and driving smoothly.` }
+        { sender: 'customer', text: driverReply }
       ]);
-    }, 1000);
+    }, 800);
+  };
+
+  // Handle "Live Tracked" button click from chat header or message chip
+  const handleTrackDriverClick = (veh) => {
+    const target = veh || selectedVehicle;
+    setShowChatModal(false);
+    if (target) {
+      setSelectedVehicleId(target.id);
+      if (mapInstance && target.coords) {
+        mapInstance.flyTo(target.coords, 15, { duration: 1.2 });
+      }
+    }
   };
 
   // Click Activity Item Handler (Centers map & opens location inspector)
@@ -647,7 +686,31 @@ export default function LiveTrackingComponent() {
                   </div>
                 </div>
               </div>
-              <button onClick={() => setShowChatModal(false)} style={{ background: 'transparent', border: 'none', color: '#94a3b8', fontSize: '1.2rem', cursor: 'pointer' }}>✕</button>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <button
+                  type="button"
+                  onClick={() => handleTrackDriverClick(selectedVehicle)}
+                  title="Center Live Satellite Map on Driver Location"
+                  style={{
+                    background: 'linear-gradient(135deg, #10b981, #059669)',
+                    color: '#ffffff',
+                    border: 'none',
+                    padding: '0.35rem 0.75rem',
+                    borderRadius: '20px',
+                    fontSize: '0.75rem',
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    boxShadow: '0 2px 8px rgba(16,185,129,0.4)',
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  📍 Live Tracked
+                </button>
+                <button onClick={() => setShowChatModal(false)} style={{ background: 'transparent', border: 'none', color: '#94a3b8', fontSize: '1.2rem', cursor: 'pointer', padding: '0 4px' }}>✕</button>
+              </div>
             </div>
 
             {/* CHAT MESSAGES STREAM */}
@@ -659,9 +722,9 @@ export default function LiveTrackingComponent() {
                 const isVoice = msg.text.startsWith('[Voice Message]');
 
                 return (
-                  <div key={i} style={{ display: 'flex', justifyContent: isMe ? 'flex-end' : 'flex-start' }}>
+                  <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: isMe ? 'flex-end' : 'flex-start' }}>
                     <div style={{
-                      maxWidth: '82%',
+                      maxWidth: '85%',
                       padding: '0.75rem 0.95rem',
                       borderRadius: isMe ? '16px 16px 2px 16px' : '16px 16px 16px 2px',
                       background: isMe ? '#2563eb' : '#ffffff',
@@ -716,6 +779,33 @@ export default function LiveTrackingComponent() {
                         msg.text
                       )}
                     </div>
+
+                    {/* Driver Live GPS Location Button in Bubble */}
+                    {!isMe && (
+                      <button
+                        type="button"
+                        onClick={() => handleTrackDriverClick(selectedVehicle)}
+                        title="Fly map directly to driver location"
+                        style={{
+                          marginTop: '0.35rem',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '4px',
+                          background: '#ecfdf5',
+                          color: '#047857',
+                          border: '1px solid #6ee7b7',
+                          padding: '3px 9px',
+                          borderRadius: '12px',
+                          fontSize: '0.72rem',
+                          fontWeight: 800,
+                          cursor: 'pointer',
+                          boxShadow: '0 1px 4px rgba(16,185,129,0.15)',
+                          transition: 'all 0.15s ease'
+                        }}
+                      >
+                        📍 Live Tracked Location ({selectedVehicle?.activities ? selectedVehicle.activities[selectedVehicle.activities.length - 1]?.title : 'Active Location'})
+                      </button>
+                    )}
                   </div>
                 );
               })}
