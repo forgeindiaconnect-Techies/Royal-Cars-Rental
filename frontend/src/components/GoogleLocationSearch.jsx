@@ -45,10 +45,17 @@ export default function GoogleLocationSearch({
   }, [value]);
 
   // Autocomplete fetch using Photon Geocoding API
+  const activeFetchControllerRef = useRef(null);
+
+  // Autocomplete fetch using Photon Geocoding API with AbortController and timeout
   const handleInputChange = async (e) => {
     const text = e.target.value;
     setInputValue(text);
     if (onChange) onChange(text, null);
+
+    if (activeFetchControllerRef.current) {
+      activeFetchControllerRef.current.abort();
+    }
 
     if (text.trim().length < 2) {
       setSuggestions([]);
@@ -59,8 +66,15 @@ export default function GoogleLocationSearch({
     setLoading(true);
     setIsOpen(true);
 
+    const controller = new AbortController();
+    activeFetchControllerRef.current = controller;
+    const timeoutId = setTimeout(() => controller.abort(), 2500);
+
     try {
-      const res = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(text)}&limit=6`);
+      const res = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(text)}&limit=6`, {
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
       if (res.ok) {
         const data = await res.json();
         const items = (data.features || []).map(feat => {
@@ -77,8 +91,11 @@ export default function GoogleLocationSearch({
         setSuggestions(items);
       }
     } catch (err) {
-      console.warn('[Location Search Autocomplete]', err);
+      if (err.name !== 'AbortError') {
+        console.warn('[Location Search Autocomplete]', err);
+      }
     } finally {
+      clearTimeout(timeoutId);
       setLoading(false);
     }
   };
@@ -92,8 +109,13 @@ export default function GoogleLocationSearch({
   // Reverse Geocode Coords (lat, lng) to Address String
   const reverseGeocode = async (lat, lng) => {
     setGeocodingMap(true);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 2500);
     try {
-      const res = await fetch(`https://photon.komoot.io/reverse?lat=${lat}&lon=${lng}`);
+      const res = await fetch(`https://photon.komoot.io/reverse?lat=${lat}&lon=${lng}`, {
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
       if (res.ok) {
         const data = await res.json();
         if (data.features && data.features.length > 0) {
@@ -106,8 +128,11 @@ export default function GoogleLocationSearch({
         }
       }
     } catch (err) {
-      console.warn('[Reverse Geocode Error]', err);
+      if (err.name !== 'AbortError') {
+        console.warn('[Reverse Geocode Error]', err);
+      }
     } finally {
+      clearTimeout(timeoutId);
       setGeocodingMap(false);
     }
     setPinnedAddress(`Location (${lat.toFixed(4)}, ${lng.toFixed(4)})`);

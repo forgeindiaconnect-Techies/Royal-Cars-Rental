@@ -38,17 +38,28 @@ export default function LandingPage() {
   const [liveSuggestions, setLiveSuggestions] = useState([]);
   const [searchLoading, setSearchLoading] = useState(false);
 
+  const [showDropoffDropdown, setShowDropoffDropdown] = useState(false);
+  const [dropoffSuggestions, setDropoffSuggestions] = useState([]);
+  const [dropoffLoading, setDropoffLoading] = useState(false);
+
   useEffect(() => {
     let active = true;
-    if (!searchLocation || searchLocation.trim().length < 2) {
+    if (!showLocationDropdown || !searchLocation || searchLocation.trim().length < 2) {
       if (active) setLiveSuggestions([]);
       return;
     }
 
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 2500);
+
     const timer = setTimeout(async () => {
       setSearchLoading(true);
       try {
-        const res = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(searchLocation)}&lat=11.1271&lon=78.6569&limit=40`);
+        const res = await fetch(
+          `https://photon.komoot.io/api/?q=${encodeURIComponent(searchLocation)}&lat=11.1271&lon=78.6569&limit=40`,
+          { signal: controller.signal }
+        );
+        clearTimeout(timeoutId);
         const data = await res.json();
         if (active) {
           if (data && data.features && data.features.length > 0) {
@@ -75,7 +86,6 @@ export default function LandingPage() {
                 };
               });
 
-            // Sort: 1. Tamil Nadu first, 2. by weight (City > District > Area > Village)
             suggestions.sort((a, b) => {
               const aIsTN = a.state === 'Tamil Nadu' ? 0 : 1;
               const bIsTN = b.state === 'Tamil Nadu' ? 0 : 1;
@@ -83,7 +93,6 @@ export default function LandingPage() {
               return a.weight - b.weight;
             });
 
-            // Take top 10 after sorting
             setLiveSuggestions(suggestions.slice(0, 10));
           } else {
             setLiveSuggestions([]);
@@ -94,29 +103,34 @@ export default function LandingPage() {
       } finally {
         if (active) setSearchLoading(false);
       }
-    }, 400);
+    }, 350);
 
     return () => {
       active = false;
       clearTimeout(timer);
+      clearTimeout(timeoutId);
+      controller.abort();
     };
-  }, [searchLocation]);
-
-  const [showDropoffDropdown, setShowDropoffDropdown] = useState(false);
-  const [dropoffSuggestions, setDropoffSuggestions] = useState([]);
-  const [dropoffLoading, setDropoffLoading] = useState(false);
+  }, [searchLocation, showLocationDropdown]);
 
   useEffect(() => {
     let active = true;
-    if (!dropoffLocation || dropoffLocation.trim().length < 2) {
+    if (!showDropoffDropdown || !dropoffLocation || dropoffLocation.trim().length < 2) {
       if (active) setDropoffSuggestions([]);
       return;
     }
 
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 2500);
+
     const timer = setTimeout(async () => {
       setDropoffLoading(true);
       try {
-        const res = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(dropoffLocation)}&lat=11.1271&lon=78.6569&limit=40`);
+        const res = await fetch(
+          `https://photon.komoot.io/api/?q=${encodeURIComponent(dropoffLocation)}&lat=11.1271&lon=78.6569&limit=40`,
+          { signal: controller.signal }
+        );
+        clearTimeout(timeoutId);
         const data = await res.json();
         if (active) {
           if (data && data.features && data.features.length > 0) {
@@ -160,13 +174,15 @@ export default function LandingPage() {
       } finally {
         if (active) setDropoffLoading(false);
       }
-    }, 400);
+    }, 350);
 
     return () => {
       active = false;
       clearTimeout(timer);
+      clearTimeout(timeoutId);
+      controller.abort();
     };
-  }, [dropoffLocation]);
+  }, [dropoffLocation, showDropoffDropdown]);
 
   const [searchCategory, setSearchCategory] = useState('');
   const [searchResults, setSearchResults] = useState([]);
@@ -397,9 +413,12 @@ export default function LandingPage() {
   const [popularLocations, setPopularLocations] = useState([]);
 
   useEffect(() => {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 4000);
+
     const fetchLocations = async () => {
       try {
-        const res = await fetch(`/api/locations?t=${Date.now()}`);
+        const res = await fetch(`/api/locations?t=${Date.now()}`, { signal: controller.signal });
         const cType = res.headers.get('content-type') || '';
         if (res.ok && cType.includes('application/json')) {
           const data = await res.json();
@@ -408,10 +427,19 @@ export default function LandingPage() {
           }
         }
       } catch (err) {
-        console.warn('Notice fetching popular locations:', err.message);
+        if (err.name !== 'AbortError') {
+          console.warn('Notice fetching popular locations:', err.message);
+        }
+      } finally {
+        clearTimeout(timeoutId);
       }
     };
     fetchLocations();
+
+    return () => {
+      clearTimeout(timeoutId);
+      controller.abort();
+    };
   }, []);
 
   const handleConfirmNewCustomerBooking = async (e) => {
@@ -495,9 +523,12 @@ export default function LandingPage() {
   };
 
   useEffect(() => {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+
     const fetchPartnersAndFleet = async () => {
       try {
-        const res = await fetch('/api/customer/companies');
+        const res = await fetch('/api/customer/companies', { signal: controller.signal });
         const cType = res.headers.get('content-type') || '';
         if (res.ok && cType.includes('application/json')) {
           const data = await res.json();
@@ -508,11 +539,13 @@ export default function LandingPage() {
           }
         }
       } catch (err) {
-        console.warn('Error fetching partner companies:', err);
+        if (err.name !== 'AbortError') {
+          console.warn('Error fetching partner companies:', err);
+        }
       }
 
       try {
-        const vRes = await fetch('/api/customer/vehicles');
+        const vRes = await fetch('/api/customer/vehicles', { signal: controller.signal });
         const vCType = vRes.headers.get('content-type') || '';
         if (vRes.ok && vCType.includes('application/json')) {
           const vData = await vRes.json();
@@ -525,10 +558,19 @@ export default function LandingPage() {
           }
         }
       } catch (err) {
-        console.warn('Error fetching initial vehicles:', err);
+        if (err.name !== 'AbortError') {
+          console.warn('Error fetching initial vehicles:', err);
+        }
+      } finally {
+        clearTimeout(timeoutId);
       }
     };
     fetchPartnersAndFleet();
+
+    return () => {
+      clearTimeout(timeoutId);
+      controller.abort();
+    };
   }, []);
 
   // Smart Distance & Route Rate Card Lookup for AI Chatbot
