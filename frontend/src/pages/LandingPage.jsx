@@ -2033,24 +2033,11 @@ export default function LandingPage() {
                     onClick={() => setSelectedRegRole('company')}
                     style={{ background: '#f8fafc', border: '2px solid #e2e8f0', borderRadius: '16px', padding: '1.2rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '1rem', transition: 'all 0.2s ease-out' }}
                     onMouseEnter={e => { e.currentTarget.style.borderColor = '#7c3aed'; e.currentTarget.style.background = '#faf5ff'; }}
-                    onMouseLeave={e => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.background = '#f8fafc'; }}
-                  >
-                    <div style={{ width: '52px', height: '52px', borderRadius: '14px', background: '#f3e8ff', color: '#7c3aed', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.6rem', flexShrink: 0 }}>
-                      🏢
-                    </div>
-                    <div>
-                      <div style={{ fontSize: '1.05rem', fontWeight: 800, color: '#0f172a' }}>Register as Rental Business</div>
-                    </div>
-                  </div>
-
-                </div>
-              </div>
-            ) : selectedRegRole === 'car_owner' ? (
-              /* FORM 1: CAR OWNER REGISTRATION */
+                    onMouseLeave={e => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.              {/* FORM 1: CAR OWNER REGISTRATION (ULTRA PROFESSIONAL EXECUTIVE DESIGN) */}
               <form onSubmit={e => {
                 e.preventDefault();
                 if (!ownerFormData.insuranceFileName || !ownerFormData.rcFileName || !ownerFormData.aadhaarFileName) {
-                  setOwnerDocError('⚠️ Document upload is COMPULSORY! Please select Insurance Document, RC Book File, and Aadhaar Card File before submitting.');
+                  setOwnerDocError('⚠️ Document upload is COMPULSORY! Please upload Insurance Document, RC Book File, and Aadhaar Card File before submitting.');
                   return;
                 }
                 setOwnerDocError('');
@@ -2091,110 +2078,175 @@ export default function LandingPage() {
                 localStorage.setItem('car_owner_user', JSON.stringify(ownerUser));
                 setUser(ownerUser);
                 navigate('/car-owner-dashboard');
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
-                  <button type="button" onClick={() => { setSelectedRegRole(null); setOwnerDocError(''); }} style={{ background: '#f1f5f9', border: 'none', borderRadius: '6px', padding: '0.3rem 0.6rem', cursor: 'pointer', fontSize: '0.8rem' }}>← Back</button>
-                  <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 900, color: '#0f172a' }}>🚗 Register as Car Owner</h3>
+              }} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                
+                {/* Header Row */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #e2e8f0', paddingBottom: '1rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <button type="button" onClick={() => { setSelectedRegRole(null); setOwnerDocError(''); }} style={{ background: '#f1f5f9', border: '1px solid #cbd5e1', borderRadius: '10px', padding: '0.4rem 0.8rem', cursor: 'pointer', fontSize: '0.82rem', fontWeight: 800, color: '#475569', transition: 'all 0.2s' }}>
+                      ← Back
+                    </button>
+                    <div>
+                      <h3 style={{ margin: 0, fontSize: '1.3rem', fontWeight: 900, color: '#0f172a' }}>Register as Car Owner</h3>
+                      <div style={{ fontSize: '0.78rem', color: '#64748b', fontWeight: 500 }}>Join Tamil Nadu's Premier Car Rental Partner Network</div>
+                    </div>
+                  </div>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 800, background: '#eff6ff', color: '#2563eb', padding: '0.3rem 0.75rem', borderRadius: '20px', border: '1px solid #dbeafe' }}>
+                    Step 1 of 1
+                  </span>
                 </div>
 
                 {ownerDocError && (
-                  <div style={{ background: '#fef2f2', border: '1px solid #fca5a5', color: '#dc2626', padding: '0.65rem 0.85rem', borderRadius: '8px', fontSize: '0.8rem', fontWeight: 700, marginBottom: '1rem' }}>
-                    {ownerDocError}
+                  <div style={{ background: '#fef2f2', border: '1px solid #fca5a5', color: '#dc2626', padding: '0.75rem 1rem', borderRadius: '12px', fontSize: '0.82rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span>⚠️</span> {ownerDocError}
                   </div>
                 )}
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.85rem', marginBottom: '1.25rem' }}>
+                {/* 2-Column Inputs Grid */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                   <div>
-                    <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#334155' }}>Owner Full Name *</label>
-                    <input type="text" required placeholder="e.g. Kumar S." value={ownerFormData.name} onChange={e => setOwnerFormData({ ...ownerFormData, name: e.target.value })} style={{ width: '100%', padding: '0.55rem', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.85rem' }} />
+                    <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 800, color: '#1e293b', marginBottom: '6px' }}>Owner Full Name *</label>
+                    <input type="text" required placeholder="e.g. Kumar S." value={ownerFormData.name} onChange={e => setOwnerFormData({ ...ownerFormData, name: e.target.value })} style={{ width: '100%', height: '46px', padding: '0 0.85rem', borderRadius: '12px', border: '1px solid #cbd5e1', background: '#f8fafc', fontSize: '0.88rem', fontWeight: 600, color: '#0f172a', outline: 'none', boxSizing: 'border-box' }} />
                   </div>
                   <div>
-                    <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#334155' }}>Phone Number *</label>
-                    <input type="text" required placeholder="+91 98765 43210" value={ownerFormData.phone} onChange={e => setOwnerFormData({ ...ownerFormData, phone: e.target.value })} style={{ width: '100%', padding: '0.55rem', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.85rem' }} />
+                    <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 800, color: '#1e293b', marginBottom: '6px' }}>Phone Number *</label>
+                    <input type="text" required placeholder="+91 98765 43210" value={ownerFormData.phone} onChange={e => setOwnerFormData({ ...ownerFormData, phone: e.target.value })} style={{ width: '100%', height: '46px', padding: '0 0.85rem', borderRadius: '12px', border: '1px solid #cbd5e1', background: '#f8fafc', fontSize: '0.88rem', fontWeight: 600, color: '#0f172a', outline: 'none', boxSizing: 'border-box' }} />
                   </div>
                   <div>
-                    <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#334155' }}>Email Address *</label>
-                    <input type="email" required placeholder="kumar@gmail.com" value={ownerFormData.email} onChange={e => setOwnerFormData({ ...ownerFormData, email: e.target.value })} style={{ width: '100%', padding: '0.55rem', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.85rem' }} />
+                    <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 800, color: '#1e293b', marginBottom: '6px' }}>Email Address *</label>
+                    <input type="email" required placeholder="kumar@gmail.com" value={ownerFormData.email} onChange={e => setOwnerFormData({ ...ownerFormData, email: e.target.value })} style={{ width: '100%', height: '46px', padding: '0 0.85rem', borderRadius: '12px', border: '1px solid #cbd5e1', background: '#f8fafc', fontSize: '0.88rem', fontWeight: 600, color: '#0f172a', outline: 'none', boxSizing: 'border-box' }} />
                   </div>
                   <div>
-                    <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#334155' }}>Create Password 🔐 *</label>
-                    <input type="password" required placeholder="••••••••" value={ownerFormData.password} onChange={e => setOwnerFormData({ ...ownerFormData, password: e.target.value })} style={{ width: '100%', padding: '0.55rem', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.85rem' }} />
+                    <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 800, color: '#1e293b', marginBottom: '6px' }}>Create Password 🔐 *</label>
+                    <input type="password" required placeholder="••••••••" value={ownerFormData.password} onChange={e => setOwnerFormData({ ...ownerFormData, password: e.target.value })} style={{ width: '100%', height: '46px', padding: '0 0.85rem', borderRadius: '12px', border: '1px solid #cbd5e1', background: '#f8fafc', fontSize: '0.88rem', fontWeight: 600, color: '#0f172a', outline: 'none', boxSizing: 'border-box' }} />
                   </div>
                   <div>
-                    <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#334155' }}>Aadhaar Number *</label>
-                    <input type="text" required placeholder="XXXX-XXXX-9988" value={ownerFormData.aadhaar} onChange={e => setOwnerFormData({ ...ownerFormData, aadhaar: e.target.value })} style={{ width: '100%', padding: '0.55rem', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.85rem' }} />
+                    <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 800, color: '#1e293b', marginBottom: '6px' }}>Aadhaar Number *</label>
+                    <input type="text" required placeholder="XXXX-XXXX-9988" value={ownerFormData.aadhaar} onChange={e => setOwnerFormData({ ...ownerFormData, aadhaar: e.target.value })} style={{ width: '100%', height: '46px', padding: '0 0.85rem', borderRadius: '12px', border: '1px solid #cbd5e1', background: '#f8fafc', fontSize: '0.88rem', fontWeight: 600, color: '#0f172a', outline: 'none', boxSizing: 'border-box' }} />
                   </div>
                   <div>
-                    <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#334155' }}>Car Name & Model *</label>
-                    <input type="text" required placeholder="e.g. Hyundai Creta" value={ownerFormData.carName} onChange={e => setOwnerFormData({ ...ownerFormData, carName: e.target.value })} style={{ width: '100%', padding: '0.55rem', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.85rem' }} />
+                    <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 800, color: '#1e293b', marginBottom: '6px' }}>Car Name & Model *</label>
+                    <input type="text" required placeholder="e.g. Hyundai Creta" value={ownerFormData.carName} onChange={e => setOwnerFormData({ ...ownerFormData, carName: e.target.value })} style={{ width: '100%', height: '46px', padding: '0 0.85rem', borderRadius: '12px', border: '1px solid #cbd5e1', background: '#f8fafc', fontSize: '0.88rem', fontWeight: 600, color: '#0f172a', outline: 'none', boxSizing: 'border-box' }} />
                   </div>
                   <div style={{ gridColumn: 'span 2' }}>
-                    <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#334155' }}>Vehicle Registration Plate No *</label>
-                    <input type="text" required placeholder="e.g. TN29AB1234" value={ownerFormData.plate} onChange={e => setOwnerFormData({ ...ownerFormData, plate: e.target.value })} style={{ width: '100%', padding: '0.55rem', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.85rem' }} />
+                    <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 800, color: '#1e293b', marginBottom: '6px' }}>Vehicle Registration Plate No *</label>
+                    <input type="text" required placeholder="e.g. TN29AB1234" value={ownerFormData.plate} onChange={e => setOwnerFormData({ ...ownerFormData, plate: e.target.value })} style={{ width: '100%', height: '46px', padding: '0 0.85rem', borderRadius: '12px', border: '1px solid #cbd5e1', background: '#f8fafc', fontSize: '0.88rem', fontWeight: 600, color: '#0f172a', outline: 'none', boxSizing: 'border-box' }} />
                   </div>
+                </div>
 
-                  {/* FILE UPLOADS: INSURANCE, RC, AADHAAR */}
-                  <div>
-                    <label style={{ fontSize: '0.75rem', fontWeight: 800, color: ownerDocError && !ownerFormData.insuranceFileName ? '#dc2626' : '#2563eb' }}>📄 Upload Insurance Document (Compulsory) *</label>
-                    <input type="file" required accept=".pdf,image/*" onChange={e => setOwnerFormData({ ...ownerFormData, insuranceFileName: e.target.files[0]?.name || '' })} style={{ width: '100%', padding: '0.4rem', borderRadius: '8px', border: ownerDocError && !ownerFormData.insuranceFileName ? '1.5px solid #dc2626' : '1px dashed #2563eb', fontSize: '0.78rem', background: '#eff6ff' }} />
-                  </div>
-                  <div>
-                    <label style={{ fontSize: '0.75rem', fontWeight: 800, color: ownerDocError && !ownerFormData.rcFileName ? '#dc2626' : '#2563eb' }}>📄 Upload RC Book File (Compulsory) *</label>
-                    <input type="file" required accept=".pdf,image/*" onChange={e => setOwnerFormData({ ...ownerFormData, rcFileName: e.target.files[0]?.name || '' })} style={{ width: '100%', padding: '0.4rem', borderRadius: '8px', border: ownerDocError && !ownerFormData.rcFileName ? '1.5px solid #dc2626' : '1px dashed #2563eb', fontSize: '0.78rem', background: '#eff6ff' }} />
-                  </div>
-                  <div style={{ gridColumn: 'span 2' }}>
-                    <label style={{ fontSize: '0.75rem', fontWeight: 800, color: ownerDocError && !ownerFormData.aadhaarFileName ? '#dc2626' : '#2563eb' }}>🪪 Upload Aadhaar Card File (Compulsory) *</label>
-                    <input type="file" required accept=".pdf,image/*" onChange={e => setOwnerFormData({ ...ownerFormData, aadhaarFileName: e.target.files[0]?.name || '' })} style={{ width: '100%', padding: '0.4rem', borderRadius: '8px', border: ownerDocError && !ownerFormData.aadhaarFileName ? '1.5px solid #dc2626' : '1px dashed #2563eb', fontSize: '0.78rem', background: '#eff6ff' }} />
-                  </div>
-
-                  {/* 🚗 CAR PHOTOS UPLOAD & URL MODE SECTION (3 TO 4 PHOTOS) */}
-                  <div style={{ gridColumn: 'span 2', background: '#faf5ff', padding: '0.85rem', borderRadius: '12px', border: '1px solid #e9d5ff', marginTop: '0.25rem' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.65rem' }}>
-                      <label style={{ fontSize: '0.78rem', fontWeight: 900, color: '#7c3aed', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                        🚗 Upload Vehicle Photos (3 to 4 Photos Compulsory) *
-                      </label>
-                      
-                      <div style={{ display: 'flex', gap: '0.3rem', background: '#f3e8ff', padding: '2px', borderRadius: '8px' }}>
-                        <button
-                          type="button"
-                          onClick={() => setOwnerFormData({ ...ownerFormData, carPhotoMode: 'upload' })}
-                          style={{
-                            background: ownerFormData.carPhotoMode === 'upload' ? '#7c3aed' : 'transparent',
-                            color: ownerFormData.carPhotoMode === 'upload' ? '#ffffff' : '#6b21a8',
-                            border: 'none',
-                            padding: '0.22rem 0.6rem',
-                            borderRadius: '6px',
-                            fontSize: '0.72rem',
-                            fontWeight: 800,
-                            cursor: 'pointer'
-                          }}
-                        >
-                          📁 Upload Files
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setOwnerFormData({ ...ownerFormData, carPhotoMode: 'url' })}
-                          style={{
-                            background: ownerFormData.carPhotoMode === 'url' ? '#7c3aed' : 'transparent',
-                            color: ownerFormData.carPhotoMode === 'url' ? '#ffffff' : '#6b21a8',
-                            border: 'none',
-                            padding: '0.22rem 0.6rem',
-                            borderRadius: '6px',
-                            fontSize: '0.72rem',
-                            fontWeight: 800,
-                            cursor: 'pointer'
-                          }}
-                        >
-                          🔗 Paste URLs
-                        </button>
+                {/* FILE UPLOADS: INSURANCE, RC, AADHAAR (CUSTOM MODERN DROPZONES) */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+                  <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#0f172a' }}>Compulsory Verification Documents</div>
+                  
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.85rem' }}>
+                    {/* Insurance Card */}
+                    <label style={{
+                      display: 'flex', alignItems: 'center', gap: '0.75rem',
+                      background: ownerFormData.insuranceFileName ? '#f0fdf4' : '#f8fafc',
+                      border: ownerFormData.insuranceFileName ? '1.5px solid #16a34a' : (ownerDocError && !ownerFormData.insuranceFileName ? '1.5px solid #dc2626' : '1.5px dashed #cbd5e1'),
+                      borderRadius: '14px', padding: '0.75rem 0.9rem', cursor: 'pointer', transition: 'all 0.2s ease'
+                    }}>
+                      <input type="file" required accept=".pdf,image/*" onChange={e => setOwnerFormData({ ...ownerFormData, insuranceFileName: e.target.files[0]?.name || '' })} style={{ display: 'none' }} />
+                      <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: ownerFormData.insuranceFileName ? '#dcfce7' : '#eff6ff', color: ownerFormData.insuranceFileName ? '#16a34a' : '#2563eb', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.1rem', flexShrink: 0 }}>
+                        {ownerFormData.insuranceFileName ? '✓' : '📄'}
                       </div>
-                    </div>
+                      <div style={{ flex: 1, overflow: 'hidden' }}>
+                        <div style={{ fontSize: '0.78rem', fontWeight: 800, color: ownerFormData.insuranceFileName ? '#15803d' : '#0f172a' }}>Insurance Document *</div>
+                        <div style={{ fontSize: '0.7rem', color: ownerFormData.insuranceFileName ? '#16a34a' : '#64748b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          {ownerFormData.insuranceFileName || 'Click to select PDF / Image'}
+                        </div>
+                      </div>
+                    </label>
 
-                    {ownerFormData.carPhotoMode === 'upload' ? (
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.55rem' }}>
-                        {['Photo 1 (Front View)', 'Photo 2 (Rear View)', 'Photo 3 (Side View)', 'Photo 4 (Interior View)'].map((label, idx) => (
-                          <div key={idx} style={{ background: '#ffffff', padding: '0.45rem', borderRadius: '8px', border: '1px dashed #a855f7' }}>
-                            <div style={{ fontSize: '0.68rem', fontWeight: 800, color: '#6b21a8', marginBottom: '3px' }}>{label}</div>
+                    {/* RC Book Card */}
+                    <label style={{
+                      display: 'flex', alignItems: 'center', gap: '0.75rem',
+                      background: ownerFormData.rcFileName ? '#f0fdf4' : '#f8fafc',
+                      border: ownerFormData.rcFileName ? '1.5px solid #16a34a' : (ownerDocError && !ownerFormData.rcFileName ? '1.5px solid #dc2626' : '1.5px dashed #cbd5e1'),
+                      borderRadius: '14px', padding: '0.75rem 0.9rem', cursor: 'pointer', transition: 'all 0.2s ease'
+                    }}>
+                      <input type="file" required accept=".pdf,image/*" onChange={e => setOwnerFormData({ ...ownerFormData, rcFileName: e.target.files[0]?.name || '' })} style={{ display: 'none' }} />
+                      <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: ownerFormData.rcFileName ? '#dcfce7' : '#eff6ff', color: ownerFormData.rcFileName ? '#16a34a' : '#2563eb', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.1rem', flexShrink: 0 }}>
+                        {ownerFormData.rcFileName ? '✓' : '📄'}
+                      </div>
+                      <div style={{ flex: 1, overflow: 'hidden' }}>
+                        <div style={{ fontSize: '0.78rem', fontWeight: 800, color: ownerFormData.rcFileName ? '#15803d' : '#0f172a' }}>RC Book File *</div>
+                        <div style={{ fontSize: '0.7rem', color: ownerFormData.rcFileName ? '#16a34a' : '#64748b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          {ownerFormData.rcFileName || 'Click to select PDF / Image'}
+                        </div>
+                      </div>
+                    </label>
+
+                    {/* Aadhaar Card */}
+                    <label style={{
+                      gridColumn: 'span 2', display: 'flex', alignItems: 'center', gap: '0.75rem',
+                      background: ownerFormData.aadhaarFileName ? '#f0fdf4' : '#f8fafc',
+                      border: ownerFormData.aadhaarFileName ? '1.5px solid #16a34a' : (ownerDocError && !ownerFormData.aadhaarFileName ? '1.5px solid #dc2626' : '1.5px dashed #cbd5e1'),
+                      borderRadius: '14px', padding: '0.75rem 0.9rem', cursor: 'pointer', transition: 'all 0.2s ease'
+                    }}>
+                      <input type="file" required accept=".pdf,image/*" onChange={e => setOwnerFormData({ ...ownerFormData, aadhaarFileName: e.target.files[0]?.name || '' })} style={{ display: 'none' }} />
+                      <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: ownerFormData.aadhaarFileName ? '#dcfce7' : '#eff6ff', color: ownerFormData.aadhaarFileName ? '#16a34a' : '#2563eb', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.1rem', flexShrink: 0 }}>
+                        {ownerFormData.aadhaarFileName ? '✓' : '🪪'}
+                      </div>
+                      <div style={{ flex: 1, overflow: 'hidden' }}>
+                        <div style={{ fontSize: '0.78rem', fontWeight: 800, color: ownerFormData.aadhaarFileName ? '#15803d' : '#0f172a' }}>Aadhaar Card Document *</div>
+                        <div style={{ fontSize: '0.7rem', color: ownerFormData.aadhaarFileName ? '#16a34a' : '#64748b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          {ownerFormData.aadhaarFileName || 'Click to select Aadhaar PDF / Front & Back Image'}
+                        </div>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+
+                {/* CAR PHOTOS UPLOAD SECTION (3 TO 4 PHOTOS) */}
+                <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '18px', padding: '1rem 1.15rem', boxShadow: '0 4px 16px rgba(0,0,0,0.03)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.85rem' }}>
+                    <div>
+                      <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#0f172a' }}>Vehicle Photos (3 to 4 Photos Compulsory) *</div>
+                      <div style={{ fontSize: '0.72rem', color: '#64748b' }}>Front, Rear, Side & Interior views for instant Super Admin verification</div>
+                    </div>
+                    
+                    <div style={{ display: 'flex', gap: '0.3rem', background: '#f1f5f9', padding: '3px', borderRadius: '10px' }}>
+                      <button
+                        type="button"
+                        onClick={() => setOwnerFormData({ ...ownerFormData, carPhotoMode: 'upload' })}
+                        style={{
+                          background: ownerFormData.carPhotoMode === 'upload' ? '#2563eb' : 'transparent',
+                          color: ownerFormData.carPhotoMode === 'upload' ? '#ffffff' : '#64748b',
+                          border: 'none', padding: '0.3rem 0.75rem', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer', transition: 'all 0.2s'
+                        }}
+                      >
+                        📁 Upload Files
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setOwnerFormData({ ...ownerFormData, carPhotoMode: 'url' })}
+                        style={{
+                          background: ownerFormData.carPhotoMode === 'url' ? '#2563eb' : 'transparent',
+                          color: ownerFormData.carPhotoMode === 'url' ? '#ffffff' : '#64748b',
+                          border: 'none', padding: '0.3rem 0.75rem', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer', transition: 'all 0.2s'
+                        }}
+                      >
+                        🔗 Image URLs
+                      </button>
+                    </div>
+                  </div>
+
+                  {ownerFormData.carPhotoMode === 'upload' ? (
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                      {['Photo 1 (Front View)', 'Photo 2 (Rear View)', 'Photo 3 (Side View)', 'Photo 4 (Interior View)'].map((label, idx) => {
+                        const hasFile = ownerFormData.carPhotos && ownerFormData.carPhotos[idx];
+                        return (
+                          <label key={idx} style={{
+                            display: 'flex', flexDirection: 'column', gap: '0.35rem',
+                            background: hasFile ? '#f0fdf4' : '#f8fafc',
+                            border: hasFile ? '1.5px solid #16a34a' : '1.5px dashed #cbd5e1',
+                            borderRadius: '12px', padding: '0.65rem', cursor: 'pointer', transition: 'all 0.2s'
+                          }}>
+                            <div style={{ fontSize: '0.72rem', fontWeight: 800, color: hasFile ? '#15803d' : '#334155', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                              <span>{label}</span>
+                              {hasFile && <span style={{ color: '#16a34a', fontWeight: 900 }}>✓ Uploaded</span>}
+                            </div>
                             <input
                               type="file"
                               accept="image/*"
@@ -2210,50 +2262,65 @@ export default function LandingPage() {
                                   reader.readAsDataURL(file);
                                 }
                               }}
-                              style={{ width: '100%', fontSize: '0.7rem', color: '#475569' }}
+                              style={{ display: 'none' }}
                             />
-                            {ownerFormData.carPhotos && ownerFormData.carPhotos[idx] && (
+                            {hasFile ? (
                               <img
                                 src={ownerFormData.carPhotos[idx]}
                                 alt={`Preview ${idx + 1}`}
-                                style={{ width: '100%', height: '48px', objectFit: 'cover', borderRadius: '6px', marginTop: '4px', border: '1px solid #c084fc' }}
+                                style={{ width: '100%', height: '54px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #86efac' }}
                               />
+                            ) : (
+                              <div style={{ fontSize: '0.7rem', color: '#64748b', textAlign: 'center', padding: '0.4rem 0' }}>
+                                📷 Tap to select photo
+                              </div>
                             )}
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.55rem' }}>
-                        {['URL 1 (Front View)', 'URL 2 (Rear View)', 'URL 3 (Side View)', 'URL 4 (Interior View)'].map((label, idx) => (
-                          <div key={idx} style={{ background: '#ffffff', padding: '0.45rem', borderRadius: '8px', border: '1px solid #cbd5e1' }}>
-                            <div style={{ fontSize: '0.68rem', fontWeight: 800, color: '#6b21a8', marginBottom: '3px' }}>{label}</div>
-                            <input
-                              type="text"
-                              placeholder="https://images.unsplash..."
-                              value={(ownerFormData.carPhotoUrls && ownerFormData.carPhotoUrls[idx]) || ''}
-                              onChange={(e) => {
-                                const updated = [...(ownerFormData.carPhotoUrls || ['', '', '', ''])];
-                                updated[idx] = e.target.value;
-                                setOwnerFormData({ ...ownerFormData, carPhotoUrls: updated });
-                              }}
-                              style={{ width: '100%', padding: '0.35rem 0.5rem', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.74rem', outline: 'none' }}
+                          </label>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                      {['URL 1 (Front View)', 'URL 2 (Rear View)', 'URL 3 (Side View)', 'URL 4 (Interior View)'].map((label, idx) => (
+                        <div key={idx} style={{ background: '#f8fafc', padding: '0.6rem', borderRadius: '12px', border: '1px solid #cbd5e1' }}>
+                          <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#334155', marginBottom: '4px' }}>{label}</div>
+                          <input
+                            type="text"
+                            placeholder="https://images.unsplash..."
+                            value={(ownerFormData.carPhotoUrls && ownerFormData.carPhotoUrls[idx]) || ''}
+                            onChange={(e) => {
+                              const updated = [...(ownerFormData.carPhotoUrls || ['', '', '', ''])];
+                              updated[idx] = e.target.value;
+                              setOwnerFormData({ ...ownerFormData, carPhotoUrls: updated });
+                            }}
+                            style={{ width: '100%', height: '36px', padding: '0 0.6rem', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.78rem', background: '#ffffff', outline: 'none', boxSizing: 'border-box' }}
+                          />
+                          {ownerFormData.carPhotoUrls && ownerFormData.carPhotoUrls[idx] && (
+                            <img
+                              src={ownerFormData.carPhotoUrls[idx]}
+                              alt={`Preview ${idx + 1}`}
+                              style={{ width: '100%', height: '52px', objectFit: 'cover', borderRadius: '8px', marginTop: '4px', border: '1px solid #3b82f6' }}
+                              onError={(e) => { e.target.style.display = 'none'; }}
                             />
-                            {ownerFormData.carPhotoUrls && ownerFormData.carPhotoUrls[idx] && (
-                              <img
-                                src={ownerFormData.carPhotoUrls[idx]}
-                                alt={`Preview ${idx + 1}`}
-                                style={{ width: '100%', height: '48px', objectFit: 'cover', borderRadius: '6px', marginTop: '4px', border: '1px solid #c084fc' }}
-                                onError={(e) => { e.target.style.display = 'none'; }}
-                              />
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
-                <button type="submit" style={{ width: '100%', background: '#2563eb', color: '#fff', border: 'none', padding: '0.8rem', borderRadius: '10px', fontWeight: 900, fontSize: '0.9rem', cursor: 'pointer', marginTop: '1rem' }}>
+                <button
+                  type="submit"
+                  style={{
+                    width: '100%', height: '52px',
+                    background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
+                    color: '#ffffff', border: 'none', borderRadius: '14px',
+                    fontWeight: 900, fontSize: '0.95rem', cursor: 'pointer',
+                    boxShadow: '0 8px 25px rgba(37, 99, 235, 0.35)', transition: 'all 0.25s ease'
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
+                  onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
+                >
                   🚀 Submit Application to Super Admin
                 </button>
               </form>
