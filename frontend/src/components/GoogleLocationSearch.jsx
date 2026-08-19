@@ -285,7 +285,7 @@ export default function GoogleLocationSearch({
     <div className={`rentos-location-search ${className}`} style={{ position: 'relative', width: '100%', ...style }}>
       {label && (
         <label className="rd-input-label" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem', fontWeight: 700, color: '#475569', height: '22px', marginBottom: '8px', boxSizing: 'border-box' }}>
-          <span style={{ color: '#2563eb' }}>📍</span> {label}
+          <span style={{ color: '#b87a28' }}>📍</span> {label}
         </label>
       )}
 

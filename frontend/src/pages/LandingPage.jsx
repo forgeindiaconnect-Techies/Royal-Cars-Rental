@@ -1126,7 +1126,7 @@ export default function LandingPage() {
               {/* Pick-up Date */}
               <div className="rd-input-group">
                 <label className="rd-input-label" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem', fontWeight: 700, color: '#475569', height: '22px', marginBottom: '8px', boxSizing: 'border-box' }}>
-                  <span style={{ color: '#2563eb' }}>📅</span> Pick-up Date
+                  <span style={{ color: '#b87a28' }}>📅</span> Pick-up Date
                 </label>
                 <div className="rd-input-wrapper" style={{ height: '52px' }}>
                   <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} style={{ height: '100%' }} />
@@ -1136,7 +1136,7 @@ export default function LandingPage() {
               {/* Pick-up Time */}
               <div className="rd-input-group">
                 <label className="rd-input-label" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem', fontWeight: 700, color: '#475569', height: '22px', marginBottom: '8px', boxSizing: 'border-box' }}>
-                  <span style={{ color: '#2563eb' }}>🕒</span> Pick-up Time
+                  <span style={{ color: '#b87a28' }}>🕒</span> Pick-up Time
                 </label>
                 <div className="rd-input-wrapper" style={{ height: '52px' }}>
                   <input type="time" defaultValue="10:00" style={{ height: '100%' }} />
@@ -1146,7 +1146,7 @@ export default function LandingPage() {
               {/* Drop-off Date */}
               <div className="rd-input-group">
                 <label className="rd-input-label" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem', fontWeight: 700, color: '#475569', height: '22px', marginBottom: '8px', boxSizing: 'border-box' }}>
-                  <span style={{ color: '#2563eb' }}>📅</span> Drop-off Date
+                  <span style={{ color: '#b87a28' }}>📅</span> Drop-off Date
                 </label>
                 <div className="rd-input-wrapper" style={{ height: '52px' }}>
                   <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} style={{ height: '100%' }} />
@@ -2033,7 +2033,20 @@ export default function LandingPage() {
                     onClick={() => setSelectedRegRole('company')}
                     style={{ background: '#f8fafc', border: '2px solid #e2e8f0', borderRadius: '16px', padding: '1.2rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '1rem', transition: 'all 0.2s ease-out' }}
                     onMouseEnter={e => { e.currentTarget.style.borderColor = '#7c3aed'; e.currentTarget.style.background = '#faf5ff'; }}
-                    onMouseLeave={e => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.              {/* FORM 1: CAR OWNER REGISTRATION (ULTRA PROFESSIONAL EXECUTIVE DESIGN) */}
+                    onMouseLeave={e => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.background = '#f8fafc'; }}
+                  >
+                    <div style={{ width: '52px', height: '52px', borderRadius: '14px', background: '#f3e8ff', color: '#7c3aed', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.6rem', flexShrink: 0 }}>
+                      🏢
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '1.05rem', fontWeight: 800, color: '#0f172a' }}>Register as Rental Business</div>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            ) : selectedRegRole === 'car_owner' ? (
+              /* FORM 1: CAR OWNER REGISTRATION (ULTRA PROFESSIONAL EXECUTIVE DESIGN) */
               <form onSubmit={e => {
                 e.preventDefault();
                 if (!ownerFormData.insuranceFileName || !ownerFormData.rcFileName || !ownerFormData.aadhaarFileName) {

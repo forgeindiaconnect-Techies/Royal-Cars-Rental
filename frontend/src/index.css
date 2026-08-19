@@ -2248,29 +2248,30 @@ html {
 
 .rd-feature-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 16px 32px rgba(37, 99, 235, 0.1);
-  border-color: rgba(37, 99, 235, 0.25);
+  box-shadow: 0 16px 36px rgba(184, 122, 40, 0.18);
+  border-color: rgba(212, 163, 89, 0.45);
 }
 
 .rd-feature-icon {
   width: 52px;
   height: 52px;
   border-radius: 14px;
-  background: #eff6ff;
-  color: #2563eb;
+  background: linear-gradient(135deg, #fcf6e8 0%, #f7e7c4 100%);
+  color: #b87a28;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  border: 1px solid #dbeafe;
+  border: 1px solid #f2d294;
+  box-shadow: 0 4px 14px rgba(184, 122, 40, 0.12);
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .rd-feature-card:hover .rd-feature-icon {
-  background: #2563eb;
+  background: linear-gradient(135deg, #d4a359 0%, #b87a28 100%);
   color: #ffffff;
-  border-color: #2563eb;
-  transform: scale(1.06);
+  border-color: #b87a28;
+  transform: scale(1.08);
 }
 
 .rd-feature-card:hover .rd-feature-icon svg {
