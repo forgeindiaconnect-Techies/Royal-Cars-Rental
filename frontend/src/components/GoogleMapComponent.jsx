@@ -16,6 +16,7 @@ export default function GoogleMapComponent({
   dropoffCoords = null, // { lat: number, lng: number }
   cars = [], // [{ id, name, brand, price, category, image, lat, lng, locationName, fuel, transmission }]
   onSelectCar = null,
+  onMapClick = null, // Callback when user clicks anywhere on map: (locationName, coords) => void
   height = '460px',
   zoom = 12,
   center = null, // { lat: number, lng: number }
@@ -153,6 +154,28 @@ export default function GoogleMapComponent({
           streetViewControl: false,
           rotateControl: true,
           fullscreenControl: true
+        });
+
+        googleMapRef.current.addListener('click', async (e) => {
+          if (!e || !e.latLng) return;
+          const lat = e.latLng.lat();
+          const lng = e.latLng.lng();
+          const coords = { lat, lng };
+          try {
+            const res = await fetch(`https://photon.komoot.io/reverse?lat=${lat}&lon=${lng}`);
+            if (res.ok) {
+              const data = await res.json();
+              if (data.features && data.features.length > 0) {
+                const props = data.features[0].properties || {};
+                const addr = [props.name, props.street, props.city || props.district, props.state]
+                  .filter(Boolean)
+                  .join(', ');
+                if (onMapClick) onMapClick(addr || `${lat.toFixed(4)}, ${lng.toFixed(4)}`, coords);
+                return;
+              }
+            }
+          } catch (err) {}
+          if (onMapClick) onMapClick(`Location (${lat.toFixed(4)}, ${lng.toFixed(4)})`, coords);
         });
       }
 
@@ -318,6 +341,28 @@ export default function GoogleMapComponent({
           maxZoom: 19,
           attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
+
+        map.on('click', async (e) => {
+          if (!e || !e.latlng) return;
+          const lat = e.latlng.lat;
+          const lng = e.latlng.lng;
+          const coords = { lat, lng };
+          try {
+            const res = await fetch(`https://photon.komoot.io/reverse?lat=${lat}&lon=${lng}`);
+            if (res.ok) {
+              const data = await res.json();
+              if (data.features && data.features.length > 0) {
+                const props = data.features[0].properties || {};
+                const addr = [props.name, props.street, props.city || props.district, props.state]
+                  .filter(Boolean)
+                  .join(', ');
+                if (onMapClick) onMapClick(addr || `${lat.toFixed(4)}, ${lng.toFixed(4)}`, coords);
+                return;
+              }
+            }
+          } catch (err) {}
+          if (onMapClick) onMapClick(`Location (${lat.toFixed(4)}, ${lng.toFixed(4)})`, coords);
+        });
 
         const markersGroup = window.L.featureGroup();
 

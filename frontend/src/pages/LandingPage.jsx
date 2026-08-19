@@ -948,7 +948,13 @@ export default function LandingPage() {
     } catch (err) {
       console.warn('Search fetch error:', err);
     } finally {
-      setTimeout(() => setIsSearching(false), 450);
+      setTimeout(() => {
+        setIsSearching(false);
+        if (e) {
+          const fleetElem = document.getElementById('fleets');
+          if (fleetElem) fleetElem.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 400);
     }
   };
 
@@ -1614,18 +1620,33 @@ export default function LandingPage() {
 
         <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '22px', padding: '1.5rem', boxShadow: '0 10px 30px rgba(0,0,0,0.06)', marginBottom: '2.5rem' }}>
           <GoogleMapComponent
-            height="400px"
+            height="440px"
             zoom={12}
             pickupLocation={searchLocation}
             pickupCoords={pickupCoords}
             dropoffLocation={dropoffLocation}
             dropoffCoords={dropoffCoords}
-            cars={[
-              { id: 'c1', name: 'Mahindra Thar 4x4', price: 2999, category: 'SUV', fuel: 'Diesel', transmission: 'Manual', lat: (pickupCoords?.lat || 12.1211) + 0.006, lng: (pickupCoords?.lng || 78.1582) + 0.005, locationName: searchLocation || 'Pickup Hub' },
-              { id: 'c2', name: 'Hyundai Creta SX', price: 2499, category: 'SUV', fuel: 'Petrol', transmission: 'Automatic', lat: (pickupCoords?.lat || 12.1211) - 0.007, lng: (pickupCoords?.lng || 78.1582) - 0.008, locationName: 'Station' },
-              { id: 'c3', name: 'Maruti Swift ZXi', price: 1499, category: 'Hatchback', fuel: 'Petrol', transmission: 'Manual', lat: (pickupCoords?.lat || 12.1211) + 0.004, lng: (pickupCoords?.lng || 78.1582) - 0.006, locationName: 'Central' },
-            ]}
-            onSelectCar={(car) => navigate('/cars')}
+            cars={displayedFleet.map((v, i) => ({
+              id: v._id || `v_${i}`,
+              name: `${v.make || ''} ${v.model || ''}`,
+              price: v.pricePerDay || 1500,
+              category: v.category || 'Luxury',
+              fuel: v.fuelType || 'Petrol',
+              transmission: v.transmission || 'Automatic',
+              lat: (pickupCoords?.lat || 12.1211) + ((i % 3 - 1) * 0.007),
+              lng: (pickupCoords?.lng || 78.1582) + ((i % 2 === 0 ? 1 : -1) * 0.006),
+              locationName: v.location || searchLocation || 'Pickup Hub'
+            }))}
+            onSelectCar={(car) => {
+              const matched = displayedFleet.find(f => f._id === car.id || f.model === car.name.split(' ').slice(1).join(' '));
+              if (matched) setDetailVehicle(matched);
+            }}
+            onMapClick={(locationName, coords) => {
+              setSearchLocation(locationName);
+              if (coords) setPickupCoords(coords);
+              handleSearchSubmit(null, locationName);
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
           />
         </div>
 
