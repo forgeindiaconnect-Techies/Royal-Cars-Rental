@@ -1702,12 +1702,78 @@ export default function LandingPage() {
             <p style={{ fontSize: '0.88rem', color: '#94a3b8', lineHeight: 1.6, marginBottom: '1.5rem', maxWidth: '300px' }}>
               Your trusted car rental partner for every journey. Drive better, drive Royal Drive.
             </p>
-            <div style={{ display: 'flex', gap: '0.75rem' }}>
-              {['f', 'ig', 'tw', 'in'].map((icon, idx) => (
-                <div key={idx} style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'rgba(255,255,255,0.08)', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.85rem', cursor: 'pointer', fontWeight: 800 }}>
-                  {icon}
-                </div>
-              ))}
+            {/* Original Social & Location Badges */}
+            <div style={{ display: 'flex', gap: '0.85rem', marginTop: '1rem', alignItems: 'center' }}>
+              {/* 1. WhatsApp Icon (Official Green) */}
+              <a
+                href="https://wa.me/919517368420?text=Hello%20Royal%20Drive!%20I%20want%20to%20inquire%20about%20car%20rental."
+                target="_blank"
+                rel="noopener noreferrer"
+                title="Chat on WhatsApp"
+                style={{
+                  width: '42px', height: '42px', borderRadius: '50%',
+                  background: '#25D366', color: '#ffffff',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+                  boxShadow: '0 4px 14px rgba(37, 211, 102, 0.35)',
+                  textDecoration: 'none'
+                }}
+                onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px) scale(1.1)'; e.currentTarget.style.boxShadow = '0 8px 22px rgba(37, 211, 102, 0.55)'; }}
+                onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0) scale(1)'; e.currentTarget.style.boxShadow = '0 4px 14px rgba(37, 211, 102, 0.35)'; }}
+              >
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12.012 2C6.48 2 2 6.48 2 12.012c0 1.77.462 3.498 1.34 5.02L2 22l5.093-1.332A9.957 9.957 0 0 0 12.012 22c5.53 0 10.012-4.48 10.012-10.012C22.024 6.48 17.54 2 12.012 2zm5.836 14.282c-.244.686-1.22 1.31-1.986 1.478-.524.114-1.206.208-3.51-.75-2.946-1.223-4.846-4.22-4.992-4.417-.146-.197-1.193-1.587-1.193-3.027 0-1.44.755-2.152 1.026-2.443.272-.292.593-.365.792-.365.198 0 .396.002.568.01.183.008.428-.069.67.51.244.579.828 2.02.9 2.167.073.146.12.318.025.513-.095.195-.143.318-.288.487-.146.17-.306.38-.437.51-.146.146-.298.305-.128.597.17.292.756 1.248 1.624 2.022 1.116.993 2.058 1.302 2.35 1.448.292.146.463.122.634-.073.17-.195.731-.852.926-1.144.195-.292.39-.244.658-.146.268.098 1.705.804 1.998.95.292.146.487.219.56.341.073.122.073.707-.171 1.393z"/>
+                </svg>
+              </a>
+
+              {/* 2. Instagram Icon (Official Gradient) */}
+              <a
+                href="https://instagram.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                title="Follow us on Instagram"
+                style={{
+                  width: '42px', height: '42px', borderRadius: '50%',
+                  background: 'linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)',
+                  color: '#ffffff',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+                  boxShadow: '0 4px 14px rgba(220, 39, 67, 0.35)',
+                  textDecoration: 'none'
+                }}
+                onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px) scale(1.1)'; e.currentTarget.style.boxShadow = '0 8px 22px rgba(220, 39, 67, 0.55)'; }}
+                onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0) scale(1)'; e.currentTarget.style.boxShadow = '0 4px 14px rgba(220, 39, 67, 0.35)'; }}
+              >
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+                  <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+                  <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+                </svg>
+              </a>
+
+              {/* 3. Location Pin Icon (Google Maps Red/Gold) */}
+              <a
+                href="https://maps.google.com/?q=Dharmapuri,Tamil+Nadu,India"
+                target="_blank"
+                rel="noopener noreferrer"
+                title="View Hub Location on Google Maps"
+                style={{
+                  width: '42px', height: '42px', borderRadius: '50%',
+                  background: 'linear-gradient(135deg, #EA4335 0%, #C5221F 100%)',
+                  color: '#ffffff',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+                  boxShadow: '0 4px 14px rgba(234, 67, 53, 0.35)',
+                  textDecoration: 'none'
+                }}
+                onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px) scale(1.1)'; e.currentTarget.style.boxShadow = '0 8px 22px rgba(234, 67, 53, 0.55)'; }}
+                onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0) scale(1)'; e.currentTarget.style.boxShadow = '0 4px 14px rgba(234, 67, 53, 0.35)'; }}
+              >
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                  <circle cx="12" cy="10" r="3"/>
+                </svg>
+              </a>
             </div>
           </div>
 
