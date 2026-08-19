@@ -4,12 +4,12 @@
   "description": "AI-Powered Rental Business Operating System",
   "main": "backend/server.js",
   "scripts": {
-    "install-all": "npm install && npm install --prefix backend && npm install --prefix frontend",
+    "install-all": "npm install && cd backend && npm install && cd ../frontend && npm install",
     "start": "node backend/server.js",
-    "backend": "npm run dev --prefix backend",
-    "frontend": "npm run dev --prefix frontend",
+    "backend": "cd backend && npm run dev",
+    "frontend": "cd frontend && npm run dev",
     "dev": "concurrently \"npm run backend\" \"npm run frontend\"",
-    "seed": "npm run seed --prefix backend",
+    "seed": "cd backend && npm run seed",
     "build": "cd frontend && npm install && npm run build"
   },
   "dependencies": {

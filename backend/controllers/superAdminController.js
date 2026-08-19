@@ -588,25 +588,33 @@ exports.sendSubscriptionEmail = async (req, res) => {
     </div>
   `;
 
-  console.log('[SUBSCRIPTION EMAIL] Calling Brevo...');
+  console.log('[SUBSCRIPTION EMAIL] Calling emailScheduler...');
   try {
-    const result = await sendEmail({
+    const { scheduleOrSendEmail } = require('../utils/emailScheduler');
+    const result = await scheduleOrSendEmail({
       to: recipientEmail,
+      recipientName: companyName,
       subject: subject,
       text: textContent,
       html: htmlContent,
+      scheduledDate: req.body.scheduledDate || req.body.dispatchDate || new Date(),
+      targetHour: 10,
+      targetMinute: 0,
+      relatedType: 'subscription',
     });
 
     if (result && result.success) {
-      console.log('[SUBSCRIPTION EMAIL] Success');
+      console.log('[SUBSCRIPTION EMAIL] Result:', result.message);
       return res.status(200).json({
         success: true,
-        message: `Subscription email successfully sent to ${recipientEmail}`,
+        message: result.message,
         payLink,
+        scheduled: result.scheduled,
+        scheduledTime: result.scheduledTime,
         result,
       });
     } else {
-      const errMsg = (result && result.error) ? result.error : 'Brevo API email dispatch failed';
+      const errMsg = (result && result.message) ? result.message : 'Brevo API email dispatch failed';
       console.log(`[SUBSCRIPTION EMAIL] Failed: ${errMsg}`);
       return res.status(500).json({
         success: false,

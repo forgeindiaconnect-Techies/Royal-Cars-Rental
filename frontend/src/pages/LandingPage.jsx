@@ -19,6 +19,8 @@ import FeatureCards from '../components/FeatureCards';
 import AIFinderModal from '../components/AIFinderModal';
 import AIChatbot from '../components/AIChatbot';
 import GoogleMapComponent from '../components/GoogleMapComponent';
+import LuxuryCarVideoPlayer from '../components/LuxuryCarVideoPlayer';
+import GoogleLocationSearch from '../components/GoogleLocationSearch';
 
 export default function LandingPage() {
   const navigate = useNavigate();
@@ -26,6 +28,7 @@ export default function LandingPage() {
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isAiChatbotOpen, setIsAiChatbotOpen] = useState(false);
+  const [isSpeedDialOpen, setIsSpeedDialOpen] = useState(false);
   // Search Filter States
   const [searchLocation, setSearchLocation] = useState('gundalapatti');
   const [dropoffLocation, setDropoffLocation] = useState('Dharmapuri');
@@ -169,6 +172,8 @@ export default function LandingPage() {
   const [searchResults, setSearchResults] = useState([]);
   const [searchMode, setSearchMode] = useState('self'); // 'self' | 'driver'
   const [showAiModal, setShowAiModal] = useState(false);
+  const [showVideoModal, setShowVideoModal] = useState(false);
+  const [selectedVideoClip, setSelectedVideoClip] = useState('sports'); // 'sports' | 'suv' | 'experience'
 
   // Multi-Role Registration Modal States
   const [showWelcomeModal, setShowWelcomeModal] = useState(() => {
@@ -962,779 +967,634 @@ export default function LandingPage() {
   const displayedFleet = combinedVehicles.length > 0 ? combinedVehicles : INITIAL_PUBLISHED_FLEET;
 
   return (
-    <div style={{ background: '#ffffff', color: '#1c1917', fontFamily: 'Inter, system-ui, sans-serif', minHeight: '100vh', overflowX: 'hidden' }}>
+    <div style={{ background: '#ffffff', color: '#0f172a', fontFamily: 'Inter, system-ui, sans-serif', minHeight: '100vh', width: '100%', overflowX: 'hidden', boxSizing: 'border-box' }}>
 
-      {/* STICKY TOP NAVBAR HEADER (V2 FLEETMIND) */}
-      <nav className="fleet-v2-nav">
-        <button 
-          className="fleet-v2-mobile-hamburger"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          aria-label="Toggle Navigation Menu"
-        >
-          {mobileMenuOpen ? '✕' : '☰'}
-        </button>
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', cursor: 'pointer' }} className="fleet-v2-nav-brand" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-          <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: '#4a2c11', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '1.2rem', boxShadow: '0 4px 12px rgba(74, 44, 17, 0.3)' }}>R</div>
-          <div>
-            <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#1f140b', letterSpacing: '-0.3px' }}>Royal Rent <span style={{ color: '#b48555' }}>Cars</span></div>
-            <div style={{ fontSize: '0.6rem', letterSpacing: '2px', textTransform: 'uppercase', color: '#6b5a4b', fontWeight: 700, marginTop: '-2px' }}>PREMIUM CAR RENTALS</div>
+      {/* 1. TOP NAVBAR HEADER (ROYAL DRIVE LUXURY STYLING) */}
+      <nav className="rd-navbar">
+        <div className="rd-brand-logo" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+          <div className="rd-brand-icon">👑</div>
+          <div className="rd-brand-text">
+            <span className="rd-brand-title">Royal Drive</span>
+            <span className="rd-brand-subtitle">CAR RENTALS</span>
           </div>
         </div>
 
-        <div className="fleet-v2-nav-links">
-          <a href="#home" style={{ color: '#4a2c11', fontWeight: 800 }}>Home</a>
-          <a href="#fleets">Cars</a>
-          <a href="/about" onClick={(e) => { e.preventDefault(); navigate('/about'); }}>About Us</a>
+        <div className="rd-nav-links">
+          <a href="#home" className="rd-nav-link active">Home</a>
+          <a href="#fleets" className="rd-nav-link">Cars</a>
+          <a href="#locations" className="rd-nav-link">Locations</a>
+          <a href="#services" className="rd-nav-link">Services</a>
+          <a href="/about" className="rd-nav-link" onClick={(e) => { e.preventDefault(); navigate('/about'); }}>About Us</a>
+          <a href="/contact" className="rd-nav-link" onClick={(e) => { e.preventDefault(); navigate('/contact'); }}>Contact</a>
         </div>
 
-        <div className="fleet-v2-nav-actions" style={{ display: 'flex', gap: '0.8rem', alignItems: 'center' }}>
-          <button className="fleet-v2-btn-outline fleet-v2-user-btn" onClick={() => navigate('/auth')}>
-            👤 <span className="fleet-v2-user-name">{user ? user.name.split(' ')[0] : 'Login'}</span>
-          </button>
-          <button className="fleet-v2-btn-solid fleet-v2-partner-btn" onClick={() => setShowMultiRoleRegModal(true)}>
-            🔥 Register / Partner
+        <div style={{ display: 'flex', gap: '0.8rem', alignItems: 'center' }}>
+          <button className="rd-btn-gold" onClick={() => navigate('/auth')}>
+            Login / Sign Up
           </button>
         </div>
-
-        {/* Mobile Menu Overlay Drawer */}
-        {mobileMenuOpen && (
-          <div className="fleet-v2-mobile-menu-drawer">
-            <a href="#home" onClick={() => setMobileMenuOpen(false)}>🏠 Home</a>
-            <a href="#fleets" onClick={() => setMobileMenuOpen(false)}>🏎️ Cars & Fleet</a>
-            <a href="/about" onClick={(e) => { e.preventDefault(); navigate('/about'); setMobileMenuOpen(false); }}>ℹ️ About Us</a>
-            <a href="/contact" onClick={(e) => { e.preventDefault(); navigate('/contact'); setMobileMenuOpen(false); }}>📞 Contact Us</a>
-            <hr style={{ border: 'none', borderTop: '1px solid #e2d7c5', margin: '0.5rem 0' }} />
-            <button className="fleet-v2-btn-solid" onClick={() => { setShowMultiRoleRegModal(true); setMobileMenuOpen(false); }}>
-              🔥 Register / Partner
-            </button>
-            <button className="fleet-v2-btn-outline" onClick={() => { navigate('/auth'); setMobileMenuOpen(false); }}>
-              👤 {user ? `Profile (${user.name.split(' ')[0]})` : 'Login / Signup'}
-            </button>
-          </div>
-        )}
       </nav>
 
-      {/* 1. HERO BANNER SECTION WITH SEARCH CARD (ID: home) */}
-      <section id="home" className="fleet-v2-hero">
-        {/* Automatic Background Slideshow (2.5s cycle) */}
-        <div className="fleet-v2-hero-slides">
-          {HERO_IMAGES.map((imgUrl, idx) => (
-            <div
-              key={idx}
-              className={`fleet-v2-hero-slide ${idx === heroBgIndex ? 'active' : ''}`}
-              style={{ backgroundImage: `url('${imgUrl}')` }}
-            />
-          ))}
-        </div>
-        <div className="fleet-v2-hero-overlay" />
-
-        <div className="fleet-v2-hero-content">
-
-          {/* Left Text Column */}
-          <div className="fleet-v2-hero-left">
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: '#fdfbf7', color: '#b48555', padding: '0.45rem 1.1rem', borderRadius: '20px', fontSize: '0.82rem', fontWeight: 700, marginBottom: '1.5rem', border: '1px solid #f2eadf', boxShadow: '0 2px 8px rgba(0,0,0,0.03)' }}>
-              <span>✨</span> AI-Powered Smart Car Rental Platform
-            </div>
-
-            <h1 className="fleet-v2-hero-title">
-              Rent the <span>Perfect Car.</span><br />Every Time.
-            </h1>
-
-            <p className="fleet-v2-hero-subtitle">
-              Find, book, and drive your ideal car with instant AI recommendations, real-time tracking, and transparent pricing.
-            </p>
-
-            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginBottom: '2.5rem' }}>
-              <a href="#fleets" className="fleet-v2-btn-solid" style={{ textDecoration: 'none', padding: '0.85rem 1.8rem' }}>
-                🚗 Rent a Car
-              </a>
-              <button className="fleet-v2-btn-outline" onClick={() => setShowMultiRoleRegModal(true)} style={{ padding: '0.85rem 1.8rem' }}>
-                🏢 List Your Car
-              </button>
-            </div>
-
-            <div className="fleet-v2-trust-badges">
-              <span>🛡️ Best Price Guarantee</span>
-              <span>📞 24/7 Customer Support</span>
-              <span>🔒 100% Secure & Trusted</span>
-            </div>
+      {/* 2. HERO SECTION */}
+      <section id="home" className="rd-hero" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=2000&q=80')" }}>
+        <div className="rd-hero-overlay"></div>
+        <div className="rd-hero-container">
+          <h1 className="rd-hero-headline">
+            Drive Your Journey,<br />
+            <span>We Take Care of the Rest.</span>
+          </h1>
+          <p className="rd-hero-subtext">
+            Premium cars. Best prices. Unmatched service.<br />
+            Book your perfect ride in just a few clicks.
+          </p>
+          <div className="rd-hero-actions">
+            <a href="#fleets" className="rd-btn-gold" style={{ padding: '0.85rem 2rem', fontSize: '0.95rem' }}>
+              Book Your Ride ➔
+            </a>
+            <button className="rd-btn-video" onClick={() => {
+              setShowVideoModal(true);
+              const el = document.getElementById('video-showcase');
+              if (el) el.scrollIntoView({ behavior: 'smooth' });
+            }}>
+              <span style={{ display: 'inline-flex', width: '26px', height: '26px', borderRadius: '50%', border: '1px solid rgba(255,255,255,0.6)', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem', paddingLeft: '2px' }}>▶</span> Watch Video
+            </button>
           </div>
-
-          {/* Right Floating Search Widget */}
-            <div className="fleet-v2-booking-card" style={{ paddingBottom: '2.5rem', overflow: 'visible' }}>
-              <div className="fleet-v2-booking-tabs">
-                <div
-                  className={`fleet-v2-tab ${searchMode === 'self' ? 'active' : ''}`}
-                  onClick={() => setSearchMode('self')}
-                >
-                  🏎️ Self Drive
-                </div>
-                <div
-                  className={`fleet-v2-tab ${searchMode === 'driver' ? 'active' : ''}`}
-                  onClick={() => setSearchMode('driver')}
-                >
-                  👨‍✈️ With Driver
-                </div>
-                <div
-                  className="fleet-v2-tab"
-                  onClick={() => setShowMultiRoleRegModal(true)}
-                >
-                  🏢 For Companies
-                </div>
-              </div>
-
-              <form onSubmit={handleSearchSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '0.9rem' }}>
-                <div className="fleet-v2-input-group" style={{ position: 'relative', zIndex: 9999 }}>
-                  <label>Pick-up Location</label>
-                  <input
-                    type="text"
-                    value={searchLocation}
-                    onChange={(e) => { setSearchLocation(e.target.value); setShowLocationDropdown(true); }}
-                    onFocus={() => setShowLocationDropdown(true)}
-                    placeholder="Search city, district, state..."
-                  />
-                  {showLocationDropdown && searchLocation.trim().length >= 2 && (
-                    <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 100, background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', marginTop: '8px', maxHeight: '220px', overflowY: 'auto', boxShadow: '0 12px 30px rgba(0,0,0,0.12)', transition: 'all 0.3s ease' }}>
-                      {searchLoading ? (
-                        <div style={{ padding: '1rem', textAlign: 'center', color: '#64748b', fontSize: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                          <span style={{ display: 'inline-block', width: '16px', height: '16px', border: '2px solid #e2e8f0', borderTopColor: '#7c3aed', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></span>
-                          Searching...
-                        </div>
-                      ) : liveSuggestions.length > 0 ? (
-                        liveSuggestions.map((loc, idx) => (
-                          <div 
-                            key={idx} 
-                            onClick={() => {
-                              const displayName = loc.name || loc.city || loc.state || 'Selected Location';
-                              setSearchLocation(displayName);
-                              if (loc.lat && loc.lon) setPickupCoords({ lat: Number(loc.lat), lng: Number(loc.lon) });
-                              setShowLocationDropdown(false); 
-                              handleSearchSubmit(null, displayName);
-                            }} 
-                            style={{ padding: '0.75rem 1rem', fontSize: '0.85rem', color: '#1e293b', cursor: 'pointer', borderBottom: '1px solid #f1f5f9', display: 'flex', flexDirection: 'column', gap: '2px', transition: 'background 0.2s ease' }} 
-                            onMouseEnter={e => e.currentTarget.style.background = '#f8fafc'}
-                            onMouseLeave={e => e.currentTarget.style.background = '#ffffff'}
-                            onMouseDown={e => e.preventDefault()}
-                          >
-                            <span style={{ fontWeight: 600, color: '#0f172a' }}>{loc.name || loc.city || loc.state}</span>
-                            <span style={{ fontSize: '0.75rem', color: '#64748b' }}>
-                              {[loc.city, loc.state, loc.country].filter(Boolean).join(', ')}
-                            </span>
-                          </div>
-                        ))
-                      ) : (
-                        <div style={{ padding: '1rem', textAlign: 'center', color: '#64748b', fontSize: '0.85rem' }}>
-                          No locations found
-                        </div>
-                      )}
-                    </div>
-                  )}
-                  <style>{`
-                    @keyframes spin { 100% { transform: rotate(360deg); } }
-                  `}</style>
-                </div>
-
-              <div className="fleet-v2-input-group" style={{ position: 'relative', zIndex: 9998 }}>
-                <label>Drop-off Location</label>
-                <input
-                  type="text"
-                  value={dropoffLocation}
-                  onChange={(e) => { setDropoffLocation(e.target.value); setShowDropoffDropdown(true); }}
-                  onFocus={() => setShowDropoffDropdown(true)}
-                  placeholder="Select drop-off location"
-                />
-                {showDropoffDropdown && dropoffLocation.trim().length >= 2 && (
-                  <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 100, background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', marginTop: '8px', maxHeight: '220px', overflowY: 'auto', boxShadow: '0 12px 30px rgba(0,0,0,0.12)', transition: 'all 0.3s ease' }}>
-                    {dropoffLoading ? (
-                      <div style={{ padding: '1rem', textAlign: 'center', color: '#64748b', fontSize: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                        <span style={{ display: 'inline-block', width: '16px', height: '16px', border: '2px solid #e2e8f0', borderTopColor: '#7c3aed', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></span>
-                        Searching...
-                      </div>
-                    ) : dropoffSuggestions.length > 0 ? (
-                      dropoffSuggestions.map((loc, idx) => (
-                        <div 
-                          key={idx} 
-                          onClick={() => {
-                            const displayName = loc.name || loc.city || loc.state || 'Selected Location';
-                            setDropoffLocation(displayName);
-                            if (loc.lat && loc.lon) setDropoffCoords({ lat: Number(loc.lat), lng: Number(loc.lon) });
-                            setShowDropoffDropdown(false); 
-                          }} 
-                          style={{ padding: '0.75rem 1rem', fontSize: '0.85rem', color: '#1e293b', cursor: 'pointer', borderBottom: '1px solid #f1f5f9', display: 'flex', flexDirection: 'column', gap: '2px', transition: 'background 0.2s ease' }} 
-                          onMouseEnter={e => e.currentTarget.style.background = '#f8fafc'}
-                          onMouseLeave={e => e.currentTarget.style.background = '#ffffff'}
-                          onMouseDown={e => e.preventDefault()}
-                        >
-                          <span style={{ fontWeight: 600, color: '#0f172a' }}>{loc.name || loc.city || loc.state}</span>
-                          <span style={{ fontSize: '0.75rem', color: '#64748b' }}>
-                            {[loc.city, loc.state, loc.country].filter(Boolean).join(', ')}
-                          </span>
-                        </div>
-                      ))
-                    ) : (
-                      <div style={{ padding: '1rem', textAlign: 'center', color: '#64748b', fontSize: '0.85rem' }}>
-                        No locations found
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-
-              <div className="fleet-v2-booking-grid" style={{ display: 'grid', gap: '0.8rem' }}>
-                <div className="fleet-v2-input-group">
-                  <label>Pick-up Date</label>
-                  <input type="date" value={startDate} onChange={e => { setStartDate(e.target.value); setTimeout(() => handleSearchSubmit(), 100); }} />
-                </div>
-                <div className="fleet-v2-input-group">
-                  <label>Return Date</label>
-                  <input type="date" value={endDate} onChange={e => { setEndDate(e.target.value); setTimeout(() => handleSearchSubmit(), 100); }} />
-                </div>
-              </div>
-
-              <div className="fleet-v2-input-group">
-                <label>Vehicle Type</label>
-                <select value={searchCategory} onChange={e => { setSearchCategory(e.target.value); setTimeout(() => handleSearchSubmit(), 100); }} style={{ width: '100%', background: '#faf8f5', border: '1px solid #e2d7c5', borderRadius: '8px', padding: '0.65rem 0.8rem', fontSize: '0.85rem', color: '#1f140b', outline: 'none' }}>
-                  <option value="">All Types (Sedan, SUV, Luxury)</option>
-                  <option value="Sedan">Sedan</option>
-                  <option value="SUV">SUV</option>
-                  <option value="Luxury">Luxury</option>
-                  <option value="Hatchback">Hatchback</option>
-                  <option value="Electric">Electric</option>
-                </select>
-              </div>
-            </form>
-
-            <div style={{ textAlign: 'center', marginTop: '1.5rem' }}>
-              <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#1f140b', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                AI Rental Assistant
-              </div>
-              <p style={{ color: '#6b5a4b', fontSize: '0.75rem', marginBottom: '0.5rem', marginTop: '0.2rem' }}>Let AI find your perfect car</p>
-              <button 
-                onClick={(e) => { e.preventDefault(); setShowAiModal(true); }} 
-                type="button"
-                style={{ width: '100%', padding: '0.85rem', background: '#4E311B', color: '#fff', border: 'none', borderRadius: '10px', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxShadow: '0 4px 15px rgba(78, 49, 27, 0.3)' }}
-              >
-                Find My Perfect Car
-              </button>
-            </div>
-          </div>
-
         </div>
       </section>
 
+      {/* 3. FLOATING SEARCH CARD ("Find Your Perfect Car") */}
+      <section className="reveal-on-scroll" style={{ padding: '0 4%' }}>
+        <div className="rd-search-card">
+          <div className="rd-search-header">
+            <span style={{ fontSize: '1.25rem' }}>🚗</span> Find Your Perfect Car
+          </div>
 
-      {/* AI VEHICLE FINDER (Right below Hero) */}
-      <section style={{ padding: '0 4%', marginTop: '2rem', position: 'relative', zIndex: 10, width: '100%', boxSizing: 'border-box' }}>
-        
-        {/* Main AI Card */}
-        <div className="ai-finder-card" style={{ 
-          background: '#FCF8F3', 
-          border: '1px solid #C89B5B', 
-          borderRadius: '22px', 
-          padding: '2rem', 
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'space-between', 
-          gap: '2rem', 
-          width: '100%', 
-          boxShadow: '0 12px 30px rgba(59, 33, 19, 0.08)',
-          boxSizing: 'border-box'
-        }}>
+          <form onSubmit={handleSearchSubmit} className="rd-search-grid">
+            {/* Pick-up Location with Interactive Map Search & Pin Picker */}
+            <div className="rd-input-group" style={{ gridColumn: 'span 1' }}>
+              <GoogleLocationSearch
+                label="Pick-up Location"
+                value={searchLocation}
+                onChange={(name, coords) => {
+                  setSearchLocation(name);
+                  if (coords) setPickupCoords(coords);
+                  handleSearchSubmit(null, name);
+                }}
+                placeholder="Search city, district, airport..."
+              />
+            </div>
+
+            {/* Pick-up Date */}
+            <div className="rd-input-group">
+              <label className="rd-input-label">Pick-up Date</label>
+              <div className="rd-input-wrapper">
+                <span style={{ color: '#d4a359', fontSize: '1rem' }}>📅</span>
+                <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} />
+              </div>
+            </div>
+
+            {/* Pick-up Time */}
+            <div className="rd-input-group">
+              <label className="rd-input-label">Pick-up Time</label>
+              <div className="rd-input-wrapper">
+                <span style={{ color: '#d4a359', fontSize: '1rem' }}>🕒</span>
+                <input type="time" defaultValue="10:00" />
+              </div>
+            </div>
+
+            {/* Drop-off Date */}
+            <div className="rd-input-group">
+              <label className="rd-input-label">Drop-off Date</label>
+              <div className="rd-input-wrapper">
+                <span style={{ color: '#d4a359', fontSize: '1rem' }}>📅</span>
+                <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} />
+              </div>
+            </div>
+
+            {/* Search Button */}
+            <div>
+              <button type="submit" className="rd-btn-gold" style={{ width: '100%', justifyContent: 'center', padding: '0.75rem' }}>
+                Search Cars
+              </button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      {/* 4. VALUE PROPOSITION FEATURE BADGES */}
+      <section className="rd-features-grid reveal-on-scroll">
+        <div className="rd-feature-card">
+          <div className="rd-feature-icon">🛡️</div>
+          <div>
+            <div className="rd-feature-title">Best Price Guarantee</div>
+            <div className="rd-feature-sub">Get the best deals always</div>
+          </div>
+        </div>
+        <div className="rd-feature-card">
+          <div className="rd-feature-icon">🚗</div>
+          <div>
+            <div className="rd-feature-title">Wide Range of Cars</div>
+            <div className="rd-feature-sub">From economy to luxury we've got it all</div>
+          </div>
+        </div>
+        <div className="rd-feature-card">
+          <div className="rd-feature-icon">📋</div>
+          <div>
+            <div className="rd-feature-title">Easy Booking</div>
+            <div className="rd-feature-sub">Book in minutes with simple steps</div>
+          </div>
+        </div>
+        <div className="rd-feature-card">
+          <div className="rd-feature-icon">📞</div>
+          <div>
+            <div className="rd-feature-title">24/7 Support</div>
+            <div className="rd-feature-sub">We are here to help you anytime</div>
+          </div>
+        </div>
+      </section>
+
+      {/* 5. POPULAR CAR CATEGORIES */}
+      <section id="services" className="reveal-on-scroll" style={{ padding: '0 4%' }}>
+        <div className="rd-section-header">
+          <h2 className="rd-section-title">Popular Car Categories</h2>
+          <a href="#fleets" className="rd-section-link">View all cars ➔</a>
+        </div>
+
+        <div className="rd-categories-grid">
+          <div className="rd-category-card" onClick={() => navigate('/cars')}>
+            <img src="https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?auto=format&fit=crop&w=800&q=80" alt="Economy Cars" className="rd-category-img" />
+            <div className="rd-category-body">
+              <div className="rd-category-name">Economy Cars</div>
+              <div className="rd-category-sub">Perfect for city rides</div>
+              <div className="rd-category-price">From <span>$29 / day</span></div>
+            </div>
+          </div>
+
+          <div className="rd-category-card" onClick={() => navigate('/cars')}>
+            <img src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=800&q=80" alt="SUV Cars" className="rd-category-img" />
+            <div className="rd-category-body">
+              <div className="rd-category-name">SUV Cars</div>
+              <div className="rd-category-sub">Powerful & spacious</div>
+              <div className="rd-category-price">From <span>$89 / day</span></div>
+            </div>
+          </div>
+
+          <div className="rd-category-card" onClick={() => navigate('/cars')}>
+            <img src="https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=800&q=80" alt="Luxury Cars" className="rd-category-img" />
+            <div className="rd-category-body">
+              <div className="rd-category-name">Luxury Cars</div>
+              <div className="rd-category-sub">Travel in style</div>
+              <div className="rd-category-price">From <span>$99 / day</span></div>
+            </div>
+          </div>
+
+          <div className="rd-category-card" onClick={() => navigate('/cars')}>
+            <img src="https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=800&q=80" alt="Premium Cars" className="rd-category-img" />
+            <div className="rd-category-body">
+              <div className="rd-category-name">Premium Cars</div>
+              <div className="rd-category-sub">Top-class experience</div>
+              <div className="rd-category-price">From <span>$169 / day</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 5B. DEDICATED INLINE LUXURY CAR VIDEO SHOWCASE SECTION */}
+      <section id="video-showcase" style={{ width: '100%', boxSizing: 'border-box', marginBottom: '5.5rem' }}>
+        <div className="rd-section-header">
+          <div>
+            <h2 className="rd-section-title">Royal Rental Cars — Official Video Showcase</h2>
+            <div style={{ fontSize: '0.88rem', color: '#d4a359', fontWeight: 800, marginTop: '4px' }}>
+              🎥 4K Cinematic Luxury Commercial • Click any clip below to play
+            </div>
+          </div>
+          <button className="rd-btn-gold" style={{ fontSize: '0.88rem', padding: '0.85rem 1.6rem' }} onClick={() => setShowVideoModal(true)}>
+            ⛶ Full Screen 7-Scene Showcase ➔
+          </button>
+        </div>
+
+        <div style={{ width: '94vw', maxWidth: '1600px', margin: '0 auto', background: '#0b0e14', border: '1px solid #d4a359', borderRadius: '26px', overflow: 'hidden', boxShadow: '0 28px 70px rgba(0,0,0,0.4)', position: 'relative' }}>
           
-          {/* Left Form Section */}
-          <div className="ai-finder-left" style={{ flex: '1 1 50%', minWidth: '0' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.4rem' }}>
-              <div style={{ width: '38px', height: '38px', background: '#F8F1E8', border: '1px solid #C89B5B', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#5A321C' }}>
-                <span style={{ fontWeight: 900, fontSize: '1rem', letterSpacing: '-0.5px' }}>Ai<span style={{ fontSize: '0.75rem', color: '#C89B5B', verticalAlign: 'top' }}>✨</span></span>
-              </div>
-              <h3 style={{ color: '#3B2113', fontSize: '1.35rem', fontWeight: 800, margin: 0 }}>AI Vehicle Finder</h3>
-            </div>
-            <p style={{ color: '#7A4A2A', fontSize: '0.82rem', marginBottom: '1.25rem', fontWeight: 500 }}>Tell us your trip details and our AI will find the perfect car for you.</p>
-
-            <div className="ai-finder-inputs" style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap', marginBottom: '1.25rem' }}>
-              {/* Budget */}
-              <div style={{ background: '#FFFFFF', borderRadius: '12px', padding: '0.5rem 0.85rem', flex: 1, minWidth: '110px', display: 'flex', flexDirection: 'column', gap: '0.1rem', border: '1px solid #C89B5B', boxShadow: '0 2px 6px rgba(59, 33, 19, 0.03)' }}>
-                <label style={{ color: '#7A4A2A', fontSize: '0.68rem', fontWeight: 600 }}>Budget</label>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <input type="text" placeholder="₹ 3000" value={aiBudget} onChange={e => setAiBudget(e.target.value)} style={{ width: '100%', border: 'none', color: '#3B2113', fontSize: '0.88rem', fontWeight: 700, outline: 'none', background: 'transparent' }} />
-                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#7A4A2A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6" /></svg>
-                </div>
-              </div>
-
-              {/* Passengers */}
-              <div style={{ background: '#FFFFFF', borderRadius: '12px', padding: '0.5rem 0.85rem', flex: 1, minWidth: '90px', display: 'flex', flexDirection: 'column', gap: '0.1rem', border: '1px solid #C89B5B', boxShadow: '0 2px 6px rgba(59, 33, 19, 0.03)' }}>
-                <label style={{ color: '#7A4A2A', fontSize: '0.68rem', fontWeight: 600 }}>Passengers</label>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <select value={aiPassengers} onChange={e => setAiPassengers(Number(e.target.value))} style={{ width: '100%', border: 'none', color: '#3B2113', fontSize: '0.88rem', fontWeight: 700, outline: 'none', background: 'transparent', appearance: 'none', cursor: 'pointer' }}>
-                    <option value="2">2</option>
-                    <option value="4">4</option>
-                    <option value="5">5</option>
-                    <option value="7">7</option>
-                  </select>
-                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#7A4A2A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ pointerEvents: 'none' }}><path d="M6 9l6 6 6-6" /></svg>
-                </div>
-              </div>
-
-              {/* Trip Type */}
-              <div style={{ background: '#FFFFFF', borderRadius: '12px', padding: '0.5rem 0.85rem', flex: 1, minWidth: '90px', display: 'flex', flexDirection: 'column', gap: '0.1rem', border: '1px solid #C89B5B', boxShadow: '0 2px 6px rgba(59, 33, 19, 0.03)' }}>
-                <label style={{ color: '#7A4A2A', fontSize: '0.68rem', fontWeight: 600 }}>Trip Type</label>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <select value={aiTripType} onChange={e => setAiTripType(e.target.value)} style={{ width: '100%', border: 'none', color: '#3B2113', fontSize: '0.88rem', fontWeight: 700, outline: 'none', background: 'transparent', appearance: 'none', cursor: 'pointer' }}>
-                    <option value="Family">Family</option>
-                    <option value="Business">Business</option>
-                    <option value="Hills">Hills</option>
-                  </select>
-                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#7A4A2A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ pointerEvents: 'none' }}><path d="M6 9l6 6 6-6" /></svg>
-                </div>
-              </div>
-
-              {/* Need Driver */}
-              <div style={{ background: '#FFFFFF', borderRadius: '12px', padding: '0.5rem 0.85rem', flex: 1, minWidth: '90px', display: 'flex', flexDirection: 'column', gap: '0.1rem', border: '1px solid #C89B5B', boxShadow: '0 2px 6px rgba(59, 33, 19, 0.03)' }}>
-                <label style={{ color: '#7A4A2A', fontSize: '0.68rem', fontWeight: 600 }}>Need Driver</label>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '0.1rem' }}>
-                  <span style={{ fontSize: '0.88rem', color: '#3B2113', fontWeight: 700 }}>{aiNeedDriver}</span>
-                  <div
-                    onClick={() => setAiNeedDriver(prev => prev === 'Yes' ? 'No' : 'Yes')}
-                    style={{ width: '22px', height: '22px', background: aiNeedDriver === 'Yes' ? '#5A321C' : '#F8F1E8', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.2s', boxShadow: '0 2px 4px rgba(0,0,0,0.08)' }}>
-                    {aiNeedDriver === 'Yes' ? <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M5 12h14" /></svg> : null}
-                  </div>
-                </div>
-              </div>
+          {/* Top Video Selector Bar */}
+          <div style={{ padding: '0.9rem 1.75rem', background: '#080c14', borderBottom: '1px solid rgba(212,163,89,0.2)', display: 'flex', gap: '1rem', overflowX: 'auto', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', gap: '0.85rem' }}>
+              <span style={{ fontSize: '0.85rem', color: '#cbd5e1', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                <span style={{ color: '#d4a359' }}>🎬</span> Select Scene:
+              </span>
+              <button
+                onClick={() => setSelectedVideoClip('sports')}
+                style={{
+                  padding: '0.55rem 1.25rem', borderRadius: '30px', border: 'none',
+                  background: selectedVideoClip === 'sports' ? 'linear-gradient(135deg, #d4a359, #b87a28)' : 'rgba(255,255,255,0.08)',
+                  color: selectedVideoClip === 'sports' ? '#0d1117' : '#cbd5e1',
+                  fontWeight: 800, fontSize: '0.85rem', cursor: 'pointer', transition: 'all 0.2s'
+                }}
+              >
+                🏎️ BMW M8 &amp; Supercars
+              </button>
+              <button
+                onClick={() => setSelectedVideoClip('suv')}
+                style={{
+                  padding: '0.55rem 1.25rem', borderRadius: '30px', border: 'none',
+                  background: selectedVideoClip === 'suv' ? 'linear-gradient(135deg, #d4a359, #b87a28)' : 'rgba(255,255,255,0.08)',
+                  color: selectedVideoClip === 'suv' ? '#0d1117' : '#cbd5e1',
+                  fontWeight: 800, fontSize: '0.85rem', cursor: 'pointer', transition: 'all 0.2s'
+                }}
+              >
+                🚘 Executive Range Rover SUV
+              </button>
+              <button
+                onClick={() => setSelectedVideoClip('experience')}
+                style={{
+                  padding: '0.55rem 1.25rem', borderRadius: '30px', border: 'none',
+                  background: selectedVideoClip === 'experience' ? 'linear-gradient(135deg, #d4a359, #b87a28)' : 'rgba(255,255,255,0.08)',
+                  color: selectedVideoClip === 'experience' ? '#0d1117' : '#cbd5e1',
+                  fontWeight: 800, fontSize: '0.85rem', cursor: 'pointer', transition: 'all 0.2s'
+                }}
+              >
+                🌟 VIP Delivery &amp; Handover
+              </button>
             </div>
 
-            <button 
-              onClick={() => setShowAiModal(true)} 
-              className="ai-finder-btn" 
-              style={{ 
-                width: 'auto', 
-                padding: '0.85rem 1.75rem', 
-                background: '#5A321C', 
-                border: 'none', 
-                borderRadius: '12px', 
-                color: '#FFFFFF', 
-                fontWeight: 700, 
-                fontSize: '0.92rem', 
-                cursor: 'pointer', 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center', 
-                gap: '0.5rem', 
-                boxShadow: '0 6px 20px rgba(59, 33, 19, 0.2)', 
-                transition: 'all 0.25s ease' 
+            <button
+              onClick={() => setShowVideoModal(true)}
+              style={{
+                background: 'rgba(212,163,89,0.15)', border: '1px solid #d4a359',
+                color: '#e5b741', padding: '0.5rem 1rem', borderRadius: '20px',
+                fontSize: '0.82rem', fontWeight: 800, cursor: 'pointer', flexShrink: 0
               }}
-              onMouseEnter={(e) => { e.currentTarget.style.background = '#3B2113'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = '#5A321C'; }}
             >
-              <span style={{ fontSize: '1.05rem', color: '#C89B5B' }}>✨</span> Get AI Recommendation
+              ▶ Launch 4K Interactive Storyboard
             </button>
           </div>
 
-          {/* Right Dedicated Image Container */}
-          <div className="ai-finder-right" style={{ 
-            flex: '0 0 48%', 
-            display: 'flex', 
-            justifyContent: 'center', 
-            alignItems: 'center', 
-            padding: '20px', 
-            background: '#FCF8F3', 
-            borderRadius: '18px', 
-            border: '1px solid #C89B5B',
-            boxShadow: 'none',
-            minHeight: '230px',
-            width: '100%',
-            boxSizing: 'border-box'
-          }}>
-            <img 
-              src={aiHeroGraphic} 
-              alt="AI Robot and Car" 
-              style={{ 
-                width: '100%',
-                height: '100%',
-                maxHeight: '230px', 
-                objectFit: 'contain', 
-                display: 'block',
-                margin: 'auto'
-              }} 
-            />
+          {/* Video Player Display Container */}
+          <div style={{ position: 'relative', width: '100%', minHeight: '460px', maxHeight: '560px', background: '#000000', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <video
+              key={selectedVideoClip}
+              autoPlay
+              muted
+              controls
+              playsInline
+              loop
+              preload="auto"
+              poster={selectedVideoClip === 'suv' 
+                ? "https://images.unsplash.com/photo-1617814076367-b759c7d7e738?auto=format&fit=crop&w=1600&q=80"
+                : selectedVideoClip === 'experience'
+                ? "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1600&q=80"
+                : "https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=1600&q=80"}
+              style={{ width: '100%', height: '100%', maxHeight: '540px', objectFit: 'cover' }}
+            >
+              <source
+                src={selectedVideoClip === 'suv'
+                  ? '/videos/range-rover-suv.mp4'
+                  : selectedVideoClip === 'experience'
+                  ? '/videos/vip-delivery-handover.mp4'
+                  : '/videos/Video_BMW_M_Supercars.mp4'}
+                type="video/mp4"
+              />
+              <source src="/videos/bmw-m8-supercar.mp4" type="video/mp4" />
+              Your browser does not support HTML5 video.
+            </video>
+
+            {/* Cinematic Telemetry HUD Badge */}
+            <div style={{
+              position: 'absolute', top: '24px', left: '24px', zIndex: 10,
+              background: 'rgba(10, 14, 23, 0.85)', backdropFilter: 'blur(12px)',
+              border: '1px solid rgba(212,163,89,0.45)', borderRadius: '18px',
+              padding: '0.85rem 1.35rem', display: 'flex', alignItems: 'center', gap: '1.1rem',
+              boxShadow: '0 10px 30px rgba(0,0,0,0.6)', pointerEvents: 'none'
+            }}>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: '1.75rem', fontWeight: 900, color: '#e5b741', lineHeight: 1 }}>
+                  {selectedVideoClip === 'suv' ? '140' : selectedVideoClip === 'experience' ? 'VIP' : '185'}
+                </div>
+                <div style={{ fontSize: '0.65rem', color: '#cbd5e1', fontWeight: 800, letterSpacing: '1px' }}>
+                  {selectedVideoClip === 'experience' ? 'STATUS' : 'KM/H'}
+                </div>
+              </div>
+              <div style={{ width: '1px', height: '36px', background: 'rgba(255,255,255,0.25)' }}></div>
+              <div>
+                <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#d4a359', letterSpacing: '1px' }}>
+                  {selectedVideoClip === 'suv'
+                    ? 'EXECUTIVE RANGE ROVER SUV'
+                    : selectedVideoClip === 'experience'
+                    ? 'VIP DELIVERY & KEY HANDOVER'
+                    : 'BMW M8 COMPETITION & SUPERCARS'}
+                </div>
+                <div style={{ fontSize: '1rem', fontWeight: 900, color: '#ffffff', marginTop: '2px' }}>
+                  {selectedVideoClip === 'suv'
+                    ? 'Executive Interior • Air Suspension'
+                    : selectedVideoClip === 'experience'
+                    ? 'Doorstep Delivery • White Glove Inspection'
+                    : '625 HP Twin-Turbo • 0-100 in 3.2s'}
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
+      </section>
 
-        {/* AI Result Card - Placed safely OUTSIDE the container to prevent any layout breaking when it appears */}
-        {aiResultCard && (
-          <div style={{ marginTop: '1.5rem', background: '#FCF8F3', border: '1px solid #C89B5B', padding: '1.15rem 1.5rem', borderRadius: '16px', display: 'flex', alignItems: 'center', gap: '1.5rem', boxShadow: '0 10px 25px rgba(59, 33, 19, 0.08)', maxWidth: '420px' }}>
-            <img src={aiResultCard.img} style={{ width: '120px', borderRadius: '10px', border: '1px solid #C89B5B' }} alt="Result" />
-            <div>
-              <div style={{ fontWeight: 800, color: '#C89B5B', fontSize: '0.82rem', marginBottom: '0.2rem' }}>⭐ AI Best Match ({aiResultCard.match}%)</div>
-              <div style={{ fontWeight: 900, fontSize: '1.15rem', color: '#3B2113' }}>{aiResultCard.car}</div>
-              <div style={{ fontSize: '0.85rem', color: '#7A4A2A', marginTop: '0.2rem' }}>₹{aiResultCard.price}/day • {aiResultCard.seats} Seats</div>
-            </div>
-          </div>
-        )}
+      {/* 6. WHY CHOOSE ROYAL DRIVE? (SPLIT CARD SCREENSHOT MATCH) */}
+      <section className="reveal-on-scroll" style={{ padding: '0 4%' }}>
+        <div className="rd-why-section">
+          <div className="rd-why-left">
+            <h2 className="rd-why-title">Why Choose<br />Royal Drive?</h2>
+            <p className="rd-why-desc">
+              We offer more than just cars. We offer trust, comfort and a smooth experience.
+            </p>
 
-        {/* STATS BAR */}
-        <div style={{ background: '#fff', borderRadius: '16px', boxShadow: '0 4px 15px rgba(0,0,0,0.03)', padding: '1.25rem 2.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1.5rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <div style={{ width: '48px', height: '48px', background: '#fff7ed', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#9a3412" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 16H9m10 0h3v-3.15a1 1 0 00-.84-.99L16 11l-2.7-3.6a2 2 0 00-1.6-.8H9.3a2 2 0 00-1.6.8L5 11l-5.16.86a1 1 0 00-.84.99V16h3m10 0a2 2 0 11-4 0m4 0a2 2 0 10-4 0m-10 0a2 2 0 11-4 0m4 0a2 2 0 10-4 0"></path></svg>
+            <div className="rd-stats-grid">
+              <div className="rd-stat-item">
+                <div className="rd-stat-icon">👤</div>
+                <div>
+                  <div className="rd-stat-val">10K+</div>
+                  <div className="rd-stat-lbl">Happy Customers</div>
+                </div>
+              </div>
+              <div className="rd-stat-item">
+                <div className="rd-stat-icon">🚘</div>
+                <div>
+                  <div className="rd-stat-val">500+</div>
+                  <div className="rd-stat-lbl">Premium Cars</div>
+                </div>
+              </div>
+              <div className="rd-stat-item">
+                <div className="rd-stat-icon">📍</div>
+                <div>
+                  <div className="rd-stat-val">50+</div>
+                  <div className="rd-stat-lbl">Locations</div>
+                </div>
+              </div>
+              <div className="rd-stat-item">
+                <div className="rd-stat-icon">⭐</div>
+                <div>
+                  <div className="rd-stat-val">4.8★</div>
+                  <div className="rd-stat-lbl">Customer Rating</div>
+                </div>
+              </div>
             </div>
+
             <div>
-              <div style={{ fontWeight: 900, fontSize: '1.15rem', color: '#0f172a' }}>5000+</div>
-              <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600 }}>Cars Available</div>
+              <button className="rd-btn-gold" onClick={() => setShowMultiRoleRegModal(true)}>
+                Explore More ➔
+              </button>
             </div>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <div style={{ width: '48px', height: '48px', background: '#fff7ed', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#9a3412" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect><path d="M9 22v-4h6v4M8 6h.01M16 6h.01M12 6h.01M12 10h.01M16 10h.01M8 10h.01M8 14h.01M12 14h.01M16 14h.01"></path></svg>
-            </div>
-            <div>
-              <div style={{ fontWeight: 900, fontSize: '1.15rem', color: '#0f172a' }}>150+</div>
-              <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600 }}>Top Car Companies</div>
+
+          <div
+            className="rd-why-right"
+            style={{ backgroundImage: "url('https://images.unsplash.com/photo-1617814076367-b759c7d7e738?auto=format&fit=crop&w=1200&q=80')" }}
+          />
+        </div>
+      </section>
+
+      {/* 7. TOP LOCATIONS */}
+      <section id="locations" className="reveal-on-scroll" style={{ padding: '0 4%' }}>
+        <div className="rd-section-header">
+          <h2 className="rd-section-title">Top Locations</h2>
+          <a href="#locations" className="rd-section-link">View all locations ➔</a>
+        </div>
+
+        <div className="rd-locations-grid">
+          <div className="rd-location-card" onClick={() => navigate('/cars')}>
+            <img src="https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?auto=format&fit=crop&w=800&q=80" alt="New York" />
+            <div className="rd-location-overlay">
+              <div className="rd-location-title">📍 New York</div>
+              <div className="rd-location-price">From $29 / day</div>
             </div>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <div style={{ width: '48px', height: '48px', background: '#fff7ed', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#9a3412" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-            </div>
-            <div>
-              <div style={{ fontWeight: 900, fontSize: '1.15rem', color: '#0f172a' }}>25K+</div>
-              <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600 }}>Happy Customers</div>
+
+          <div className="rd-location-card" onClick={() => navigate('/cars')}>
+            <img src="https://images.unsplash.com/photo-1580655653885-65763b2597d0?auto=format&fit=crop&w=800&q=80" alt="Los Angeles" />
+            <div className="rd-location-overlay">
+              <div className="rd-location-title">📍 Los Angeles</div>
+              <div className="rd-location-price">From $35 / day</div>
             </div>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <div style={{ width: '48px', height: '48px', background: '#fff7ed', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#9a3412" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="M9 12l2 2 4-4"></path></svg>
+
+          <div className="rd-location-card" onClick={() => navigate('/cars')}>
+            <img 
+              src="/chicago-skyline.jpg" 
+              alt="Chicago" 
+              onError={(e) => { e.target.onerror = null; e.target.src = "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=800&q=80"; }} 
+            />
+            <div className="rd-location-overlay">
+              <div className="rd-location-title">📍 Chicago</div>
+              <div className="rd-location-price">From $52 / day</div>
             </div>
-            <div>
-              <div style={{ fontWeight: 900, fontSize: '1.15rem', color: '#0f172a' }}>98%</div>
-              <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600 }}>Satisfaction Rate</div>
+          </div>
+
+          <div className="rd-location-card" onClick={() => navigate('/cars')}>
+            <img src="https://images.unsplash.com/photo-1506966953602-c20cc11f75e3?auto=format&fit=crop&w=800&q=80" alt="Miami" />
+            <div className="rd-location-overlay">
+              <div className="rd-location-title">📍 Miami</div>
+              <div className="rd-location-price">From $48 / day</div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* GOOGLE MAPS INTERACTIVE LOCATION & FLEET TRACKER */}
-      <section style={{ padding: '0 4%', marginTop: '2.5rem', position: 'relative', zIndex: 10, width: '100%', boxSizing: 'border-box' }}>
-        <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '22px', padding: '1.5rem', boxShadow: '0 10px 30px rgba(0,0,0,0.06)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.75rem' }}>
+      {/* 8. WHAT OUR CUSTOMERS SAY */}
+      <section className="reveal-on-scroll" style={{ padding: '0 4%' }}>
+        <div className="rd-section-header">
+          <h2 className="rd-section-title">What Our Customers Say</h2>
+        </div>
+
+        <div className="rd-testimonials-grid">
+          <div className="rd-testimonial-card">
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <span style={{ fontSize: '1.25rem' }}>🗺️</span>
-                <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#0f172a', margin: 0 }}>Interactive Google Map & Car Finder</h3>
-              </div>
-              <p style={{ fontSize: '0.8rem', color: '#64748b', margin: '4px 0 0 0' }}>
-                Explore live car locations, pick-up points, and drop-off destinations.
+              <div className="rd-stars">★★★★★</div>
+              <p className="rd-testimonial-text">
+                "Amazing service! The car was clean, on time and the booking process was super easy."
               </p>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '0.78rem', color: '#475569', fontWeight: 600 }}>
-              <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>🟢 Pickup Pin</span>
-              <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>🔴 Drop-off Pin</span>
-              <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>🟠 Available Cars</span>
+            <div className="rd-user-row">
+              <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80" alt="John D." className="rd-avatar" />
+              <div>
+                <div className="rd-user-name">— John D.</div>
+                <div className="rd-user-city">New York</div>
+              </div>
             </div>
           </div>
 
+          <div className="rd-testimonial-card">
+            <div>
+              <div className="rd-stars">★★★★★</div>
+              <p className="rd-testimonial-text">
+                "Best car rental experience I've ever had. Great pricing and excellent customer support."
+              </p>
+            </div>
+            <div className="rd-user-row">
+              <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80" alt="Sarah M." className="rd-avatar" />
+              <div>
+                <div className="rd-user-name">— Sarah M.</div>
+                <div className="rd-user-city">Los Angeles</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="rd-testimonial-card">
+            <div>
+              <div className="rd-stars">★★★★★</div>
+              <p className="rd-testimonial-text">
+                "The car quality was top notch. Will definitely choose Royal Drive again!"
+              </p>
+            </div>
+            <div className="rd-user-row">
+              <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80" alt="Michael R." className="rd-avatar" />
+              <div>
+                <div className="rd-user-name">— Michael R.</div>
+                <div className="rd-user-city">Chicago</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 9. READY TO HIT THE ROAD? CALL TO ACTION BANNER */}
+      <section className="reveal-on-scroll" style={{ padding: '0 4%' }}>
+        <div
+          className="rd-cta-card"
+          style={{ backgroundImage: "url('https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1600&q=80')" }}
+        >
+          <div className="rd-cta-overlay"></div>
+          <div className="rd-cta-content">
+            <h2 className="rd-cta-title">Ready to hit the road?</h2>
+            <p className="rd-cta-desc">Book your ride now and enjoy a smooth & comfortable journey.</p>
+            <button className="rd-btn-gold" style={{ padding: '0.85rem 2rem' }} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+              Book Now ➔
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* 10. DYNAMIC FLEET CATALOG & INTERACTIVE GOOGLE MAP (INTEGRATED SYSTEM) */}
+      <section id="fleets" className="reveal-on-scroll" style={{ padding: '0 4%', marginBottom: '4rem' }}>
+        <div className="rd-section-header">
+          <h2 className="rd-section-title">Available Fleet & Real-Time Tracking</h2>
+          <button className="rd-btn-gold" style={{ fontSize: '0.85rem' }} onClick={() => setShowAiModal(true)}>
+            ✨ AI Fleet Matcher
+          </button>
+        </div>
+
+        <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '22px', padding: '1.5rem', boxShadow: '0 10px 30px rgba(0,0,0,0.06)', marginBottom: '2.5rem' }}>
           <GoogleMapComponent
-            height="460px"
+            height="400px"
             zoom={12}
             pickupLocation={searchLocation}
             pickupCoords={pickupCoords}
             dropoffLocation={dropoffLocation}
             dropoffCoords={dropoffCoords}
             cars={[
-              { id: 'c1', name: 'Mahindra Thar 4x4', price: 2999, category: 'SUV', fuel: 'Diesel', transmission: 'Manual', lat: (pickupCoords?.lat || 12.1211) + 0.006, lng: (pickupCoords?.lng || 78.1582) + 0.005, locationName: searchLocation || 'Gundalapatti Hub' },
-              { id: 'c2', name: 'Hyundai Creta SX', price: 2499, category: 'SUV', fuel: 'Petrol', transmission: 'Automatic', lat: (pickupCoords?.lat || 12.1211) - 0.007, lng: (pickupCoords?.lng || 78.1582) - 0.008, locationName: 'Town Station' },
-              { id: 'c3', name: 'Maruti Swift ZXi', price: 1499, category: 'Hatchback', fuel: 'Petrol', transmission: 'Manual', lat: (pickupCoords?.lat || 12.1211) + 0.004, lng: (pickupCoords?.lng || 78.1582) - 0.006, locationName: 'Central Square' },
+              { id: 'c1', name: 'Mahindra Thar 4x4', price: 2999, category: 'SUV', fuel: 'Diesel', transmission: 'Manual', lat: (pickupCoords?.lat || 12.1211) + 0.006, lng: (pickupCoords?.lng || 78.1582) + 0.005, locationName: searchLocation || 'Pickup Hub' },
+              { id: 'c2', name: 'Hyundai Creta SX', price: 2499, category: 'SUV', fuel: 'Petrol', transmission: 'Automatic', lat: (pickupCoords?.lat || 12.1211) - 0.007, lng: (pickupCoords?.lng || 78.1582) - 0.008, locationName: 'Station' },
+              { id: 'c3', name: 'Maruti Swift ZXi', price: 1499, category: 'Hatchback', fuel: 'Petrol', transmission: 'Manual', lat: (pickupCoords?.lat || 12.1211) + 0.004, lng: (pickupCoords?.lng || 78.1582) - 0.006, locationName: 'Central' },
             ]}
             onSelectCar={(car) => navigate('/cars')}
           />
         </div>
-      </section>
 
-      {/* 1. AI RECOMMENDS THE BEST FOR YOU (FLEET CATALOG) */}
-      <section id="fleets" className="fleet-v2-section">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '2.5rem', flexWrap: 'wrap', gap: '1rem' }}>
-          <div>
-            <h2 className="fleet-v2-section-title">AI Recommends the Best for You</h2>
-            <p className="fleet-v2-section-subtitle" style={{ marginBottom: 0 }}>Our AI analyzes your preferences to suggest the perfect cars.</p>
-          </div>
-          <button className="fleet-v2-btn-outline" onClick={() => navigate('/cars')}>
-            View All Cars
-          </button>
-        </div>
-
-        {displayedFleet.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '3.5rem 1.5rem', background: '#ffffff', borderRadius: '16px', border: '1px solid #e2d7c5' }}>
-            <span style={{ fontSize: '2.5rem', display: 'block', marginBottom: '0.5rem' }}>🏎️</span>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: 900, color: '#1c1917', marginBottom: '0.35rem' }}>No Cars Published Yet</h3>
-            <p style={{ color: '#57534e', fontSize: '0.85rem', maxWidth: '440px', margin: '0 auto 1.2rem auto' }}>
-              Vehicles published by active rental agencies will appear here live on the catalog.
-            </p>
-            <button onClick={() => setShowMultiRoleRegModal(true)} className="fleet-v2-btn-solid">
-              + Register & List Your Car
-            </button>
-          </div>
-        ) : (
-          <div className="fleet-v2-car-grid">
-            {displayedFleet.slice(0, 6).map((v, idx) => (
-              <div
-                key={v._id ? `${v._id}-${idx}` : `fleet-${idx}`}
-                className="fleet-v2-car-card"
-                onClick={() => setDetailVehicle(v)}
-              >
-                <div style={{ position: 'relative' }}>
-                  <span className="fleet-v2-car-badge">🔥 {98 - (idx % 5)}% Match</span>
-                  <span style={{ position: 'absolute', top: '12px', right: '12px', background: 'rgba(255,255,255,0.9)', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.9rem', color: '#dc2626', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', cursor: 'pointer' }}>
-                    ♡
-                  </span>
-                  <img
-                    src={getValidImageUrl(v.imageUrl, 'vehicle')}
-                    onError={e => handleImageError(e, 'vehicle')}
-                    alt={v.model}
-                    className="fleet-v2-car-img"
-                  />
+        <div className="fleet-v2-car-grid">
+          {displayedFleet.slice(0, 6).map((v, idx) => (
+            <div key={v._id ? `${v._id}-${idx}` : `fleet-${idx}`} className="fleet-v2-car-card" onClick={() => setDetailVehicle(v)}>
+              <div style={{ position: 'relative' }}>
+                <span className="fleet-v2-car-badge">🔥 {98 - (idx % 5)}% Match</span>
+                <img src={getValidImageUrl(v.imageUrl, 'vehicle')} onError={e => handleImageError(e, 'vehicle')} alt={v.model} className="fleet-v2-car-img" />
+              </div>
+              <div style={{ padding: '1.2rem', display: 'flex', flexDirection: 'column', flex: 1 }}>
+                <div className="fleet-v2-car-title">{v.make} {v.model}</div>
+                <div className="fleet-v2-car-specs">
+                  <span>💺 {v.seats || 5} Seats</span>
+                  <span>⛽ {v.fuelType || 'Petrol'}</span>
+                  <span>⚙️ {v.transmission || 'Automatic'}</span>
                 </div>
-
-                <div style={{ padding: '1.2rem', display: 'flex', flexDirection: 'column', flex: 1 }}>
-                  <div className="fleet-v2-car-title">{v.make} {v.model}</div>
-
-                  <div className="fleet-v2-car-specs">
-                    <span>💺 {v.seats || 5} Seats</span>
-                    <span>⛽ {v.fuelType || 'Petrol'}</span>
-                    <span>⚙️ {v.transmission || 'Automatic'}</span>
+                <div className="fleet-v2-car-price-row" style={{ marginTop: 'auto' }}>
+                  <div>
+                    <span className="fleet-v2-price">₹{v.pricePerDay}</span>
+                    <span style={{ fontSize: '0.78rem', color: '#6b5a4b' }}> / day</span>
                   </div>
-
-                  {/* Operator & Call Button */}
-                  <div style={{ background: '#faf8f5', border: '1px solid #f2eadf', padding: '0.45rem 0.75rem', borderRadius: '8px', marginBottom: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.75rem' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      <img
-                        src={getCompanyLogoForVehicle(v)}
-                        alt="Operator Logo"
-                        style={{ width: '22px', height: '22px', borderRadius: '4px', objectFit: 'cover' }}
-                        onError={(e) => {
-                          const name = v.companyName || v.company?.name || 'Vaidee';
-                          const char = name.charAt(0).toUpperCase();
-                          e.target.src = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100%" height="100%" rx="20" fill="%232563eb"/><text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" fill="%23ffffff" font-size="52" font-family="sans-serif" font-weight="bold">${char}</text></svg>`;
-                        }}
-                      />
-                      <span style={{ color: '#1f140b', fontWeight: 700 }}>{v.companyName || v.company?.name || 'Verified Fleet'}</span>
-                    </div>
-                    <a
-                      href={`tel:${v.companyPhone || v.companyMobile || v.company?.mobile || v.company?.phone || '9517368420'}`}
-                      onClick={(e) => e.stopPropagation()}
-                      style={{ color: '#2563eb', fontWeight: 800, textDecoration: 'none', background: '#eff6ff', border: '1px solid #bfdbfe', padding: '0.2rem 0.5rem', borderRadius: '6px' }}
-                    >
-                      📞 Call
-                    </a>
-                  </div>
-
-                  <div className="fleet-v2-car-price-row" style={{ marginTop: 'auto' }}>
-                    <div>
-                      <span className="fleet-v2-price">₹{v.pricePerDay}</span>
-                      <span style={{ fontSize: '0.78rem', color: '#6b5a4b' }}> / day</span>
-                    </div>
-                    <div className="fleet-v2-rating">⭐ 4.8 ({120 + idx * 7})</div>
-                  </div>
-
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', marginTop: '0.85rem' }}>
-                    <button
-                      onClick={(e) => { e.stopPropagation(); setDetailVehicle(v); }}
-                      className="fleet-v2-btn-outline"
-                      style={{ padding: '0.55rem', fontSize: '0.78rem' }}
-                    >
-                      Details
-                    </button>
-                    <button
-                      onClick={(e) => { e.stopPropagation(); setBookingVehicle(v); }}
-                      className="fleet-v2-btn-solid"
-                      style={{ padding: '0.55rem', fontSize: '0.78rem' }}
-                    >
-                      Book Now
-                    </button>
-                  </div>
+                  <div className="fleet-v2-rating">⭐ 4.8 ({120 + idx * 7})</div>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', marginTop: '0.85rem' }}>
+                  <button onClick={(e) => { e.stopPropagation(); setDetailVehicle(v); }} className="fleet-v2-btn-outline" style={{ padding: '0.55rem', fontSize: '0.78rem' }}>Details</button>
+                  <button onClick={(e) => { e.stopPropagation(); setBookingVehicle(v); }} className="rd-btn-gold" style={{ padding: '0.55rem', fontSize: '0.78rem', justifyContent: 'center' }}>Book Now</button>
                 </div>
               </div>
-            ))}
-          </div>
-        )}
-        
-        {displayedFleet.length > 6 && (
-          <div style={{ textAlign: 'center', marginTop: '3rem' }}>
-            <button className="fleet-v2-btn-solid" onClick={() => navigate('/cars')} style={{ padding: '0.8rem 2rem', fontSize: '1.05rem', fontWeight: 800 }}>
-              Explore All {displayedFleet.length} Cars
-            </button>
-          </div>
-        )}
-      </section>
-
-
-      {/* 3. WHY CHOOSE ROYAL RENTAL CARS? */}
-      <FeatureCards />
-
-
-      {/* 4. GROW YOUR CAR RENTAL BUSINESS BANNER (EXACT SCREENSHOT MATCH) */}
-      <section className="fleet-v2-section" style={{ paddingBottom: '1.5rem' }}>
-        <div className="fleet-v2-banner">
-          <div className="fleet-v2-banner-content">
-            <span className="fleet-v2-banner-badge">For Rental Companies</span>
-            <h2 className="fleet-v2-banner-title">Grow Your Car Rental Business</h2>
-            <p className="fleet-v2-banner-desc">
-              List your cars, get more bookings and manage everything in one place.
-            </p>
-            <button className="fleet-v2-banner-btn" onClick={() => setShowMultiRoleRegModal(true)}>
-              Register Your Company ➔
-            </button>
-          </div>
-          <div className="fleet-v2-banner-right-bg" />
-        </div>
-      </section>
-
-      {/* 5. POPULAR LOCATIONS (EXACT SCREENSHOT MATCH) */}
-      <section className="fleet-v2-section" style={{ paddingTop: '0.5rem', paddingBottom: '2.5rem' }}>
-        <h2 className="fleet-v2-section-title" style={{ fontSize: '2.2rem', marginBottom: '0.2rem' }}>Popular Locations</h2>
-        <p className="fleet-v2-section-subtitle" style={{ marginBottom: '1.75rem' }}>Explore cars in top cities</p>
-
-        <div className="fleet-v2-locations-wrapper">
-          <div className="fleet-v2-locations">
-            {popularLocations.length > 0 ? (
-              popularLocations.map((loc) => (
-                <div key={loc._id} className="fleet-v2-location-card">
-                  <img src={loc.imageUrl || 'https://images.unsplash.com/photo-1596176530529-78163a4f7af2?auto=format&fit=crop&q=80&w=400'} alt={loc.name} />
-                  <div>
-                    <div className="fleet-v2-location-name">{loc.name}</div>
-                    <div className="fleet-v2-location-count">{loc.carsCount > 0 ? `${loc.carsCount}+` : '0+'} Cars</div>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <>
-                <div className="fleet-v2-location-card">
-                  <img src="https://images.unsplash.com/photo-1596176530529-78163a4f7af2?auto=format&fit=crop&q=80&w=400" alt="Bangalore" />
-                  <div>
-                    <div className="fleet-v2-location-name">Bangalore</div>
-                    <div className="fleet-v2-location-count">1200+ Cars</div>
-                  </div>
-                </div>
-                <div className="fleet-v2-location-card">
-                  <img src="https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&q=80&w=400" alt="Chennai" />
-                  <div>
-                    <div className="fleet-v2-location-name">Chennai</div>
-                    <div className="fleet-v2-location-count">950+ Cars</div>
-                  </div>
-                </div>
-              </>
-            )}
-          </div>
-          <div className="fleet-v2-next-arrow">›</div>
-        </div>
-      </section>
-
-
-      {/* 6. READY TO HIT THE ROAD? PRE-FOOTER BANNER (EXACT SCREENSHOT MATCH) */}
-      <section style={{ padding: '0 4%' }}>
-        <div className="fleet-v2-prefooter">
-          <div className="fleet-v2-prefooter-left">
-            <img
-              src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=400&q=80"
-              alt="Sports Car Cutout"
-              className="fleet-v2-prefooter-car-img"
-            />
-            <div>
-              <div className="fleet-v2-prefooter-title">Ready to hit the road?</div>
-              <p className="fleet-v2-prefooter-desc">Book your perfect car now and enjoy a seamless journey.</p>
             </div>
-          </div>
-          <button
-            className="fleet-v2-prefooter-btn"
-            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-          >
-            Find My Car ➔
-          </button>
+          ))}
         </div>
       </section>
 
-      {/* 7. FOOTER (EXACT MATCH TO SCREENSHOT 401) */}
-      <footer id="contact" style={{ background: '#3b2313', color: '#e5e7eb', padding: '3rem 5%', fontFamily: "'Inter', sans-serif" }}>
-        <div className="fleet-v2-footer-grid" style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr 1fr 1fr 1.2fr', gap: '2rem', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '2rem', marginBottom: '1.5rem' }}>
-          
-          {/* Logo Column */}
+      {/* 11. FOOTER (DARK THEME SCREENSHOT MATCH) */}
+      <footer id="contact" style={{ background: '#0b0e14', color: '#cbd5e1', padding: '4rem 5% 2rem 5%', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr 1fr 1fr', gap: '2.5rem', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '3rem', marginBottom: '2rem' }}>
+          {/* Col 1: Brand Info */}
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '1rem' }}>
-              <div style={{ color: '#d4af37', fontSize: '2rem' }}>👑</div>
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <span style={{ color: '#d4af37', fontSize: '1.2rem', fontWeight: 900, letterSpacing: '1px', lineHeight: 1 }}>ROYAL</span>
-                <span style={{ color: '#fff', fontSize: '0.65rem', fontWeight: 700, letterSpacing: '1px' }}>RENTAL CARS</span>
+            <div className="rd-brand-logo" style={{ marginBottom: '1.25rem' }}>
+              <div className="rd-brand-icon">👑</div>
+              <div className="rd-brand-text">
+                <span className="rd-brand-title">Royal Drive</span>
+                <span className="rd-brand-subtitle">CAR RENTALS</span>
               </div>
             </div>
-            <p style={{ fontSize: '0.85rem', color: '#d1d5db', lineHeight: 1.6, marginBottom: '1.5rem', maxWidth: '280px' }}>
-              We are committed to giving you the best car rental experience with transparency, safety and trust.
+            <p style={{ fontSize: '0.88rem', color: '#94a3b8', lineHeight: 1.6, marginBottom: '1.5rem', maxWidth: '300px' }}>
+              Your trusted car rental partner for every journey. Drive better, drive Royal Drive.
             </p>
-            <div style={{ display: 'flex', gap: '0.8rem' }}>
-              <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: '0.9rem' }}>f</div>
-              <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: '0.9rem' }}>📷</div>
-              <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: '0.9rem' }}>🐦</div>
-              <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: '0.9rem' }}>in</div>
+            <div style={{ display: 'flex', gap: '0.75rem' }}>
+              {['f', 'ig', 'tw', 'in'].map((icon, idx) => (
+                <div key={idx} style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'rgba(255,255,255,0.08)', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.85rem', cursor: 'pointer', fontWeight: 800 }}>
+                  {icon}
+                </div>
+              ))}
             </div>
           </div>
 
-          {/* Col 1 */}
+          {/* Col 2: Quick Links */}
           <div>
-            <h4 style={{ color: '#fff', fontSize: '0.9rem', fontWeight: 700, marginBottom: '1.2rem' }}>For Customers</h4>
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.8rem', fontSize: '0.85rem', color: '#d1d5db' }}>
-              <li style={{ cursor: 'pointer' }} onClick={() => navigate('/info')}>Browse Cars</li>
-              <li style={{ cursor: 'pointer' }} onClick={() => navigate('/info')}>How It Works</li>
-              <li style={{ cursor: 'pointer' }} onClick={() => navigate('/info')}>Pricing</li>
+            <h4 style={{ color: '#ffffff', fontSize: '0.95rem', fontWeight: 800, marginBottom: '1.25rem' }}>Quick Links</h4>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.88rem', color: '#94a3b8' }}>
+              <li style={{ cursor: 'pointer' }} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>Home</li>
+              <li style={{ cursor: 'pointer' }} onClick={() => navigate('/cars')}>Cars</li>
+              <li style={{ cursor: 'pointer' }} onClick={() => navigate('/cars')}>Locations</li>
+              <li style={{ cursor: 'pointer' }} onClick={() => navigate('/about')}>Services</li>
+              <li style={{ cursor: 'pointer' }} onClick={() => navigate('/about')}>About Us</li>
+              <li style={{ cursor: 'pointer' }} onClick={() => navigate('/contact')}>Contact</li>
+            </ul>
+          </div>
+
+          {/* Col 3: Customer Support */}
+          <div>
+            <h4 style={{ color: '#ffffff', fontSize: '0.95rem', fontWeight: 800, marginBottom: '1.25rem' }}>Customer Support</h4>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.88rem', color: '#94a3b8' }}>
               <li style={{ cursor: 'pointer' }} onClick={() => navigate('/info')}>FAQs</li>
-            </ul>
-          </div>
-
-          {/* Col 2 */}
-          <div>
-            <h4 style={{ color: '#fff', fontSize: '0.9rem', fontWeight: 700, marginBottom: '1.2rem' }}>For Companies</h4>
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.8rem', fontSize: '0.85rem', color: '#d1d5db' }}>
-              <li style={{ cursor: 'pointer' }} onClick={() => navigate('/info')}>List Your Car</li>
-              <li style={{ cursor: 'pointer' }} onClick={() => navigate('/auth')}>Company Login</li>
-              <li style={{ cursor: 'pointer' }} onClick={() => navigate('/info')}>Partner With Us</li>
-            </ul>
-          </div>
-
-          {/* Col 3 */}
-          <div>
-            <h4 style={{ color: '#fff', fontSize: '0.9rem', fontWeight: 700, marginBottom: '1.2rem' }}>Support</h4>
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.8rem', fontSize: '0.85rem', color: '#d1d5db' }}>
-              <li style={{ cursor: 'pointer' }} onClick={() => navigate('/info')}>Help Center</li>
-              <li style={{ cursor: 'pointer' }} onClick={() => navigate('/info')}>Contact Support</li>
+              <li style={{ cursor: 'pointer' }} onClick={() => navigate('/info')}>Terms &amp; Conditions</li>
+              <li style={{ cursor: 'pointer' }} onClick={() => navigate('/info')}>Privacy Policy</li>
               <li style={{ cursor: 'pointer' }} onClick={() => navigate('/info')}>Cancellation Policy</li>
-              <li style={{ cursor: 'pointer' }} onClick={() => navigate('/info')}>Refund Policy</li>
+              <li style={{ cursor: 'pointer' }} onClick={() => navigate('/info')}>Support Center</li>
             </ul>
           </div>
 
-          {/* Col 4 */}
+          {/* Col 4: Contact Us */}
           <div>
-            <h4 style={{ color: '#fff', fontSize: '0.9rem', fontWeight: 700, marginBottom: '1.2rem' }}>Contact Us</h4>
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '1rem', fontSize: '0.85rem', color: '#d1d5db' }}>
-              <li style={{ display: 'flex', gap: '0.8rem', alignItems: 'flex-start' }}>
-                <span style={{ color: '#d4af37' }}>📞</span>
-                <span>+91 98765 43210</span>
+            <h4 style={{ color: '#ffffff', fontSize: '0.95rem', fontWeight: 800, marginBottom: '1.25rem' }}>Contact Us</h4>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '1rem', fontSize: '0.88rem', color: '#94a3b8' }}>
+              <li style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                <span style={{ color: '#d4a359' }}>📞</span> +91 95173 68420
               </li>
-              <li style={{ display: 'flex', gap: '0.8rem', alignItems: 'flex-start' }}>
-                <span style={{ color: '#d4af37' }}>✉️</span>
-                <span>support@royalrentcars.com</span>
+              <li style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                <span style={{ color: '#d4a359' }}>✉️</span> admin@royalrentcars.com
               </li>
-              <li style={{ display: 'flex', gap: '0.8rem', alignItems: 'flex-start' }}>
-                <span style={{ color: '#d4af37' }}>🏠</span>
-                <span>123, Royal Street, Chennai,<br/>Tamil Nadu - 600001</span>
+              <li style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
+                <span style={{ color: '#d4a359' }}>📍</span> Gundalapatti Bypass Hub,<br />Dharmapuri, Tamil Nadu, India
               </li>
             </ul>
           </div>
         </div>
 
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8rem', color: '#9ca3af' }}>
-          <div>© 2024 Royal Rental Cars. All rights reserved.</div>
-          <div style={{ display: 'flex', gap: '1rem' }}>
-            <span style={{ cursor: 'pointer' }} onClick={() => navigate('/info')}>Terms & Conditions</span>
-            <span>|</span>
-            <span style={{ cursor: 'pointer' }} onClick={() => navigate('/info')}>Privacy Policy</span>
-          </div>
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '0.82rem', color: '#64748b' }}>
+          © 2025 Royal Drive. All rights reserved.
         </div>
       </footer>
 
@@ -2420,36 +2280,85 @@ export default function LandingPage() {
         </div>
       )}
 
-      {/* Floating Circular + AI Trigger Button */}
+      {/* Expandable Speed-Dial Floating Contact Menu (+ Symbol) */}
       {!isAiChatbotOpen && (
-        <div 
-          onClick={() => setIsAiChatbotOpen(true)}
-          title="Royal Rent Cars AI Concierge"
-          style={{
-            position: 'fixed',
-            bottom: '28px',
-            right: '28px',
-            zIndex: 99999,
-            width: '56px',
-            height: '56px',
-            borderRadius: '50%',
-            background: '#4E311B',
-            color: '#ffffff',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: '0 12px 32px rgba(78, 49, 27, 0.5)',
-            cursor: 'pointer',
-            transition: 'all 0.25s cubic-bezier(0.165, 0.84, 0.44, 1)',
-            border: '2px solid rgba(255, 255, 255, 0.25)'
-          }}
-          onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.08)'; }}
-          onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
-        >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="12" y1="5" x2="12" y2="19"></line>
-            <line x1="5" y1="12" x2="19" y2="12"></line>
-          </svg>
+        <div style={{ position: 'fixed', bottom: '28px', right: '28px', zIndex: 99999, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '12px' }}>
+          
+          {/* Expanded Speed Dial Action Buttons */}
+          {isSpeedDialOpen && (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '10px', animation: 'fadeInUp 0.25s ease-out' }}>
+              
+              {/* 1. 🤖 AI Chatbot Option */}
+              <div 
+                onClick={() => { setIsAiChatbotOpen(true); setIsSpeedDialOpen(false); }}
+                style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}
+              >
+                <span style={{ background: '#0f172a', color: '#ffffff', padding: '6px 14px', borderRadius: '10px', fontSize: '0.82rem', fontWeight: 800, boxShadow: '0 6px 20px rgba(0,0,0,0.25)', border: '1px solid rgba(255,255,255,0.15)', whiteSpace: 'nowrap' }}>
+                  💬 AI Assistant Chat
+                </span>
+                <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'linear-gradient(135deg, #2563eb, #1d4ed8)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.25rem', boxShadow: '0 6px 20px rgba(37,99,235,0.45)', border: '2px solid #fff' }}>
+                  🤖
+                </div>
+              </div>
+
+              {/* 2. 🟢 WhatsApp Super Admin Option */}
+              <a 
+                href="https://wa.me/919517368420?text=Hello%20Super%20Admin%2C%20I%20have%20an%20inquiry%20regarding%20RentOS%20car%20rental." 
+                target="_blank" 
+                rel="noopener noreferrer"
+                onClick={() => setIsSpeedDialOpen(false)}
+                style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', cursor: 'pointer' }}
+              >
+                <span style={{ background: '#0f172a', color: '#ffffff', padding: '6px 14px', borderRadius: '10px', fontSize: '0.82rem', fontWeight: 800, boxShadow: '0 6px 20px rgba(0,0,0,0.25)', border: '1px solid rgba(255,255,255,0.15)', whiteSpace: 'nowrap' }}>
+                  💬 WhatsApp Super Admin
+                </span>
+                <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'linear-gradient(135deg, #25d366, #128c7e)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.3rem', boxShadow: '0 6px 20px rgba(37,211,102,0.45)', border: '2px solid #fff' }}>
+                  💬
+                </div>
+              </a>
+
+              {/* 3. 📞 Call Super Admin Option */}
+              <a 
+                href="tel:+919517368420"
+                onClick={() => setIsSpeedDialOpen(false)}
+                style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', cursor: 'pointer' }}
+              >
+                <span style={{ background: '#0f172a', color: '#ffffff', padding: '6px 14px', borderRadius: '10px', fontSize: '0.82rem', fontWeight: 800, boxShadow: '0 6px 20px rgba(0,0,0,0.25)', border: '1px solid rgba(255,255,255,0.15)', whiteSpace: 'nowrap' }}>
+                  📞 Call Super Admin (+91 95173 68420)
+                </span>
+                <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'linear-gradient(135deg, #d4a359, #b87a28)', color: '#0f172a', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem', boxShadow: '0 6px 20px rgba(212,163,89,0.45)', border: '2px solid #fff' }}>
+                  📞
+                </div>
+              </a>
+
+            </div>
+          )}
+
+          {/* Main Floating Trigger Button (+ Symbol) */}
+          <button
+            type="button"
+            onClick={() => setIsSpeedDialOpen(!isSpeedDialOpen)}
+            title="Contact & Support Options"
+            style={{
+              width: '58px',
+              height: '58px',
+              borderRadius: '50%',
+              background: isSpeedDialOpen ? '#ef4444' : 'linear-gradient(135deg, #d4a359 0%, #b87a28 100%)',
+              color: isSpeedDialOpen ? '#ffffff' : '#0f172a',
+              border: '3px solid #ffffff',
+              boxShadow: '0 10px 30px rgba(0,0,0,0.35)',
+              fontSize: '1.8rem',
+              fontWeight: 900,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+              transform: isSpeedDialOpen ? 'rotate(45deg)' : 'rotate(0deg)'
+            }}
+          >
+            +
+          </button>
         </div>
       )}
 
@@ -2756,6 +2665,17 @@ function VehicleDetailsModal({ vehicle, allFleet, onSelectVehicle, onClose, onPr
         )}
       </div>
       
+      {/* 12. LUXURY CAR RENTAL VIDEO SHOWCASE MODAL */}
+      {showVideoModal && (
+        <LuxuryCarVideoPlayer
+          onClose={() => setShowVideoModal(false)}
+          onBookCar={() => {
+            setShowVideoModal(false);
+            const el = document.getElementById('fleets');
+            if (el) el.scrollIntoView({ behavior: 'smooth' });
+          }}
+        />
+      )}
     </div>
   );
 }

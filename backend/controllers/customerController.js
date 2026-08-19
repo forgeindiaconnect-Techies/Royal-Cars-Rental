@@ -4,6 +4,7 @@ const Booking = require('../models/booking');
 const Company = require('../models/company');
 const Transaction = require('../models/transaction');
 const User = require('../models/user');
+const { scheduleOrSendEmail } = require('../utils/emailScheduler');
 
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET || 'fleetmindai_jwt_secret_key_2026_secure_random_string', {
@@ -165,10 +166,50 @@ exports.createBooking = async (req, res) => {
       status: 'success',
     });
 
-    // Set vehicle status to pending-rented or keep available till staff delivery.
-    // In our flow, we keep vehicle available but mark it rented when staff delivers it,
-    // but to prevent double bookings, we lock it immediately as "available" -> we filter by active bookings elsewhere.
-    // To make it simple, we let vehicle status be updated when staff checks it out.
+    // Schedule 10:00 AM Email Notification for scheduled rental date (Suppressed today if date is tomorrow/future)
+    try {
+      const customer = await User.findById(customerId);
+      if (customer && customer.email) {
+        await scheduleOrSendEmail({
+          to: customer.email,
+          recipientName: customer.name || 'Customer',
+          subject: `🚗 Booking Reserved & Scheduled for ${start.toDateString()} - RentOS`,
+          scheduledDate: start,
+          targetHour: 10,
+          targetMinute: 0,
+          relatedType: 'booking',
+          relatedId: booking._id,
+          html: `
+            <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #0f172a; color: #ffffff; border-radius: 16px; overflow: hidden; border: 1px solid #1e293b;">
+              <div style="background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); padding: 2rem; text-align: center;">
+                <h1 style="color: #ffffff; margin: 0; font-size: 1.6rem;">👑 ROYAL CAR RENTALS</h1>
+                <p style="color: #93c5fd; margin-top: 0.5rem; font-size: 0.9rem;">Automated Booking Schedule & Rental Confirmation</p>
+              </div>
+              <div style="padding: 2rem; background: #090d16;">
+                <div style="display: inline-block; background: #10b981; color: #ffffff; padding: 0.35rem 0.85rem; border-radius: 20px; font-weight: bold; font-size: 0.8rem; margin-bottom: 1rem;">
+                  ⏰ Scheduled Morning Dispatch: 10:00 AM
+                </div>
+                <h2 style="color: #ffffff; margin-top: 0;">Vehicle Reservation Schedule</h2>
+                <p style="color: #cbd5e1; font-size: 0.95rem;">Hi <strong>${customer.name || 'Valued Customer'}</strong>,</p>
+                <p style="color: #cbd5e1; font-size: 0.95rem; line-height: 1.6;">
+                  Your vehicle reservation for <strong>${vehicle.make || 'Fleet'} ${vehicle.model || 'Vehicle'}</strong> has been registered.
+                  Your scheduled pickup date is <strong>${start.toDateString()}</strong>.
+                </p>
+                <div style="background: rgba(30, 58, 138, 0.4); border: 1px solid #3b82f6; padding: 1.25rem; border-radius: 12px; margin: 1.5rem 0;">
+                  <div style="color: #93c5fd; font-size: 0.85rem; margin-bottom: 0.4rem;">Vehicle: <strong>${vehicle.make || 'Fleet'} ${vehicle.model || 'Vehicle'}</strong></div>
+                  <div style="color: #93c5fd; font-size: 0.85rem; margin-bottom: 0.4rem;">Pickup Date: <strong>${start.toDateString()} (10:00 AM)</strong></div>
+                  <div style="color: #93c5fd; font-size: 0.85rem; margin-bottom: 0.4rem;">Return Date: <strong>${end.toDateString()}</strong></div>
+                  <div style="color: #93c5fd; font-size: 0.85rem;">Total Amount: <strong style="color: #34d399;">₹${totalAmount}</strong></div>
+                </div>
+                <p style="color: #94a3b8; font-size: 0.8rem;">Note: As per system settings, if your rental starts tomorrow or a future date, this notification is scheduled to dispatch at 10:00 AM on your scheduled date.</p>
+              </div>
+            </div>
+          `
+        });
+      }
+    } catch (mailErr) {
+      console.warn('Booking email schedule note:', mailErr.message);
+    }
 
     res.status(201).json({
       success: true,
@@ -401,6 +442,50 @@ exports.guestBooking = async (req, res) => {
       });
     } catch (txErr) {
       console.warn('Transaction logging note:', txErr.message);
+    }
+
+    // Schedule 10:00 AM Email Notification for guest booking start date
+    try {
+      if (user && user.email) {
+        await scheduleOrSendEmail({
+          to: user.email,
+          recipientName: user.name || name || 'Customer',
+          subject: `🚗 Booking Reserved & Scheduled for ${start.toDateString()} - RentOS`,
+          scheduledDate: start,
+          targetHour: 10,
+          targetMinute: 0,
+          relatedType: 'booking',
+          relatedId: booking ? booking._id : null,
+          html: `
+            <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #0f172a; color: #ffffff; border-radius: 16px; overflow: hidden; border: 1px solid #1e293b;">
+              <div style="background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); padding: 2rem; text-align: center;">
+                <h1 style="color: #ffffff; margin: 0; font-size: 1.6rem;">👑 ROYAL CAR RENTALS</h1>
+                <p style="color: #93c5fd; margin-top: 0.5rem; font-size: 0.9rem;">Automated Booking Schedule & Rental Confirmation</p>
+              </div>
+              <div style="padding: 2rem; background: #090d16;">
+                <div style="display: inline-block; background: #10b981; color: #ffffff; padding: 0.35rem 0.85rem; border-radius: 20px; font-weight: bold; font-size: 0.8rem; margin-bottom: 1rem;">
+                  ⏰ Scheduled Morning Dispatch: 10:00 AM
+                </div>
+                <h2 style="color: #ffffff; margin-top: 0;">Vehicle Reservation Schedule</h2>
+                <p style="color: #cbd5e1; font-size: 0.95rem;">Hi <strong>${user.name || name || 'Customer'}</strong>,</p>
+                <p style="color: #cbd5e1; font-size: 0.95rem; line-height: 1.6;">
+                  Your vehicle reservation for <strong>${vehicle.make || 'Fleet'} ${vehicle.model || 'Vehicle'}</strong> has been registered.
+                  Your scheduled pickup date is <strong>${start.toDateString()}</strong>.
+                </p>
+                <div style="background: rgba(30, 58, 138, 0.4); border: 1px solid #3b82f6; padding: 1.25rem; border-radius: 12px; margin: 1.5rem 0;">
+                  <div style="color: #93c5fd; font-size: 0.85rem; margin-bottom: 0.4rem;">Vehicle: <strong>${vehicle.make || 'Fleet'} ${vehicle.model || 'Vehicle'}</strong></div>
+                  <div style="color: #93c5fd; font-size: 0.85rem; margin-bottom: 0.4rem;">Pickup Date: <strong>${start.toDateString()} (10:00 AM)</strong></div>
+                  <div style="color: #93c5fd; font-size: 0.85rem; margin-bottom: 0.4rem;">Return Date: <strong>${end.toDateString()}</strong></div>
+                  <div style="color: #93c5fd; font-size: 0.85rem;">Total Amount: <strong style="color: #34d399;">₹${totalAmount}</strong></div>
+                </div>
+                <p style="color: #94a3b8; font-size: 0.8rem;">Note: As per system settings, if your rental starts tomorrow or a future date, this notification is scheduled to dispatch at 10:00 AM on your scheduled date.</p>
+              </div>
+            </div>
+          `
+        });
+      }
+    } catch (guestMailErr) {
+      console.warn('Guest booking email schedule note:', guestMailErr.message);
     }
 
     const token = generateToken(user._id);

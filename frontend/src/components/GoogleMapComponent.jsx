@@ -444,10 +444,23 @@ export default function GoogleMapComponent({
         }
 
         leafletMapRef.current = map;
+        setTimeout(() => {
+          if (leafletMapRef.current) {
+            leafletMapRef.current.invalidateSize();
+          }
+        }, 200);
       } catch (err) {
         console.error('[Leaflet Fallback Error]', err);
       }
     };
+
+    if (!document.getElementById('leaflet-css')) {
+      const link = document.createElement('link');
+      link.id = 'leaflet-css';
+      link.rel = 'stylesheet';
+      link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+      document.head.appendChild(link);
+    }
 
     if (window.L) {
       initLeafletMap();
@@ -455,19 +468,19 @@ export default function GoogleMapComponent({
       const scriptId = 'leaflet-fallback-script';
       let script = document.getElementById(scriptId);
       if (!script) {
-        const link = document.createElement('link');
-        link.rel = 'stylesheet';
-        link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
-        document.head.appendChild(link);
-
         script = document.createElement('script');
         script.id = scriptId;
         script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
-        script.onload = () => initLeafletMap();
         document.head.appendChild(script);
-      } else {
-        script.addEventListener('load', () => initLeafletMap());
       }
+      
+      const timer = setInterval(() => {
+        if (window.L) {
+          clearInterval(timer);
+          initLeafletMap();
+        }
+      }, 150);
+      setTimeout(() => clearInterval(timer), 8000);
     }
   }, [useFallback, pickupCoords, dropoffCoords, driverCoords, cars, center, zoom, showRoute, mapCanvasId]);
 

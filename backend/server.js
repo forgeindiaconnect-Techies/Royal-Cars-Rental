@@ -29,6 +29,7 @@ app.use('/api/ai', require('./routes/aiRoutes'));
 app.use('/api/notifications', require('./routes/notificationRoutes'));
 app.use('/api/chat', require('./routes/chatRoutes'));
 app.use('/api/locations', require('./routes/locationRoutes'));
+app.use('/api/scheduled-emails', require('./routes/scheduledEmailRoutes'));
 
 // Root / Health check Route
 app.get('/', (req, res) => {
@@ -56,8 +57,10 @@ app.listen(PORT, () => {
   try {
     const Company = require('./models/company');
     const { startSubscriptionCron } = require('./utils/subscriptionScheduler');
+    const { startScheduledEmailCron } = require('./utils/emailScheduler');
 
     startSubscriptionCron(Company);
+    startScheduledEmailCron();
     console.log('🔄 Brevo Email & Subscription Expiry Cron Scheduler Active');
   } catch (cronErr) {
     console.warn('Subscription cron init note:', cronErr.message);

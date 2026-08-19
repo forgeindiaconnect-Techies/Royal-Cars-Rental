@@ -1189,6 +1189,7 @@ function SubscriptionPanel({ companies, onBack }) {
   const [manualEmailInput, setManualEmailInput] = useState('vaideedeepu@gmail.com');
   const [selectedMailCompany, setSelectedMailCompany] = useState('Royal Car Rentals');
   const [emailPurpose, setEmailPurpose] = useState('7-Day Expiry Warning');
+  const [dispatchDate, setDispatchDate] = useState(() => new Date().toISOString().split('T')[0]);
   const [aiMailSubject, setAiMailSubject] = useState('🚨 Notice: Subscription Plan Expiry Warning for Your Rental Account');
   const [aiMailBody, setAiMailBody] = useState('Dear Royal Car Rentals Owner,\n\nYour Subscription Plan will expire in 7 days.\nTo prevent disruption to your vehicle tracking and booking operations, please renew your subscription now.\n\nRenew Link: http://localhost:3000/company-admin?tab=subscription&fromEmail=true\n\nRegards,\nRoyal Car Rentals Operations Desk');
 
@@ -1363,6 +1364,8 @@ function SubscriptionPanel({ companies, onBack }) {
           purpose: emailPurpose,
           subject: aiMailSubject,
           text: aiMailBody,
+          scheduledDate: dispatchDate,
+          dispatchDate: dispatchDate,
           html: `<div style="font-family: Arial, sans-serif; padding: 24px; color: #0f172a; max-width: 600px; border: 1px solid #e2e8f0; border-radius: 12px; background: #ffffff;">${aiMailBody.replace(/\n/g, '<br/>')}</div>`
         })
       });
@@ -1373,13 +1376,16 @@ function SubscriptionPanel({ companies, onBack }) {
         return;
       }
 
+      const isScheduled = data.scheduled || data.status === 'pending';
+      const statusText = isScheduled ? `⏰ Queued for 10:00 AM (${dispatchDate})` : 'Sent (Brevo API)';
+
       const newRecord = {
         id: 'em_' + Date.now(),
         companyName: selectedMailCompany || 'Royal Car Rentals',
         email: targetEmail,
         purpose: emailPurpose,
         sentAt: new Date().toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
-        status: 'Sent (Brevo API)',
+        status: statusText,
         subject: aiMailSubject,
         body: aiMailBody
       };
@@ -1388,7 +1394,11 @@ function SubscriptionPanel({ companies, onBack }) {
       setEmailHistory(updatedHistory);
       localStorage.setItem('subscription_email_history', JSON.stringify(updatedHistory));
 
-      showNotice(`🚀 Subscription Email successfully sent via Brevo to ${targetEmail}!`);
+      if (isScheduled) {
+        showNotice(`⏰ Subscription Email queued for 10:00 AM on ${dispatchDate}. Immediate send suppressed today!`);
+      } else {
+        showNotice(`🚀 Subscription Email successfully sent via Brevo to ${targetEmail}!`);
+      }
       setShowSendMailModal(false);
     } catch (err) {
       alert(`❌ Error sending email: ${err.message}`);
@@ -1771,6 +1781,27 @@ function SubscriptionPanel({ companies, onBack }) {
                     placeholder="vaideedeepu@gmail.com"
                     style={{ width: '100%', padding: '0.55rem', borderRadius: '8px', border: '2px solid #2563eb', fontWeight: 800, fontSize: '0.85rem', background: '#eff6ff', color: '#0f172a' }}
                   />
+                </div>
+              </div>
+
+              {/* DISPATCH DATE & AUTOMATED 10 AM RULE */}
+              <div style={{ background: '#f8fafc', padding: '0.85rem', borderRadius: '12px', border: '1px solid #cbd5e1' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
+                  <label style={{ fontSize: '0.78rem', fontWeight: 800, color: '#1e293b', margin: 0 }}>
+                    📅 Scheduled Dispatch Date
+                  </label>
+                  <span style={{ fontSize: '0.72rem', background: '#10b981', color: '#fff', padding: '0.15rem 0.5rem', borderRadius: '10px', fontWeight: 800 }}>
+                    ⏰ 10:00 AM Auto Send
+                  </span>
+                </div>
+                <input
+                  type="date"
+                  value={dispatchDate}
+                  onChange={e => setDispatchDate(e.target.value)}
+                  style={{ width: '100%', padding: '0.5rem', borderRadius: '8px', border: '1px solid #94a3b8', fontWeight: 800, fontSize: '0.85rem' }}
+                />
+                <div style={{ fontSize: '0.73rem', color: '#047857', fontWeight: 700, marginTop: '0.4rem', lineHeight: '1.4' }}>
+                  💡 <strong>System Rule:</strong> If set for tomorrow or any future date, the email will <strong>NOT</strong> go out today. It will be queued in the database and automatically dispatched at <strong>10:00 AM sharp on target date</strong>.
                 </div>
               </div>
 

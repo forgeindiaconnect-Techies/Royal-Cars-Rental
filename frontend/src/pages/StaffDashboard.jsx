@@ -678,8 +678,11 @@ export default function StaffDashboard() {
                 <h2 style={{ fontSize: '1.6rem', fontFamily: 'var(--font-heading)', marginBottom: '0.2rem' }}>
                   {getGreeting()}, {user?.name || 'Amit Patel'} 👋
                 </h2>
-                <p style={{ color: '#64748b', fontSize: '0.88rem' }}>
-                  You have <strong>{pendingTasksCount} pending tasks</strong> scheduled for today.
+                <p style={{ color: '#64748b', fontSize: '0.88rem', display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+                  <span>You have <strong>{pendingTasksCount} pending tasks</strong> scheduled for today.</span>
+                  <span style={{ background: '#ecfdf5', color: '#047857', border: '1px solid #a7f3d0', padding: '0.2rem 0.65rem', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
+                    ⏰ Auto Mail Rule: Tomorrow 10:00 AM Dispatch Active
+                  </span>
                 </p>
               </div>
 
