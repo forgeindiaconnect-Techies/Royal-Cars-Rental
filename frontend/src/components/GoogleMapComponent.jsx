@@ -657,12 +657,25 @@ export default function GoogleMapComponent({
     }
   }, [useFallback, pickupCoords, dropoffCoords, driverCoords, cars, center, zoom, showRoute, mapCanvasId]);
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (leafletMapRef.current) {
+        leafletMapRef.current.invalidateSize();
+      }
+      if (googleMapRef.current && window.google && window.google.maps) {
+        window.google.maps.event.trigger(googleMapRef.current, 'resize');
+      }
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [useFallback, googleLoaded]);
+
   return (
     <div 
       className={`rentos-google-map-wrapper ${className}`}
       style={{
         width: '100%',
-        height: height,
+        height: height || '100%',
+        minHeight: '400px',
         borderRadius: '16px',
         overflow: 'hidden',
         position: 'relative',
@@ -676,12 +689,12 @@ export default function GoogleMapComponent({
       {!useFallback ? (
         <div 
           ref={mapContainerRef} 
-          style={{ width: '100%', height: '100%', minHeight: '300px' }} 
+          style={{ width: '100%', height: '100%', minHeight: '400px' }} 
         />
       ) : (
         <div 
           id={mapCanvasId} 
-          style={{ width: '100%', height: '100%', minHeight: '300px', background: '#e2e8f0' }} 
+          style={{ width: '100%', height: '100%', minHeight: '400px', background: '#e2e8f0' }} 
         />
       )}
 

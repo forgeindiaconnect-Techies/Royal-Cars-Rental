@@ -518,7 +518,7 @@ export default function LiveTrackingComponent() {
         </div>
 
         {/* RIGHT MAP & OVERLAY ACTIVITY CARD */}
-        <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
+        <div style={{ flex: 1, height: '100%', minHeight: '520px', position: 'relative', overflow: 'hidden' }}>
           <GoogleMapComponent 
             height="100%"
             zoom={13}
