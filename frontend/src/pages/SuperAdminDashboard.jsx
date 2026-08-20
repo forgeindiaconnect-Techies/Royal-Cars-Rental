@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import LiveTrackingComponent from '../components/LiveTrackingComponent';
 import LocationsManager from '../components/LocationsManager';
+import { getValidImageUrl, handleImageError } from '../utils/imageUtils';
 
 /* ─────────────────────────────────────────────────────────────────
    SIDEBAR NAV ITEMS
@@ -10,6 +11,7 @@ const NAV_ITEMS = [
   { id: 'dashboard',        label: 'Dashboard' },
   { id: 'rental-companies', label: 'Rental Companies' },
   { id: 'locations',        label: 'Popular Locations' },
+  { id: 'reviews',          label: 'Company & Driver Reviews' },
   { id: 'car-owners',       label: 'Car Owners Queue' },
   { id: 'payout-requests',   label: 'Payout Requests' },
   { id: 'drivers-queue',    label: 'Drivers Queue' },
@@ -25,10 +27,10 @@ const NAV_ITEMS = [
 
 const SUB_SECTIONS = {
   'rental-companies': [
-    { id: 'rc-all',        label: 'All Companies',       desc: 'View all onboarded rental vendors',        color: '#2563eb' },
-    { id: 'rc-pending',    label: 'Pending Approval',    desc: 'Self-registered companies awaiting review', color: '#d97706' },
-    { id: 'rc-active',     label: 'Active Companies',    desc: 'Currently live and operating vendors',      color: '#10b981' },
-    { id: 'rc-suspended',  label: 'Suspended Companies', desc: 'Companies currently suspended',             color: '#f43f5e' },
+    { id: 'rc-all',        label: 'Registered Companies', desc: 'All registered rental companies',        color: '#2563eb' },
+    { id: 'rc-pending',    label: 'Not Approved',        desc: 'Waiting for Admin Approval',              color: '#d97706' },
+    { id: 'rc-active',     label: 'Approved Companies',  desc: 'Active approved rental vendors',          color: '#10b981' },
+    { id: 'rc-suspended',  label: 'Suspended Companies', desc: 'Companies currently suspended',           color: '#f43f5e' },
     { id: 'rc-details',    label: 'Company Details',     desc: 'In-depth info, stats & KYC documents',     color: '#7c3aed' },
     { id: 'rc-sub-status', label: 'Subscription Status', desc: 'Track subscription plans & renewals',      color: '#0891b2' },
   ],
@@ -68,12 +70,15 @@ const SUB_SECTIONS = {
 /* ─────────────────────────────────────────────────────────────────
    TOP HEADER
 ───────────────────────────────────────────────────────────────── */
-function TopHeader({ activeNav, notifications, unreadCount, showNotificationsDropdown, onOpenProfile, onToggleNotifications, isMobileSidebarOpen, onToggleMobileSidebar }) {
+function TopHeader({ activeNav, notifications, unreadCount, showNotificationsDropdown, onOpenProfile, onToggleNotifications, isMobileSidebarOpen, onToggleMobileSidebar, onLogout }) {
+  const [showProfileCard, setShowProfileCard] = useState(false);
+
   return (
     <header style={{
       height: '65px', background: '#FFFFFF', borderBottom: '1px solid #EADCCF',
       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-      padding: '0 1.25rem', flexShrink: 0, boxShadow: '0 2px 10px rgba(59, 33, 19, 0.04)'
+      padding: '0 1.25rem', flexShrink: 0, boxShadow: '0 2px 10px rgba(59, 33, 19, 0.04)',
+      position: 'relative'
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
         {/* Mobile Hamburger Toggle Button (3 small lines) */}
@@ -140,20 +145,107 @@ function TopHeader({ activeNav, notifications, unreadCount, showNotificationsDro
           )}
         </div>
 
-        {/* Super Admin Identity Badge */}
-        <div 
-          onClick={() => onOpenProfile && onOpenProfile()} 
-          title="Click to view Super Admin Profile & System Access"
-          style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', borderLeft: '1px solid #EADCCF', paddingLeft: '1.25rem', cursor: 'pointer' }}
-        >
-          <div style={{ width: '34px', height: '34px', borderRadius: '50%', background: '#D49B4B', color: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '0.85rem', boxShadow: '0 2px 8px rgba(212, 155, 75, 0.4)' }}>
-            SA
+        {/* Super Admin Identity Badge (Click toggles Profile & Logout Card without leaving page) */}
+        <div style={{ position: 'relative' }}>
+          <div 
+            onClick={() => setShowProfileCard(!showProfileCard)} 
+            title="Click to view Super Admin Profile & Logout"
+            style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', borderLeft: '1px solid #EADCCF', paddingLeft: '1.25rem', cursor: 'pointer' }}
+          >
+            <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'linear-gradient(135deg, #D49B4B, #b88235)', color: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '0.85rem', boxShadow: '0 2px 8px rgba(212, 155, 75, 0.4)' }}>
+              SA
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', lineHeight: '1.2' }}>
+              <span style={{ fontSize: '0.8rem', fontWeight: 800, color: '#3C2415' }}>Super Admin</span>
+              <span style={{ fontSize: '0.65rem', color: '#7C6959', fontWeight: 600 }}>Administrator ⚙️</span>
+            </div>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', lineHeight: '1.2' }}>
-            <span style={{ fontSize: '0.78rem', fontWeight: 800, color: '#3C2415' }}>Super Admin</span>
-            <span style={{ fontSize: '0.65rem', color: '#7C6959', fontWeight: 600 }}>Administrator ⚙️</span>
-          </div>
+
+          {/* Super Admin Profile & Logout Popover Card */}
+          {showProfileCard && (
+            <div style={{
+              position: 'absolute',
+              top: 'calc(100% + 12px)',
+              right: 0,
+              width: '310px',
+              background: '#ffffff',
+              border: '1px solid #EADCCF',
+              borderRadius: '16px',
+              boxShadow: '0 15px 40px rgba(59, 33, 19, 0.15)',
+              zIndex: 9999,
+              padding: '1.25rem',
+              textAlign: 'left'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem', borderBottom: '1px solid #f1f5f9', paddingBottom: '0.75rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                  <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#D49B4B', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '1rem', boxShadow: '0 3px 10px rgba(212, 155, 75, 0.35)' }}>
+                    SA
+                  </div>
+                  <div>
+                    <h4 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 900, color: '#3C2415' }}>Forge India Super Admin</h4>
+                    <span style={{ fontSize: '0.72rem', color: '#10b981', fontWeight: 800 }}>🟢 Platform Root Access</span>
+                  </div>
+                </div>
+                <button onClick={() => setShowProfileCard(false)} style={{ background: '#f1f5f9', border: 'none', borderRadius: '50%', width: '26px', height: '26px', cursor: 'pointer', fontWeight: 'bold', color: '#64748b' }}>✕</button>
+              </div>
+
+              <div style={{ background: '#faf6f0', padding: '0.85rem', borderRadius: '10px', fontSize: '0.78rem', marginBottom: '1rem', display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                <div><strong>Email:</strong> admin@forgeindia.com</div>
+                <div><strong>Role:</strong> Super Admin (Platform Owner)</div>
+                <div><strong>Access Level:</strong> Full Control & Authorization</div>
+              </div>
+
+              <button
+                onClick={() => { setShowProfileCard(false); onLogout(); }}
+                style={{
+                  width: '100%',
+                  padding: '0.65rem 1rem',
+                  background: 'linear-gradient(135deg, #ef4444, #dc2626)',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '10px',
+                  fontWeight: 900,
+                  fontSize: '0.85rem',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.45rem',
+                  boxShadow: '0 4px 14px rgba(239,68,68,0.35)'
+                }}
+              >
+                <span>🚪</span>
+                <span>Logout / Sign Out</span>
+              </button>
+            </div>
+          )}
         </div>
+
+        {/* Top Header Direct Logout Button */}
+        <button
+          onClick={onLogout}
+          title="Sign Out from Admin Console"
+          style={{
+            background: 'linear-gradient(135deg, #ef4444, #dc2626)',
+            color: '#ffffff',
+            border: 'none',
+            padding: '0.45rem 0.95rem',
+            borderRadius: '8px',
+            fontWeight: 800,
+            fontSize: '0.8rem',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.4rem',
+            boxShadow: '0 2px 8px rgba(239, 68, 68, 0.3)',
+            transition: 'all 0.18s ease'
+          }}
+          onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-1px)'}
+          onMouseLeave={e => e.currentTarget.style.transform = 'none'}
+        >
+          <span>🚪</span>
+          <span>Logout</span>
+        </button>
       </div>
     </header>
   );
@@ -174,20 +266,20 @@ function Sidebar({ activeNav, onNavChange, onLogout, isMobileOpen, onCloseMobile
       )}
 
       <aside className={`dashboard-sidebar ${isMobileOpen ? 'mobile-drawer-active' : ''}`} style={{
-        width: '220px', height: '100%', background: '#100C09',
+        width: '320px', height: '100%', background: '#100C09',
         borderRight: '1px solid rgba(255,255,255,0.08)',
-        display: 'flex', flexDirection: 'column', flexShrink: 0, overflowY: 'hidden',
+        display: 'flex', flexDirection: 'column', flexShrink: 0, overflow: 'hidden',
       }}>
-        <div style={{ padding: '1.25rem 1.25rem', borderBottom: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'linear-gradient(135deg, #D49B4B 0%, #B88235 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', boxShadow: '0 4px 12px rgba(212,155,75,0.4)' }}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="m2 4 3 12h14l3-12-6 7-4-8-4 8-6-7z"/><path d="M5 20h14"/></svg>
+        <div style={{ padding: '1.2rem 1.25rem', borderBottom: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'linear-gradient(135deg, #D49B4B 0%, #B88235 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', boxShadow: '0 4px 12px rgba(212,155,75,0.4)' }}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="m2 4 3 12h14l3-12-6 7-4-8-4 8-6-7z"/><path d="M5 20h14"/></svg>
             </div>
             <div>
-              <div style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '0.95rem', color: '#D49B4B', letterSpacing: '-0.02em' }}>
+              <div style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '1.05rem', color: '#D49B4B', letterSpacing: '-0.02em' }}>
                 Super Admin
               </div>
-              <div style={{ fontSize: '0.68rem', color: '#A89886', marginTop: '1px' }}>Platform Control Console</div>
+              <div style={{ fontSize: '0.72rem', color: '#A89886', marginTop: '1px' }}>Platform Control Console</div>
             </div>
           </div>
 
@@ -199,17 +291,17 @@ function Sidebar({ activeNav, onNavChange, onLogout, isMobileOpen, onCloseMobile
             ✕
           </button>
         </div>
-        <nav style={{ flex: 1, padding: '0.75rem 0.6rem', overflowY: 'auto' }}>
+        <nav style={{ flex: 1, padding: '0.6rem 0.75rem', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
           {NAV_ITEMS.map(item => {
             const isActive = activeNav === item.id;
             return (
               <button key={item.id} onClick={() => { onNavChange(item.id); if (onCloseMobile) onCloseMobile(); }} style={{
-                display: 'block', width: '100%', padding: '0.7rem 1rem',
-                margin: '0.2rem 0',
+                display: 'block', width: '100%', padding: '0.65rem 1.15rem',
+                margin: '0.1rem 0',
                 background: isActive ? 'linear-gradient(135deg, #D49B4B 0%, #C58F3E 100%)' : 'transparent',
-                border: 'none', borderRadius: '8px',
+                border: 'none', borderRadius: '10px',
                 cursor: 'pointer', color: isActive ? '#FFFFFF' : '#E0D5C7',
-                fontWeight: isActive ? 800 : 500, fontSize: '0.85rem',
+                fontWeight: isActive ? 800 : 500, fontSize: '0.88rem',
                 fontFamily: 'var(--font-body)', textAlign: 'left', transition: 'all 0.2s ease',
                 boxShadow: isActive ? '0 4px 12px rgba(212, 155, 75, 0.35)' : 'none'
               }}
@@ -221,17 +313,24 @@ function Sidebar({ activeNav, onNavChange, onLogout, isMobileOpen, onCloseMobile
             );
           })}
         </nav>
-        <div style={{ padding: '0.75rem', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+
+        {/* Pinned Bottom Footer Logout Button */}
+        <div style={{ padding: '0.85rem 1rem', borderTop: '1px solid rgba(255,255,255,0.12)', flexShrink: 0, marginTop: 'auto', background: '#100C09' }}>
           <button onClick={() => { if (onCloseMobile) onCloseMobile(); onLogout(); }} style={{
-            display: 'block', width: '100%', padding: '0.6rem 1rem',
-            background: 'transparent', border: '1px solid rgba(212, 155, 75, 0.4)',
-            borderRadius: '8px', cursor: 'pointer', color: '#D49B4B',
-            fontWeight: 700, fontSize: '0.82rem', fontFamily: 'var(--font-body)', textAlign: 'center',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.6rem',
+            width: '100%', padding: '0.75rem 1rem',
+            background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)', border: 'none',
+            borderRadius: '10px', cursor: 'pointer', color: '#FFFFFF',
+            fontWeight: 800, fontSize: '0.9rem', fontFamily: 'var(--font-body)', textAlign: 'center',
+            boxShadow: '0 4px 14px rgba(239, 68, 68, 0.4)',
             transition: 'all 0.2s ease',
           }}
-          onMouseEnter={e => e.currentTarget.style.background = 'rgba(212,155,75,0.1)'}
-          onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-          >Sign Out</button>
+          onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-1px)'}
+          onMouseLeave={e => e.currentTarget.style.transform = 'none'}
+          >
+            <span>🚪</span>
+            <span>Logout / Sign Out</span>
+          </button>
         </div>
       </aside>
     </>
@@ -270,12 +369,41 @@ function HubCardGrid({ navId, navLabel, companies, onSubSelect }) {
     const pendingStorage = (() => {
       try { return JSON.parse(localStorage.getItem('pending_companies') || '[]'); } catch { return []; }
     })();
+    const approvedStorage = (() => {
+      try { return JSON.parse(localStorage.getItem('approved_companies') || '[]'); } catch { return []; }
+    })();
+
+    const map = new Map();
+    safeCompanies.forEach(c => {
+      if (!c) return;
+      const key = (c.ownerEmail || c._id || c.id || '').toString().toLowerCase();
+      if (key) map.set(key, c);
+    });
+
+    pendingStorage.forEach(item => {
+      const key = (item.email || item.ownerEmail || item.id || '').toString().toLowerCase();
+      if (key && !map.has(key)) map.set(key, { ...item, status: 'pending_approval' });
+    });
+
+    approvedStorage.forEach(item => {
+      const key = (item.email || item.ownerEmail || item.id || '').toString().toLowerCase();
+      if (key) {
+        const existing = map.get(key);
+        if (existing) {
+          map.set(key, { ...existing, status: 'active' });
+        } else {
+          map.set(key, { ...item, status: 'active' });
+        }
+      }
+    });
+
+    const allCompanies = Array.from(map.values());
 
     switch (id) {
-      case 'rc-all':       return safeCompanies.filter(c => c && c.status !== 'pending_approval').length + pendingStorage.length;
-      case 'rc-pending':   return safeCompanies.filter(c => c && c.status === 'pending_approval').length + pendingStorage.length;
-      case 'rc-active':    return safeCompanies.filter(c => c && c.status === 'active').length;
-      case 'rc-suspended': return safeCompanies.filter(c => c && c.status === 'suspended').length;
+      case 'rc-all':       return allCompanies.length;
+      case 'rc-pending':   return allCompanies.filter(c => c && (c.status === 'pending_approval' || c.status === 'pending' || c.status === 'Not Approved')).length;
+      case 'rc-active':    return allCompanies.filter(c => c && (c.status === 'active' || c.status === 'Approved')).length;
+      case 'rc-suspended': return allCompanies.filter(c => c && (c.status === 'suspended' || c.status === 'rejected' || c.status === 'expired')).length;
       default:             return null;
     }
   };
@@ -336,6 +464,7 @@ function CompanyDetailModal({ company, token, onClose, onRefresh, onUpdateCompan
   const [saving, setSaving]                 = useState(false);
   const [msg, setMsg]                       = useState({ text: '', type: '' });
   const [viewingDocModalData, setViewingDocModalData] = useState(null);
+  const [showCompanyPassword, setShowCompanyPassword] = useState(false);
 
   // Form fields
   const [name, setName]           = useState(company.name || '');
@@ -499,9 +628,17 @@ function CompanyDetailModal({ company, token, onClose, onRefresh, onUpdateCompan
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: '640px', width: '95%', maxHeight: '90vh', overflowY: 'auto' }}>
         <div className="modal-header" style={{ marginBottom: '1rem' }}>
-          <div>
-            <h3 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.25rem', marginBottom: '0.1rem' }}>{currentCompany.name}</h3>
-            <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{currentCompany.ownerEmail} · {currentCompany.city || ''}{currentCompany.city && currentCompany.state ? ', ' : ''}{currentCompany.state || ''}</p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+            <img 
+              src={getValidImageUrl(currentCompany.logo || currentCompany.companyLogo || currentCompany.logoUrl || currentCompany.logoFile, 'company')}
+              onError={e => handleImageError(e, 'company')}
+              alt={currentCompany.name} 
+              style={{ width: '48px', height: '48px', objectFit: 'cover', borderRadius: '12px', border: '1.5px solid #cbd5e1', background: '#f8fafc' }}
+            />
+            <div>
+              <h3 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.25rem', marginBottom: '0.1rem' }}>{currentCompany.name}</h3>
+              <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{currentCompany.ownerEmail} · {currentCompany.city || ''}{currentCompany.city && currentCompany.state ? ', ' : ''}{currentCompany.state || ''}</p>
+            </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <button
@@ -547,6 +684,44 @@ function CompanyDetailModal({ company, token, onClose, onRefresh, onUpdateCompan
               ))}
             </div>
           )}
+        </div>
+
+        {/* VENDOR LOGIN CREDENTIALS & PASSWORD DISPLAY CARD */}
+        <div style={{ background: 'rgba(37,99,235,0.06)', border: '1.5px solid rgba(37,99,235,0.2)', borderRadius: '12px', padding: '1rem', marginBottom: '1.5rem' }}>
+          <div style={{ fontSize: '0.78rem', fontWeight: 800, color: '#1e40af', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '0.65rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span>🔑 Vendor Login Credentials</span>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+            <div style={{ background: '#ffffff', padding: '0.65rem 0.85rem', borderRadius: '8px', border: '1px solid #cbd5e1' }}>
+              <div style={{ fontSize: '0.68rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 700 }}>Owner Registered Email</div>
+              <div style={{ fontSize: '0.88rem', fontWeight: 800, color: '#0f172a', marginTop: '2px', wordBreak: 'break-all' }}>{currentCompany.ownerEmail || currentCompany.email || '—'}</div>
+            </div>
+            <div style={{ background: '#ffffff', padding: '0.65rem 0.85rem', borderRadius: '8px', border: '1px solid #cbd5e1', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                <div style={{ fontSize: '0.68rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 700 }}>Account Login Password</div>
+                <div style={{ fontSize: '0.88rem', fontWeight: 800, color: '#0f172a', marginTop: '2px', fontFamily: 'monospace', letterSpacing: showCompanyPassword ? '0.02em' : '0.15em' }}>
+                  {showCompanyPassword ? (currentCompany.password || currentCompany.ownerPassword || 'password123') : '••••••••••••'}
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowCompanyPassword(!showCompanyPassword)}
+                style={{
+                  background: showCompanyPassword ? '#2563eb' : 'rgba(37,99,235,0.1)',
+                  color: showCompanyPassword ? '#ffffff' : '#2563eb',
+                  border: 'none',
+                  padding: '0.3rem 0.65rem',
+                  borderRadius: '6px',
+                  fontWeight: 800,
+                  fontSize: '0.72rem',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                {showCompanyPassword ? '🔒 Hide' : '👁️ Show'}
+              </button>
+            </div>
+          </div>
         </div>
 
         {isEditing ? (
@@ -765,8 +940,10 @@ function RentalCompaniesPanel({ subId, subLabel, companies, token, onRefresh, on
   const [selectedCompany, setSelectedCompany] = useState(null);
   const safeCompanies                         = Array.isArray(companies) ? companies : [];
   const [localCompanies, setLocalCompanies]   = useState(safeCompanies);
+  const [activeFilterTab, setActiveFilterTab] = useState(subId || 'rc-all');
 
   useEffect(() => { setLocalCompanies(safeCompanies); }, [companies]);
+  useEffect(() => { if (subId) setActiveFilterTab(subId); }, [subId]);
 
   const [companyName, setCompanyName] = useState('');
   const [ownerName,   setOwnerName]   = useState('');
@@ -793,34 +970,88 @@ function RentalCompaniesPanel({ subId, subLabel, companies, token, onRefresh, on
 
   const displayLabel = typeof subLabel === 'string' ? subLabel : (subLabel?.label || subLabel?.name || 'Companies');
 
-  const getFiltered = () => {
+  const getAllCombinedCompanies = () => {
     const pendingFromStorage = (() => {
       try { return JSON.parse(localStorage.getItem('pending_companies') || '[]'); } catch { return []; }
     })();
+    const approvedFromStorage = (() => {
+      try { return JSON.parse(localStorage.getItem('approved_companies') || '[]'); } catch { return []; }
+    })();
 
     const formattedStoragePending = pendingFromStorage.map(item => ({
-      _id: item.id || ('cmp_' + Math.random()),
+      _id: item.id || item._id || ('cmp_' + Math.random()),
       name: item.companyName || item.name || 'Self-Registered Agency',
       ownerName: item.ownerName || 'Business Owner',
       ownerEmail: item.email || item.ownerEmail || 'vendor@gmail.com',
-      commissionRate: 5,
-      subscriptionPrice: item.plan?.includes('Pro') ? 7000 : 3000,
-      status: 'pending_approval',
+      mobile: item.mobile || item.phone || '',
+      logo: item.logo || item.logoUrl || item.companyLogo || '',
+      logoUrl: item.logoUrl || item.logo || '',
+      commissionRate: 10,
+      subscriptionPrice: item.subscriptionPrice || 2999,
+      status: item.status || 'pending_approval',
       onboardedAt: item.createdAt || new Date().toISOString(),
       isStoragePending: true
     }));
 
-    const combined = [...localCompanies, ...formattedStoragePending];
+    const formattedStorageApproved = approvedFromStorage.map(item => ({
+      _id: item.id || item._id || ('cmp_' + Math.random()),
+      name: item.companyName || item.name || 'Rental Company',
+      ownerName: item.ownerName || 'Business Owner',
+      ownerEmail: item.email || item.ownerEmail || 'vendor@gmail.com',
+      mobile: item.mobile || item.phone || '',
+      logo: item.logo || item.logoUrl || item.companyLogo || '',
+      logoUrl: item.logoUrl || item.logo || '',
+      commissionRate: item.commissionRate || 10,
+      subscriptionPrice: item.subscriptionPrice || 2999,
+      status: 'active',
+      onboardedAt: item.createdAt || new Date().toISOString(),
+      isStorageApproved: true
+    }));
 
-    switch (subId) {
-      case 'rc-pending':   return combined.filter(c => c && c.status === 'pending_approval');
-      case 'rc-active':    return combined.filter(c => c && c.status === 'active');
-      case 'rc-suspended': return combined.filter(c => c && c.status === 'suspended');
+    const map = new Map();
+    localCompanies.forEach(c => {
+      if (!c) return;
+      const key = (c.ownerEmail || c._id || c.id || '').toString().toLowerCase();
+      if (key) map.set(key, c);
+    });
+
+    formattedStoragePending.forEach(c => {
+      const key = (c.ownerEmail || c._id || c.id || '').toString().toLowerCase();
+      if (key && !map.has(key)) map.set(key, c);
+    });
+
+    formattedStorageApproved.forEach(c => {
+      const key = (c.ownerEmail || c._id || c.id || '').toString().toLowerCase();
+      if (key) {
+        const existing = map.get(key);
+        if (existing) {
+          map.set(key, { ...existing, status: 'active' });
+        } else {
+          map.set(key, c);
+        }
+      }
+    });
+
+    return Array.from(map.values());
+  };
+
+  const allCombined = getAllCombinedCompanies();
+  const allCount = allCombined.length;
+  const pendingCount = allCombined.filter(c => c && (c.status === 'pending_approval' || c.status === 'pending')).length;
+  const activeCount = allCombined.filter(c => c && (c.status === 'active' || c.status === 'Approved')).length;
+  const suspendedCount = allCombined.filter(c => c && (c.status === 'suspended' || c.status === 'rejected' || c.status === 'expired')).length;
+
+  const getFiltered = () => {
+    switch (activeFilterTab) {
+      case 'rc-pending':   return allCombined.filter(c => c && (c.status === 'pending_approval' || c.status === 'pending'));
+      case 'rc-active':    return allCombined.filter(c => c && (c.status === 'active' || c.status === 'Approved'));
+      case 'rc-suspended': return allCombined.filter(c => c && (c.status === 'suspended' || c.status === 'rejected' || c.status === 'expired'));
       case 'rc-details':
       case 'rc-all':
-      default:             return combined;
+      default:             return allCombined;
     }
   };
+
   const data = getFiltered();
 
   const resetForm = () => {
@@ -981,6 +1212,168 @@ function RentalCompaniesPanel({ subId, subLabel, companies, token, onRefresh, on
     </div>
   );
 
+  // Clean Interactive Actions Dropdown Menu for Vendor Companies (With Smart Popup Direction)
+  const CompanyActionsDropdown = ({ company, onSelectCompany, onApprove, onReject, onToggleStatus, onDelete }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const [openUpwards, setOpenUpwards] = useState(false);
+    const dropdownRef = useRef(null);
+
+    const toggleDropdown = (e) => {
+      e.stopPropagation();
+      if (!isOpen && dropdownRef.current) {
+        const rect = dropdownRef.current.getBoundingClientRect();
+        const spaceBelow = window.innerHeight - rect.bottom;
+        if (spaceBelow < 230) {
+          setOpenUpwards(true);
+        } else {
+          setOpenUpwards(false);
+        }
+      }
+      setIsOpen(!isOpen);
+    };
+
+    useEffect(() => {
+      const handleClickOutside = (event) => {
+        if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+          setIsOpen(false);
+        }
+      };
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    return (
+      <div ref={dropdownRef} style={{ position: 'relative', display: 'inline-block' }}>
+        <button
+          type="button"
+          onClick={toggleDropdown}
+          style={{
+            background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+            color: '#ffffff',
+            border: '1px solid rgba(255,255,255,0.2)',
+            padding: '0.45rem 0.9rem',
+            borderRadius: '8px',
+            fontWeight: 800,
+            fontSize: '0.78rem',
+            cursor: 'pointer',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px'
+          }}
+        >
+          <span>⚙️ Actions</span>
+          <span style={{ fontSize: '0.7rem' }}>{openUpwards ? '▴' : '▾'}</span>
+        </button>
+
+        {isOpen && (
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              position: 'absolute',
+              right: 0,
+              ...(openUpwards ? { bottom: 'calc(100% + 6px)' } : { top: 'calc(100% + 6px)' }),
+              zIndex: 99999,
+              background: '#ffffff',
+              borderRadius: '12px',
+              boxShadow: '0 12px 36px rgba(0,0,0,0.25), 0 0 0 1px rgba(0,0,0,0.05)',
+              border: '1px solid #e2e8f0',
+              minWidth: '195px',
+              padding: '6px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '2px'
+            }}
+          >
+            {/* VIEW KYC & DETAILS */}
+            <button
+              type="button"
+              onClick={() => { setIsOpen(false); onSelectCompany(company); }}
+              style={{
+                width: '100%', textAlign: 'left', background: 'transparent', border: 'none',
+                padding: '0.6rem 0.8rem', borderRadius: '6px', fontSize: '0.82rem', fontWeight: 800,
+                color: '#2563eb', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px'
+              }}
+              onMouseEnter={e => e.currentTarget.style.background = '#eff6ff'}
+              onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+            >
+              <span>👁️</span> View KYC & Details
+            </button>
+
+            {/* APPROVE COMPANY */}
+            {company.status === 'pending_approval' && (
+              <button
+                type="button"
+                onClick={() => { setIsOpen(false); onApprove(company._id); }}
+                style={{
+                  width: '100%', textAlign: 'left', background: 'transparent', border: 'none',
+                  padding: '0.6rem 0.8rem', borderRadius: '6px', fontSize: '0.82rem', fontWeight: 800,
+                  color: '#16a34a', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px'
+                }}
+                onMouseEnter={e => e.currentTarget.style.background = '#f0fdf4'}
+                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+              >
+                <span>✓</span> Approve Company
+              </button>
+            )}
+
+            {/* REJECT COMPANY */}
+            {company.status === 'pending_approval' && (
+              <button
+                type="button"
+                onClick={() => { setIsOpen(false); onReject(company._id); }}
+                style={{
+                  width: '100%', textAlign: 'left', background: 'transparent', border: 'none',
+                  padding: '0.6rem 0.8rem', borderRadius: '6px', fontSize: '0.82rem', fontWeight: 800,
+                  color: '#dc2626', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px'
+                }}
+                onMouseEnter={e => e.currentTarget.style.background = '#fef2f2'}
+                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+              >
+                <span>✕</span> Reject Company
+              </button>
+            )}
+
+            {/* SUSPEND / ACTIVATE */}
+            {company.status !== 'pending_approval' && (
+              <button
+                type="button"
+                onClick={() => { setIsOpen(false); onToggleStatus(company._id); }}
+                style={{
+                  width: '100%', textAlign: 'left', background: 'transparent', border: 'none',
+                  padding: '0.6rem 0.8rem', borderRadius: '6px', fontSize: '0.82rem', fontWeight: 800,
+                  color: company.status === 'active' ? '#d97706' : '#16a34a', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px'
+                }}
+                onMouseEnter={e => e.currentTarget.style.background = '#fffbebe6'}
+                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+              >
+                <span>{company.status === 'active' ? '⏸️' : '▶️'}</span>
+                {company.status === 'active' ? 'Suspend Account' : 'Activate Account'}
+              </button>
+            )}
+
+            <div style={{ height: '1px', background: '#e2e8f0', margin: '4px 0' }} />
+
+            {/* DELETE COMPANY */}
+            <button
+              type="button"
+              onClick={() => { setIsOpen(false); onDelete(company._id); }}
+              style={{
+                width: '100%', textAlign: 'left', background: 'transparent', border: 'none',
+                padding: '0.6rem 0.8rem', borderRadius: '6px', fontSize: '0.82rem', fontWeight: 800,
+                color: '#dc2626', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px'
+              }}
+              onMouseEnter={e => e.currentTarget.style.background = '#fef2f2'}
+              onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+            >
+              <span>🗑️</span> Delete Company
+            </button>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div style={{ animation: 'fadeIn 0.3s ease-out' }}>
       <BackButton label="Rental Companies" onBack={onBack} />
@@ -1010,50 +1403,109 @@ function RentalCompaniesPanel({ subId, subLabel, companies, token, onRefresh, on
         <div style={{ background: 'rgba(16,185,129,0.08)', color: '#10b981', border: '1px solid rgba(16,185,129,0.2)', borderRadius: 'var(--radius-sm)', padding: '0.7rem 1rem', marginBottom: '1rem', fontSize: '0.88rem' }}>{formSuccess}</div>
       )}
 
-      <div className="card" style={{ padding: '1.5rem' }}>
-        <div className="table-container" style={{ marginBottom: 0 }}>
+      <div className="card" style={{ padding: '1.5rem', overflow: 'visible' }}>
+        {/* CATEGORY / STATUS FILTER PILLS BAR */}
+        <div style={{ display: 'flex', gap: '0.65rem', marginBottom: '1.25rem', flexWrap: 'wrap', borderBottom: '1px solid #e2e8f0', paddingBottom: '1rem' }}>
+          {[
+            { id: 'rc-all', label: 'Registered Companies', count: allCount, color: '#2563eb' },
+            { id: 'rc-pending', label: '⏳ Not Approved', count: pendingCount, color: '#d97706' },
+            { id: 'rc-active', label: '🟢 Approved Companies', count: activeCount, color: '#10b981' },
+            { id: 'rc-suspended', label: '🔴 Suspended / Rejected', count: suspendedCount, color: '#dc2626' }
+          ].map(tab => (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => setActiveFilterTab(tab.id)}
+              style={{
+                padding: '0.5rem 1rem',
+                borderRadius: '20px',
+                fontWeight: 800,
+                fontSize: '0.8rem',
+                border: activeFilterTab === tab.id ? `2px solid ${tab.color}` : '1px solid #cbd5e1',
+                background: activeFilterTab === tab.id ? `${tab.color}15` : '#ffffff',
+                color: activeFilterTab === tab.id ? tab.color : '#64748b',
+                cursor: 'pointer',
+                boxShadow: activeFilterTab === tab.id ? `0 2px 8px ${tab.color}25` : 'none',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              <span>{tab.label}</span>
+              <span style={{
+                background: activeFilterTab === tab.id ? tab.color : '#ffffff',
+                color: activeFilterTab === tab.id ? '#ffffff' : '#475569',
+                padding: '0.12rem 0.5rem',
+                borderRadius: '10px',
+                fontSize: '0.72rem',
+                fontWeight: 900
+              }}>
+                {tab.count}
+              </span>
+            </button>
+          ))}
+        </div>
+
+        <div className="table-container" style={{ marginBottom: 0, overflow: 'visible' }}>
           <table className="custom-table">
             <thead>
               <tr>
-                <th>Company</th><th>Owner Email</th><th>Commission</th>
-                <th>Subscription</th><th>Onboarded</th><th>Status</th><th>Action</th>
+                <th style={{ width: '60px' }}>Logo</th>
+                <th>Company Name</th>
+                <th>Owner Email</th>
+                <th>Commission</th>
+                <th>Subscription</th>
+                <th>Onboarded</th>
+                <th>Status</th>
+                <th style={{ textAlign: 'right' }}>Actions</th>
               </tr>
             </thead>
             <tbody>
               {data.map(c => (
                 <tr key={c._id} style={{ cursor: 'pointer' }}>
-                  <td style={{ fontWeight: 600 }}>
-                    <span style={{ color: '#2563eb', cursor: 'pointer', textDecoration: 'underline dotted' }}
-                      onClick={() => setSelectedCompany(c)}>{c.name}</span>
+                  <td>
+                    <img 
+                      src={getValidImageUrl(c.logo || c.companyLogo || c.logoUrl || c.logoFile, 'company')} 
+                      onError={e => handleImageError(e, 'company')}
+                      alt={c.name}
+                      style={{ width: '44px', height: '44px', objectFit: 'cover', borderRadius: '10px', border: '1px solid #cbd5e1', background: '#f8fafc' }} 
+                    />
+                  </td>
+                  <td style={{ fontWeight: 700 }}>
+                    <div 
+                      style={{ color: '#2563eb', cursor: 'pointer', fontWeight: 800, fontSize: '0.92rem' }}
+                      onClick={() => setSelectedCompany(c)}
+                    >
+                      {c.name}
+                    </div>
+                    <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{c.city || c.location || 'Hub Partner'}</div>
                   </td>
                   <td>{c.ownerEmail}</td>
                   <td>{c.commissionRate}%</td>
                   <td>₹{c.subscriptionPrice}/mo</td>
                   <td>{c.onboardedAt ? new Date(c.onboardedAt).toLocaleDateString('en-IN') : '—'}</td>
                   <td>
-                    <span className={`badge ${
-                      c.status === 'active' ? 'badge-success' : 
-                      c.status === 'pending_approval' ? 'badge-warning' : 'badge-danger'
-                    }`}>
-                      {c.status === 'pending_approval' ? 'pending' : c.status}
+                    <span 
+                      className={`badge ${
+                        c.status === 'active' || c.status === 'Approved' ? 'badge-success' : 
+                        (c.status === 'pending_approval' || c.status === 'pending' || c.status === 'Not Approved') ? 'badge-warning' : 'badge-danger'
+                      }`}
+                      title={c.status === 'active' || c.status === 'Approved' ? 'Approved Account' : 'Not Approved – Waiting for Admin Approval'}
+                    >
+                      {c.status === 'active' || c.status === 'Approved' ? '🟢 Approved' : 
+                       (c.status === 'pending_approval' || c.status === 'pending' || c.status === 'Not Approved') ? '⏳ Not Approved' : '🔴 Suspended'}
                     </span>
                   </td>
-                  <td style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
-                    <button style={{ fontSize: '0.72rem', padding: '0.2rem 0.5rem', background: 'rgba(37,99,235,0.1)', color: '#2563eb', border: '1px solid rgba(37,99,235,0.25)', borderRadius: '4px', cursor: 'pointer', fontWeight: 600 }}
-                      onClick={() => setSelectedCompany(c)}>Details</button>
-                    {c.status === 'pending_approval' ? (
-                      <>
-                        <button className="btn btn-success" style={{ fontSize: '0.72rem', padding: '0.2rem 0.5rem' }} onClick={() => approve(c._id)}>Approve</button>
-                        <button className="btn btn-danger" style={{ fontSize: '0.72rem', padding: '0.2rem 0.5rem' }} onClick={() => rejectCompany(c._id)}>Reject</button>
-                      </>
-                    ) : (
-                      <>
-                        <button className={`btn ${c.status === 'active' ? 'btn-warning' : 'btn-success'}`} style={{ fontSize: '0.72rem', padding: '0.2rem 0.5rem' }} onClick={() => toggleStatus(c._id)}>
-                          {c.status === 'active' ? 'Suspend' : 'Activate'}
-                        </button>
-                        <button className="btn btn-danger" style={{ fontSize: '0.72rem', padding: '0.2rem 0.5rem', background: '#dc2626', color: '#fff', border: 'none' }} onClick={() => deleteCompany(c._id)}>Delete</button>
-                      </>
-                    )}
+                  <td style={{ textAlign: 'right' }}>
+                    <CompanyActionsDropdown
+                      company={c}
+                      onSelectCompany={setSelectedCompany}
+                      onApprove={approve}
+                      onReject={rejectCompany}
+                      onToggleStatus={toggleStatus}
+                      onDelete={deleteCompany}
+                    />
                   </td>
                 </tr>
               ))}
@@ -2289,13 +2741,7 @@ function CommissionPanel({ companies, onBack }) {
   const [selectedCompanyRate, setSelectedCompanyRate] = useState(10);
   const [showAllCompaniesModal, setShowAllCompaniesModal] = useState(false);
   const [companySearch, setCompanySearch] = useState('');
-  const [customRates, setCustomRates] = useState({
-    'Sri Ram Travels': 12,
-    'Vasanth Cars': 10,
-    'Karpagam Rentals': 15,
-    'Sakthi Travels': 10,
-    'Arun Cabs': 10,
-  });
+  const [customRates, setCustomRates] = useState({});
   const [notice, setNotice] = useState('');
 
   const showNotice = (msg) => {
@@ -2303,25 +2749,11 @@ function CommissionPanel({ companies, onBack }) {
     setTimeout(() => setNotice(''), 4000);
   };
 
-  const defaultTopCompanies = [
-    { name: 'Pooja cars',        bookings: 145, commission: 85400,  status: 'Paid' },
-    { name: 'Vaidee',            bookings: 145, commission: 85400,  status: 'Paid' },
-    { name: 'Sri Ram Travels',   bookings: 245, commission: 125680, status: 'Paid' },
-    { name: 'Vasanth Cars',       bookings: 198, commission: 98450,  status: 'Paid' },
-    { name: 'Karpagam Rentals',   bookings: 176, commission: 88720,  status: 'Pending' },
-    { name: 'Sakthi Travels',     bookings: 165, commission: 74250,  status: 'Pending' },
-    { name: 'Arun Cabs',          bookings: 142, commission: 65430,  status: 'Paid' },
-  ];
-
-  const rawList = (Array.isArray(companies) && companies.length > 0)
+  const activeCompaniesList = (Array.isArray(companies) && companies.length > 0)
     ? companies.filter(c => c && c.name && c.status !== 'pending_approval' && c.status !== 'Rejected' && c.status !== 'rejected')
-    : defaultTopCompanies;
+    : [];
 
-  const existingNames = new Set(rawList.map(c => c.name));
-  const fillCompanies = defaultTopCompanies.filter(c => !existingNames.has(c.name));
-  const activeCompaniesList = [...rawList, ...fillCompanies];
-
-  const topCompanies = activeCompaniesList.slice(0, 5);
+  const topCompanies = activeCompaniesList;
 
   const recentTransactions = [
     { company: 'Sri Ram Travels',   bookingId: 'BK-12568', commission: 12450, status: 'Paid',    date: '31 May 2026' },
@@ -3244,6 +3676,7 @@ function SettingsPanel({ onBack }) {
   const [activeTab, setActiveTab] = useState('phone-whatsapp');
   
   // Phone & WhatsApp Settings State
+  const [logoUrl, setLogoUrl] = useState(() => localStorage.getItem('platform_logo') || 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png');
   const [phone, setPhone] = useState(() => localStorage.getItem('platform_support_phone') || '+91 95173 68420');
   const [whatsapp, setWhatsapp] = useState(() => localStorage.getItem('platform_whatsapp_phone') || '919517368420');
   const [email, setEmail] = useState(() => localStorage.getItem('platform_support_email') || 'admin@royalrentcars.com');
@@ -3295,6 +3728,9 @@ function SettingsPanel({ onBack }) {
     const cleanEmail = email.trim();
     const cleanMsg = whatsappMsg.trim();
 
+    if (logoUrl) {
+      localStorage.setItem('platform_logo', logoUrl);
+    }
     localStorage.setItem('platform_support_phone', cleanPhone);
     localStorage.setItem('platform_whatsapp_phone', cleanWhatsapp);
     localStorage.setItem('platform_support_email', cleanEmail);
@@ -3398,7 +3834,41 @@ function SettingsPanel({ onBack }) {
 
             <form onSubmit={handleSaveContactSettings} style={{ display: 'flex', flexDirection: 'column', gap: '1.15rem' }}>
               
-              {/* Field 1: Support Phone Number */}
+              {/* Field 0: Platform Logo Upload & Link */}
+              <div style={{ background: '#f8fafc', padding: '1rem', borderRadius: '12px', border: '1px solid #cbd5e1' }}>
+                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 800, color: '#1e293b', marginBottom: '0.4rem' }}>
+                  🖼️ Platform Official Logo Image (File Upload or Image URL)
+                </label>
+                <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                  <img
+                    src={logoUrl || localStorage.getItem('platform_logo') || 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png'}
+                    alt="Platform Logo"
+                    style={{ width: '48px', height: '48px', borderRadius: '10px', objectFit: 'cover', border: '2px solid #2563eb', background: '#fff' }}
+                  />
+                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                    <input
+                      type="text"
+                      placeholder="Paste Logo Image URL (e.g. https://...)"
+                      value={logoUrl}
+                      onChange={e => setLogoUrl(e.target.value)}
+                      style={{ width: '100%', height: '38px', padding: '0 0.75rem', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.82rem', fontWeight: 600 }}
+                    />
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={e => {
+                        const file = e.target.files[0];
+                        if (file) {
+                          const reader = new FileReader();
+                          reader.onloadend = () => setLogoUrl(reader.result);
+                          reader.readAsDataURL(file);
+                        }
+                      }}
+                      style={{ fontSize: '0.75rem', color: '#475569' }}
+                    />
+                  </div>
+                </div>
+              </div>
               <div>
                 <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 800, color: '#1e293b', marginBottom: '0.4rem' }}>
                   📞 Platform Support Call Phone Number *
@@ -3557,8 +4027,19 @@ function SettingsPanel({ onBack }) {
             </div>
 
             <div>
-              <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 800, color: '#334155', marginBottom: '4px' }}>Admin Email</label>
+              <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 800, color: '#334155', marginBottom: '4px' }}>Admin Email Address</label>
               <input type="email" value={adminEmail} onChange={e => setAdminEmail(e.target.value)} style={{ width: '100%', height: '42px', padding: '0 0.75rem', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.88rem' }} />
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 800, color: '#334155', marginBottom: '4px' }}>📞 Mobile Number</label>
+                <input type="text" value={phone} onChange={e => setPhone(e.target.value)} placeholder="+91 98765 00000" style={{ width: '100%', height: '42px', padding: '0 0.75rem', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.88rem' }} />
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 800, color: '#334155', marginBottom: '4px' }}>💬 WhatsApp Number</label>
+                <input type="text" value={whatsapp} onChange={e => setWhatsapp(e.target.value)} placeholder="+91 98765 00000" style={{ width: '100%', height: '42px', padding: '0 0.75rem', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.88rem' }} />
+              </div>
             </div>
 
             <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: '1rem', marginTop: '0.5rem' }}>
@@ -3606,19 +4087,9 @@ function NotificationsPanel({ onBack, token, fetchNotifications, companies }) {
     setTimeout(() => setNotice(''), 4000);
   };
 
-  const defaultCompanies = [
-    { id: '1', name: 'Pooja cars', ownerEmail: 'poojacars@gmail.com' },
-    { id: '2', name: 'Vaidee', ownerEmail: 'vaidee@gmail.com' },
-    { id: '3', name: 'Sri Ram Travels', ownerEmail: 'sriramtravels@gmail.com' },
-    { id: '4', name: 'Vasanth Cars', ownerEmail: 'vasanthcars@gmail.com' },
-    { id: '5', name: 'Karpagam Rentals', ownerEmail: 'karpagamrentals@gmail.com' },
-    { id: '6', name: 'Sakthi Travels', ownerEmail: 'sakthitravels@gmail.com' },
-    { id: '7', name: 'Arun Cabs', ownerEmail: 'aruncabs@gmail.com' },
-  ];
-
   const companyList = (Array.isArray(companies) && companies.length > 0)
     ? companies
-    : defaultCompanies;
+    : [];
 
   const handleSend = async (e) => {
     e.preventDefault();
@@ -3760,13 +4231,13 @@ function NotificationsPanel({ onBack, token, fetchNotifications, companies }) {
                   const val = e.target.value;
                   if (val === 'sub_expiry_7d') {
                     setSubject('Notice: Your Royal Car Rentals Subscription Plan Expires in 7 Days');
-                    setMessage(`Hi ${selectedCompany || 'Pooja Cars'},\n\nYour subscription plan for Royal Car Rentals will expire in 7 days (on 06 August 2026).\nPlease renew your subscription to continue using all platform features without interruption.\n\nRenew Subscription: http://localhost:3000/company-admin`);
+                    setMessage(`Hi ${selectedCompany || 'Valued Vendor'},\n\nYour subscription plan for Royal Car Rentals will expire in 7 days.\nPlease renew your subscription to continue using all platform features without interruption.\n\nRenew Subscription: http://localhost:3000/company-admin`);
                   } else if (val === 'sub_expired') {
                     setSubject('Your Royal Car Rentals Subscription Has Expired');
-                    setMessage(`Hi ${selectedCompany || 'Pooja Cars'},\n\nYour subscription plan expired on 30 July 2026.\nPlease renew your subscription to continue using all platform features.\n\nRenew Subscription: http://localhost:3000/company-admin`);
+                    setMessage(`Hi ${selectedCompany || 'Valued Vendor'},\n\nYour subscription plan has expired.\nPlease renew your subscription to continue using all platform features.\n\nRenew Subscription: http://localhost:3000/company-admin`);
                   } else if (val === 'kyc_approved') {
                     setSubject('🎉 Application Approved – Welcome to Royal Car Rentals!');
-                    setMessage(`Hi ${selectedCompany || 'Vendor'},\n\nYour identity documents and vehicle/licence details have passed Super Admin verification. You can now access your full operational dashboard.`);
+                    setMessage(`Hi ${selectedCompany || 'Valued Vendor'},\n\nYour identity documents and vehicle/licence details have passed Super Admin verification. You can now access your full operational dashboard.`);
                   }
                 }}
               >
@@ -5912,6 +6383,7 @@ export default function SuperAdminDashboard() {
         );
       }
 
+      if (activeNav === 'reviews')       return <ReviewsManagerPanel onBack={handleBack} />;
       if (activeNav === 'subscription')  return <SubscriptionPanel companies={companies} onBack={handleBack} />;
       if (activeNav === 'commission')    return <CommissionPanel companies={companies} onBack={handleBack} />;
       if (activeNav === 'payments')      return <PaymentsPanel onBack={handleBack} />;
@@ -5947,7 +6419,7 @@ export default function SuperAdminDashboard() {
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 75px)', overflow: 'hidden', background: 'var(--bg-primary)' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden', background: 'var(--bg-primary)' }}>
       <TopHeader
         activeNav={activeNav}
         notifications={notifications}
@@ -5963,6 +6435,7 @@ export default function SuperAdminDashboard() {
             setUnreadCount(0);
           }
         }}
+        onLogout={logout}
       />
       <div className="dashboard-layout" style={{ display: 'flex', flex: 1, overflow: 'hidden', position: 'relative' }}>
         <Sidebar 
@@ -6012,6 +6485,209 @@ export default function SuperAdminDashboard() {
             window.location.reload();
           }}
         />
+      )}
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   COMPANY & DRIVER REVIEWS MANAGER PANEL
+───────────────────────────────────────────────────────────────── */
+function ReviewsManagerPanel({ onBack }) {
+  const [tab, setTab] = useState('company');
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [newCompany, setNewCompany] = useState('');
+  const [newOwner, setNewOwner] = useState('');
+  const [newRating, setNewRating] = useState(5);
+  const [newCity, setNewCity] = useState('');
+  const [newReviewText, setNewReviewText] = useState('');
+  const [newAvatar, setNewAvatar] = useState('https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80');
+
+  const [companyReviews, setCompanyReviews] = useState(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem('platform_company_reviews') || '[]');
+      if (saved.length > 0) return saved;
+    } catch {}
+    return [
+      { id: 'rev_1', name: 'John D.', city: 'Chennai Hub', rating: 5, text: 'Amazing service from Royal Car Rentals! The vehicle was immaculate, on time and the booking process was super smooth.', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80', companyName: 'Royal Car Rentals' },
+      { id: 'rev_2', name: 'Sarah M.', city: 'Bangalore Hub', rating: 5, text: 'Best car rental experience I have ever had. Great pricing, transparent billing, and excellent customer support.', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80', companyName: 'SpeedRent Cars' },
+      { id: 'rev_3', name: 'Michael R.', city: 'Dharmapuri Hub', rating: 5, text: 'The car quality and chauffeur driving service was top notch! Driver Ramesh was extremely polite and punctual. Will definitely choose Royal Drive again!', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80', companyName: 'InDrive Rentals' }
+    ];
+  });
+
+  const [driverReviews, setDriverReviews] = useState(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem('customer_driver_reviews') || '[]');
+      if (saved.length > 0) return saved;
+    } catch {}
+    return [
+      { id: 'drev_1', bookingId: 'BK-2026-5475', customerName: 'Shanu', driverName: 'Ramesh Singh', carName: 'Toyota Innova 2023', rating: 5, driverBehaviorScore: 5, drivingSafetyScore: 5, comment: 'Chauffeur Ramesh Singh was exceptional! Punctual arrival, smooth highway driving, and polite behavior.', date: '2026-08-15' },
+      { id: 'drev_2', bookingId: 'BK-2026-3310', customerName: 'Vaideeswari S.', driverName: 'Karthik S.', carName: 'Tata Nexon EV Max', rating: 5, driverBehaviorScore: 5, drivingSafetyScore: 5, comment: 'Very clean EV car and excellent driving skills. Smooth navigation in city traffic.', date: '2026-08-18' }
+    ];
+  });
+
+  const handleAddCompanyReview = (e) => {
+    e.preventDefault();
+    if (!newCompany || !newReviewText) {
+      alert('Company Name and Review text are required.');
+      return;
+    }
+    const item = {
+      id: 'rev_' + Date.now(),
+      name: newOwner || 'Verified Partner',
+      city: newCity || 'Regional Rental Hub',
+      rating: Number(newRating),
+      text: newReviewText,
+      avatar: newAvatar,
+      companyName: newCompany
+    };
+    const updated = [item, ...companyReviews];
+    setCompanyReviews(updated);
+    localStorage.setItem('platform_company_reviews', JSON.stringify(updated));
+    window.dispatchEvent(new Event('reviews_updated'));
+    setShowAddModal(false);
+    setNewCompany('');
+    setNewReviewText('');
+    setNewCity('');
+    alert('🎉 Company Review Published! Instantly synced to Landing Page Customer Reviews.');
+  };
+
+  const handleDeleteCompanyReview = (id) => {
+    if (window.confirm('Delete this company review?')) {
+      const updated = companyReviews.filter(r => r.id !== id);
+      setCompanyReviews(updated);
+      localStorage.setItem('platform_company_reviews', JSON.stringify(updated));
+      window.dispatchEvent(new Event('reviews_updated'));
+    }
+  };
+
+  const handleDeleteDriverReview = (id) => {
+    if (window.confirm('Delete this driver review?')) {
+      const updated = driverReviews.filter(r => r.id !== id);
+      setDriverReviews(updated);
+      localStorage.setItem('customer_driver_reviews', JSON.stringify(updated));
+      window.dispatchEvent(new Event('reviews_updated'));
+    }
+  };
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div>
+          <h2 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.4rem', fontWeight: 800, color: '#D49B4B', margin: 0 }}>
+            ⭐ Company & Customer Driver Reviews Manager
+          </h2>
+          <p style={{ fontSize: '0.82rem', color: '#A89886', margin: '0.2rem 0 0 0' }}>
+            Manage company partner testimonials shown on the Landing Page and customer driver rating reviews.
+          </p>
+        </div>
+        <button
+          onClick={() => setShowAddModal(true)}
+          style={{ background: 'linear-gradient(135deg, #D49B4B 0%, #B88235 100%)', color: '#fff', border: 'none', padding: '0.65rem 1.25rem', borderRadius: '10px', fontWeight: 800, cursor: 'pointer', boxShadow: '0 4px 12px rgba(212,155,75,0.4)' }}
+        >
+          ⭐ + Add Company Review
+        </button>
+      </div>
+
+      <div style={{ display: 'flex', gap: '1rem', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '0.5rem' }}>
+        <button
+          onClick={() => setTab('company')}
+          style={{ background: tab === 'company' ? '#D49B4B' : 'transparent', color: tab === 'company' ? '#fff' : '#A89886', border: 'none', padding: '0.5rem 1.25rem', borderRadius: '8px', fontWeight: 800, cursor: 'pointer' }}
+        >
+          🏢 Company Reviews ({companyReviews.length})
+        </button>
+        <button
+          onClick={() => setTab('driver')}
+          style={{ background: tab === 'driver' ? '#D49B4B' : 'transparent', color: tab === 'driver' ? '#fff' : '#A89886', border: 'none', padding: '0.5rem 1.25rem', borderRadius: '8px', fontWeight: 800, cursor: 'pointer' }}
+        >
+          👨‍✈️ Driver & Driving Reviews ({driverReviews.length})
+        </button>
+      </div>
+
+      {tab === 'company' && (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1.25rem' }}>
+          {companyReviews.map(r => (
+            <div key={r.id} style={{ background: '#17120E', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '14px', padding: '1.25rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                  <span style={{ fontSize: '1rem', color: '#D49B4B', fontWeight: 800 }}>{'★'.repeat(r.rating || 5)}</span>
+                  <button onClick={() => handleDeleteCompanyReview(r.id)} style={{ background: 'rgba(244,63,94,0.15)', color: '#f43f5e', border: '1px solid rgba(244,63,94,0.3)', padding: '0.25rem 0.6rem', borderRadius: '6px', fontSize: '0.72rem', fontWeight: 800, cursor: 'pointer' }}>Delete</button>
+                </div>
+                <div style={{ fontSize: '0.92rem', color: '#E0D5C7', fontStyle: 'italic', marginBottom: '0.85rem' }}>"{r.text}"</div>
+                <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#38bdf8' }}>🏢 {r.companyName}</div>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', marginTop: '1rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                <img src={r.avatar} alt="Avatar" style={{ width: '36px', height: '36px', borderRadius: '50%', objectFit: 'cover' }} />
+                <div>
+                  <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#E0D5C7' }}>{r.name}</div>
+                  <div style={{ fontSize: '0.72rem', color: '#A89886' }}>📍 {r.city}</div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {tab === 'driver' && (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '1.25rem' }}>
+          {driverReviews.map(r => (
+            <div key={r.id} style={{ background: '#17120E', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '14px', padding: '1.25rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                  <span style={{ fontSize: '0.78rem', color: '#10b981', fontWeight: 800, background: 'rgba(16,185,129,0.15)', padding: '0.2rem 0.6rem', borderRadius: '12px' }}>
+                    Booking #{r.bookingId}
+                  </span>
+                  <button onClick={() => handleDeleteDriverReview(r.id)} style={{ background: 'rgba(244,63,94,0.15)', color: '#f43f5e', border: '1px solid rgba(244,63,94,0.3)', padding: '0.25rem 0.6rem', borderRadius: '6px', fontSize: '0.72rem', fontWeight: 800, cursor: 'pointer' }}>Delete</button>
+                </div>
+                <div style={{ fontSize: '1rem', fontWeight: 900, color: '#D49B4B', marginBottom: '0.25rem' }}>👨‍✈️ Driver: {r.driverName}</div>
+                <div style={{ fontSize: '0.78rem', color: '#A89886', marginBottom: '0.65rem' }}>🏎️ Car: {r.carName} • Rated by: 👤 {r.customerName}</div>
+                <div style={{ fontSize: '1rem', color: '#f59e0b', marginBottom: '0.5rem' }}>{'★'.repeat(r.rating || 5)}</div>
+                <div style={{ fontSize: '0.88rem', color: '#E0D5C7', fontStyle: 'italic' }}>"{r.comment}"</div>
+              </div>
+              <div style={{ fontSize: '0.72rem', color: '#A89886', marginTop: '0.85rem', paddingTop: '0.5rem', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                📅 Completed & Rated on {r.date || 'Recent Trip'}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {showAddModal && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(5px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999 }}>
+          <div style={{ background: '#100C09', border: '1px solid rgba(212,155,75,0.4)', padding: '1.75rem', borderRadius: '18px', maxWidth: '520px', width: '92%', color: '#E0D5C7' }}>
+            <h3 style={{ margin: '0 0 1rem 0', color: '#D49B4B', fontWeight: 900 }}>⭐ Add Company Testimonial Review</h3>
+            <form onSubmit={handleAddCompanyReview} style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+              <div>
+                <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#A89886' }}>Rental Company Name *</label>
+                <input type="text" required value={newCompany} onChange={e => setNewCompany(e.target.value)} placeholder="e.g. Royal Car Rentals" style={{ width: '100%', padding: '0.6rem', borderRadius: '8px', background: '#17120E', border: '1px solid rgba(255,255,255,0.15)', color: '#fff' }} />
+              </div>
+              <div>
+                <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#A89886' }}>Company Owner / Author Name</label>
+                <input type="text" value={newOwner} onChange={e => setNewOwner(e.target.value)} placeholder="e.g. Rajesh Kumar" style={{ width: '100%', padding: '0.6rem', borderRadius: '8px', background: '#17120E', border: '1px solid rgba(255,255,255,0.15)', color: '#fff' }} />
+              </div>
+              <div>
+                <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#A89886' }}>City / Location Hub</label>
+                <input type="text" value={newCity} onChange={e => setNewCity(e.target.value)} placeholder="e.g. Chennai Main Hub" style={{ width: '100%', padding: '0.6rem', borderRadius: '8px', background: '#17120E', border: '1px solid rgba(255,255,255,0.15)', color: '#fff' }} />
+              </div>
+              <div>
+                <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#A89886' }}>Star Rating (1-5)</label>
+                <select value={newRating} onChange={e => setNewRating(e.target.value)} style={{ width: '100%', padding: '0.6rem', borderRadius: '8px', background: '#17120E', border: '1px solid rgba(255,255,255,0.15)', color: '#fff' }}>
+                  <option value={5}>5 Stars (★★★★★)</option>
+                  <option value={4}>4 Stars (★★★★☆)</option>
+                  <option value={3}>3 Stars (★★★☆☆)</option>
+                </select>
+              </div>
+              <div>
+                <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#A89886' }}>Review Text *</label>
+                <textarea required rows={3} value={newReviewText} onChange={e => setNewReviewText(e.target.value)} placeholder="Write partner testimonial feedback..." style={{ width: '100%', padding: '0.6rem', borderRadius: '8px', background: '#17120E', border: '1px solid rgba(255,255,255,0.15)', color: '#fff' }} />
+              </div>
+              <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem' }}>
+                <button type="submit" style={{ flex: 1, background: '#D49B4B', color: '#fff', border: 'none', padding: '0.65rem', borderRadius: '8px', fontWeight: 800, cursor: 'pointer' }}>Publish to Landing Page ⭐</button>
+                <button type="button" onClick={() => setShowAddModal(false)} style={{ background: 'rgba(255,255,255,0.1)', color: '#fff', border: 'none', padding: '0.65rem 1.25rem', borderRadius: '8px', cursor: 'pointer' }}>Cancel</button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
     </div>
   );

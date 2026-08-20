@@ -4,9 +4,22 @@ import FaceScanModal from '../components/FaceScanModal';
 import BookingChatModal from '../components/BookingChatModal';
 import { getValidImageUrl, handleImageError } from '../utils/imageUtils';
 import GoogleMapComponent from '../components/GoogleMapComponent';
+import BrevoEmailOtpVerification from '../components/BrevoEmailOtpVerification';
+
+const NAV_ITEMS = [
+  { id: 'dashboard', label: 'Dashboard' },
+  { id: 'trips', label: 'My Assigned Trips' },
+  { id: 'dispatch-requests', label: 'Trip Requests' },
+  { id: 'gps', label: 'Live GPS Map' },
+  { id: 'reviews', label: 'Reviews & Ratings ⭐' },
+  { id: 'allowances', label: 'Driver Allowances' },
+  { id: 'chat', label: 'Live Support Chat' },
+  { id: 'profile', label: 'Driver Profile' },
+];
 
 export default function DriverDashboard() {
   const { token, logout, user } = useAuth();
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [logoHasError, setLogoHasError] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [recordingSeconds, setRecordingSeconds] = useState(0);
@@ -98,6 +111,32 @@ export default function DriverDashboard() {
     localStorage.setItem(`driver_on_duty_${driverEmailKey}`, isOnDuty ? 'true' : 'false');
     localStorage.setItem(`driver_gps_sharing_${driverEmailKey}`, isGpsSharing ? 'true' : 'false');
   }, [isCheckedIn, isOnDuty, isGpsSharing, driverEmailKey]);
+
+  const [driverReviewsList, setDriverReviewsList] = useState(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem('customer_driver_reviews') || '[]');
+      if (saved.length > 0) return saved;
+    } catch {}
+    return [
+      { id: 'drev_1', bookingId: 'BK-2026-5475', customerName: 'Shanu', driverName: 'Ramesh Singh', carName: 'Toyota Innova 2023', rating: 5, driverBehaviorScore: 5, drivingSafetyScore: 5, comment: 'Chauffeur was exceptional! Punctual arrival, smooth highway driving, and polite behavior.', date: '2026-08-15' },
+      { id: 'drev_2', bookingId: 'BK-2026-3310', customerName: 'Vaideeswari S.', driverName: 'Karthik S.', carName: 'Tata Nexon EV Max', rating: 5, driverBehaviorScore: 5, drivingSafetyScore: 5, comment: 'Very clean EV car and excellent driving skills. Smooth navigation in city traffic.', date: '2026-08-18' }
+    ];
+  });
+
+  useEffect(() => {
+    const syncDriverReviews = () => {
+      try {
+        const saved = JSON.parse(localStorage.getItem('customer_driver_reviews') || '[]');
+        if (saved.length > 0) setDriverReviewsList(saved);
+      } catch {}
+    };
+    window.addEventListener('storage', syncDriverReviews);
+    window.addEventListener('reviews_updated', syncDriverReviews);
+    return () => {
+      window.removeEventListener('storage', syncDriverReviews);
+      window.removeEventListener('reviews_updated', syncDriverReviews);
+    };
+  }, []);
 
   useEffect(() => {
     if (isCheckedIn && isOnDuty) {
@@ -973,6 +1012,105 @@ export default function DriverDashboard() {
     showNotification(`✅ Dispatch Request ${booking.id} claimed! Trip assigned to you.`);
   };
 
+  // CASH COLLECTION WITH CUSTOMER OTP VERIFICATION STATE
+  const [selectedCashTrip, setSelectedCashTrip] = useState(null);
+  const [driverOtpInput, setDriverOtpInput] = useState('');
+  const [isCashOtpSending, setIsCashOtpSending] = useState(false);
+  const [isCashOtpVerifying, setIsCashOtpVerifying] = useState(false);
+  const [cashOtpStatusMsg, setCashOtpStatusMsg] = useState('');
+
+  // TRIP START WITH CUSTOMER OTP VERIFICATION STATE
+  const [selectedTripStart, setSelectedTripStart] = useState(null);
+  const [tripStartOtpInput, setTripStartOtpInput] = useState('');
+  const [isTripOtpSending, setIsTripOtpSending] = useState(false);
+  const [isTripOtpVerifying, setIsTripOtpVerifying] = useState(false);
+  const [tripOtpStatusMsg, setTripOtpStatusMsg] = useState('');
+
+  const apiBase = window.location.origin.includes('localhost') ? 'http://localhost:5000' : '';
+
+  const handleOpenCashOtpModal = async (trip) => {
+    setSelectedCashTrip(trip);
+    setDriverOtpInput('');
+    setCashOtpStatusMsg('OTP has been sent to the customer\'s registered email.');
+    setIsCashOtpSending(true);
+
+    const customerEmail = trip.customerEmail || 'vaideeswari8@gmail.com';
+    try {
+      await fetch(`${apiBase}/api/auth/booking/send-otp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: customerEmail, purpose: 'CASH_COLLECTION', bookingId: trip.id || trip.bookingId })
+      });
+    } catch (e) {
+      console.warn('Cash OTP email dispatch warning:', e);
+    } finally {
+      setIsCashOtpSending(false);
+    }
+  };
+
+  const handleOpenTripStartOtpModal = async (trip) => {
+    const tripToStart = trip || (assignedTrips && assignedTrips[0]) || { id: 'BK-2026-5475', customerName: 'Shanu (Customer)', customerPhone: '+91 98421 99887', vehicleName: assignedVehicle.model || 'Hyundai Creta', pickup: 'Krishnagiri / Guntalpatty', dropoff: 'Chennai Airport' };
+    setSelectedTripStart(tripToStart);
+    setTripStartOtpInput('');
+    setTripOtpStatusMsg('OTP has been sent to the customer\'s registered email.');
+    setIsTripOtpSending(true);
+
+    const customerEmail = tripToStart.customerEmail || 'vaideeswari8@gmail.com';
+    try {
+      await fetch(`${apiBase}/api/auth/booking/send-otp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: customerEmail, purpose: 'TRIP_START', bookingId: tripToStart.id || tripToStart.bookingId })
+      });
+    } catch (e) {
+      console.warn('Trip OTP email dispatch warning:', e);
+    } finally {
+      setIsTripOtpSending(false);
+    }
+  };
+
+  const handleConfirmCashCollection = async (e) => {
+    e.preventDefault();
+    if (!driverOtpInput || driverOtpInput.trim().length !== 6) {
+      alert('❌ Please enter the full 6-digit OTP code provided by the customer.');
+      return;
+    }
+
+    setIsCashOtpVerifying(true);
+    const tripId = selectedCashTrip.id;
+    const amount = selectedCashTrip.totalPrice || selectedCashTrip.allowance || 4000;
+    const customerEmail = selectedCashTrip.customerEmail || 'vaideeswari8@gmail.com';
+
+    try {
+      const res = await fetch(`${apiBase}/api/auth/booking/verify-otp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: customerEmail, purpose: 'CASH_COLLECTION', bookingId: tripId, otp: driverOtpInput.trim() })
+      });
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        setAssignedTrips(prev => prev.map(t => t.id === tripId ? {
+          ...t,
+          paymentStatus: 'Cash Collected - Pending Verification',
+          paymentMethod: 'Cash',
+          cashCollectedByDriver: true,
+          otpVerifiedAt: new Date().toLocaleTimeString()
+        } : t));
+
+        showNotification(`💵 Cash Collected → Payment Status Updated (₹${amount}).`);
+        alert(`✅ Cash Collected → Payment Status Updated!\n\nBooking ID: #${tripId}\nAmount Collected: ₹${amount}\nCompany Admin notified.`);
+        setSelectedCashTrip(null);
+      } else {
+        alert(`❌ ${data.message || 'Incorrect Cash Collection OTP code.'}`);
+      }
+    } catch (err) {
+      alert(`Error verifying OTP: ${err.message}`);
+    } finally {
+      setIsCashOtpVerifying(false);
+    }
+  };
+
   const handleUpdateTripStatus = async (tripId, newStatus) => {
     // 1. Update local state immediately for instant UI feedback
     setAssignedTrips(prev => prev.map(trip => String(trip.id) === String(tripId) ? { ...trip, status: newStatus } : trip));
@@ -1012,9 +1150,13 @@ export default function DriverDashboard() {
     }
   };
 
+  const savedDriverUser = (() => {
+    try { return JSON.parse(localStorage.getItem('driver_user') || '{}'); } catch { return {}; }
+  })();
+
   const driverProfile = {
-    name: user?.name || 'Karthik S. (Senior Chauffeur)',
-    phone: user?.phone || '+91 98765 11111',
+    name: user?.name || savedDriverUser.name || localStorage.getItem('driver_name') || 'Thirsha (Chauffeur Driver)',
+    phone: user?.phone || savedDriverUser.phone || '+91 98765 11111',
     companyName: user?.company?.name || localStorage.getItem('company_name') || 'DriveX Rentals',
     licenseNumber: 'TN-01202000456',
     experience: '6 Years Professional Driving',
@@ -1220,9 +1362,16 @@ export default function DriverDashboard() {
       {/* HEADER */}
       <header style={{
         height: '62px', background: '#ffffff', borderBottom: '1px solid #e2e8f0',
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 1.75rem', flexShrink: 0
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 1.25rem', flexShrink: 0
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+          <button
+            onClick={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
+            className="dashboard-mobile-toggle-btn"
+            aria-label="Toggle Dashboard Navigation"
+          >
+            {isMobileSidebarOpen ? '✕' : '☰'}
+          </button>
           {renderCompanyLogo(32, '8px')}
           <div style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '1.2rem', color: '#1e3a8a' }}>
             Driver Console
@@ -1246,11 +1395,22 @@ export default function DriverDashboard() {
             {isOnDuty ? '🟢 ON DUTY (Available)' : '🔴 OFF DUTY'}
           </button>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', background: '#eff6ff', padding: '0.35rem 0.85rem', borderRadius: '20px', border: '1px solid #bfdbfe' }}>
-            {renderCompanyLogo(20, '50%')}
-            <span style={{ fontSize: '0.82rem', fontWeight: 700, color: '#1e40af' }}>
-              {driverProfile.name} ({driverProfile.badge})
-            </span>
+          {/* Company Logo & Active Driver Profile Badge */}
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: '0.65rem',
+            background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
+            padding: '0.4rem 0.95rem', borderRadius: '24px',
+            border: '1.5px solid #bfdbfe', boxShadow: '0 2px 8px rgba(37,99,235,0.1)'
+          }}>
+            {renderCompanyLogo(24, '50%')}
+            <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.1 }}>
+              <span style={{ fontSize: '0.85rem', fontWeight: 900, color: '#1e40af' }}>
+                👤 {driverProfile.name}
+              </span>
+              <span style={{ fontSize: '0.65rem', color: '#3b82f6', fontWeight: 800 }}>
+                {driverProfile.badge} • {driverProfile.companyName}
+              </span>
+            </div>
           </div>
 
           {/* Notification Bell Dropdown */}
@@ -1379,6 +1539,15 @@ export default function DriverDashboard() {
                 <span style={{ color: isOnDuty ? '#2563eb' : '#64748b', fontWeight: 800 }}>{isOnDuty ? '🟢 On Duty (GPS Active)' : '🔴 Off Duty'}</span>
               </div>
             </div>
+
+            {/* DRIVER BREVO OTP EMAIL SECURITY VERIFICATION CARD */}
+            <BrevoEmailOtpVerification
+              role="driver"
+              defaultEmail={user?.email || 'vaideeswari8@gmail.com'}
+              onVerified={(res) => {
+                setNotice(`✅ Driver Email ${res.email} successfully verified via Brevo OTP!`);
+              }}
+            />
 
             <div style={{ display: 'flex', gap: '0.75rem' }}>
               <button
@@ -1530,17 +1699,34 @@ export default function DriverDashboard() {
       )}
 
       {/* MAIN LAYOUT */}
-      <div className="dashboard-layout" style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
+      <div className="dashboard-layout" style={{ display: 'flex', flex: 1, overflow: 'hidden', position: 'relative' }}>
+        {/* Mobile Drawer Overlay Backdrop */}
+        {isMobileSidebarOpen && (
+          <div 
+            className="dashboard-sidebar-backdrop"
+            onClick={() => setIsMobileSidebarOpen(false)}
+          />
+        )}
         
         {/* SIDEBAR NAVIGATION */}
-        <aside className="dashboard-sidebar" style={{ width: '230px', background: '#ffffff', borderRight: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
+        <aside className={`dashboard-sidebar ${isMobileSidebarOpen ? 'mobile-drawer-active' : ''}`} style={{ width: '230px', background: '#ffffff', borderRight: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
+          <div style={{ padding: '0.85rem 1rem', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ fontWeight: 800, color: '#1e3a8a', fontSize: '0.9rem' }}>Driver Navigation</div>
+            <button 
+              onClick={() => setIsMobileSidebarOpen(false)}
+              className="dashboard-sidebar-close-btn"
+              aria-label="Close Navigation Drawer"
+            >
+              ✕
+            </button>
+          </div>
           <nav style={{ flex: 1, padding: '0.75rem 0', overflowY: 'auto' }}>
             {NAV_ITEMS.map(item => {
               const isActive = activeNav === item.id;
               return (
                 <button
                   key={item.id}
-                  onClick={() => setActiveNav(item.id)}
+                  onClick={() => { setActiveNav(item.id); setIsMobileSidebarOpen(false); }}
                   style={{
                     width: '100%', textAlign: 'left', padding: '0.75rem 1.25rem', border: 'none',
                     background: isActive ? '#eff6ff' : 'transparent',
@@ -1555,6 +1741,21 @@ export default function DriverDashboard() {
               );
             })}
           </nav>
+          <div style={{ padding: '0.85rem 1rem', borderTop: '1px solid #e2e8f0', flexShrink: 0, marginTop: 'auto' }}>
+            <button
+              onClick={handleDriverLogout}
+              style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.6rem', width: '100%', padding: '0.75rem 1rem',
+                background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                border: 'none', borderRadius: '10px', cursor: 'pointer', color: '#ffffff',
+                fontWeight: 800, fontSize: '0.9rem', textAlign: 'center', transition: 'all 0.2s ease',
+                boxShadow: '0 4px 14px rgba(239,68,68,0.35)'
+              }}
+            >
+              <span>🚪</span>
+              <span>Logout / Sign Out</span>
+            </button>
+          </div>
         </aside>
 
         {/* CONTENT AREA */}
@@ -1724,12 +1925,11 @@ export default function DriverDashboard() {
                   {tripStatus !== 'In Trip' ? (
                     <button 
                       onClick={() => { 
-                        setTripStatus('In Trip'); 
-                        showNotification('🟢 Trip Started successfully! Drive safely.'); 
+                        handleOpenTripStartOtpModal(assignedTrips[0]);
                       }}
                       style={{ flex: 1, minWidth: '130px', background: 'linear-gradient(135deg, #059669, #10b981)', color: '#fff', border: 'none', padding: '0.75rem 1.25rem', borderRadius: '10px', fontWeight: 800, cursor: 'pointer', boxShadow: '0 4px 12px rgba(5,150,105,0.3)' }}
                     >
-                      🟢 Start Trip
+                      🟢 Start Trip (Customer OTP)
                     </button>
                   ) : (
                     <button 
@@ -1880,6 +2080,77 @@ export default function DriverDashboard() {
                   ))}
                 </div>
               )}
+            </div>
+          )}
+
+          {/* REVIEWS & CUSTOMER RATINGS PANEL */}
+          {activeNav === 'reviews' && (
+            <div style={{ animation: 'fadeIn 0.3s ease-out' }}>
+              <div style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <h2 style={{ fontSize: '1.6rem', fontFamily: 'var(--font-heading)', color: '#1e3a8a', margin: 0 }}>
+                    ⭐ Customer Ratings & Driving Reviews
+                  </h2>
+                  <p style={{ color: '#64748b', fontSize: '0.88rem', margin: '0.2rem 0 0 0' }}>
+                    Track your customer rating score, driver behavior feedback, and driving performance.
+                  </p>
+                </div>
+                <div style={{ background: '#fef3c7', border: '1.5px solid #f59e0b', padding: '0.5rem 1.25rem', borderRadius: '14px', textAlign: 'center' }}>
+                  <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#92400e', textTransform: 'uppercase' }}>Overall Rating</div>
+                  <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#b45309' }}>★ {driverProfile.rating || 4.9} / 5.0</div>
+                </div>
+              </div>
+
+              {/* STAT CARDS */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.25rem', marginBottom: '1.5rem' }}>
+                <div style={{ background: '#ffffff', padding: '1.25rem', borderRadius: '14px', border: '1px solid #e2e8f0', borderLeft: '4px solid #2563eb' }}>
+                  <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#64748b' }}>Chauffeur Behavior Score</div>
+                  <div style={{ fontSize: '1.6rem', fontWeight: 900, color: '#2563eb', marginTop: '0.2rem' }}>5.0 ⭐ (Excellent)</div>
+                  <div style={{ fontSize: '0.72rem', color: '#059669', fontWeight: 700, marginTop: '0.25rem' }}>✓ Punctual, Courteous & Uniformed</div>
+                </div>
+                <div style={{ background: '#ffffff', padding: '1.25rem', borderRadius: '14px', border: '1px solid #e2e8f0', borderLeft: '4px solid #10b981' }}>
+                  <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#64748b' }}>Driving Safety Score</div>
+                  <div style={{ fontSize: '1.6rem', fontWeight: 900, color: '#10b981', marginTop: '0.2rem' }}>4.95 ⭐ (Safe Drive)</div>
+                  <div style={{ fontSize: '0.72rem', color: '#059669', fontWeight: 700, marginTop: '0.25rem' }}>✓ Smooth Braking & Highway Speed Control</div>
+                </div>
+                <div style={{ background: '#ffffff', padding: '1.25rem', borderRadius: '14px', border: '1px solid #e2e8f0', borderLeft: '4px solid #7c3aed' }}>
+                  <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#64748b' }}>Total Rated Reviews</div>
+                  <div style={{ fontSize: '1.6rem', fontWeight: 900, color: '#7c3aed', marginTop: '0.2rem' }}>{driverReviewsList.length} Customer Reviews</div>
+                  <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 700, marginTop: '0.25rem' }}>Verified Customer Bookings</div>
+                </div>
+              </div>
+
+              {/* REVIEWS LIST */}
+              <div style={{ background: '#ffffff', padding: '1.5rem', borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 4px 15px rgba(0,0,0,0.03)' }}>
+                <h3 style={{ margin: '0 0 1.25rem 0', fontSize: '1.15rem', fontWeight: 900, color: '#0f172a' }}>
+                  💬 Real Customer Feedback & Reviews ({driverReviewsList.length})
+                </h3>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  {driverReviewsList.map(rev => (
+                    <div key={rev.id} style={{ background: '#f8fafc', padding: '1.25rem', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                          <span style={{ fontSize: '1.1rem', color: '#f59e0b', fontWeight: 900 }}>{'★'.repeat(rev.rating || 5)}</span>
+                          <span style={{ fontWeight: 900, fontSize: '0.95rem', color: '#0f172a' }}>👤 {rev.customerName || 'Customer'}</span>
+                        </div>
+                        <span style={{ fontSize: '0.75rem', background: '#eff6ff', color: '#2563eb', fontWeight: 800, padding: '0.2rem 0.65rem', borderRadius: '12px', border: '1px solid #bfdbfe' }}>
+                          Booking #{rev.bookingId || 'BK-2026'}
+                        </span>
+                      </div>
+                      <div style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '0.6rem', fontWeight: 600 }}>
+                        🏎️ Car: <strong>{rev.carName || 'Rental Vehicle'}</strong> • Chauffeur Service
+                      </div>
+                      <div style={{ fontSize: '0.92rem', color: '#334155', fontStyle: 'italic', background: '#ffffff', padding: '0.85rem', borderRadius: '8px', border: '1px solid #cbd5e1' }}>
+                        "{rev.comment || 'Smooth driving and great customer service!'}"
+                      </div>
+                      <div style={{ fontSize: '0.72rem', color: '#94a3b8', marginTop: '0.65rem', textAlign: 'right', fontWeight: 700 }}>
+                        📅 Completed & Rated on {rev.date || 'Recent Trip'}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           )}
 
@@ -2055,11 +2326,9 @@ export default function DriverDashboard() {
                       zoom={14}
                       showRoute={true}
                       driverCoords={gpsCoords}
-                      pickupCoords={{ lat: 13.0827, lng: 80.2707 }}
-                      dropoffCoords={{ lat: 11.9416, lng: 79.8083 }}
-                      pickupLocation="Chennai Airport Terminal 2"
-                      dropoffLocation="Pondicherry Rock Beach"
-                      customerInfo={{ name: "Shanu (Customer)", phone: "+91 98421 99887" }}
+                      pickupLocation={dispatchRequests[0]?.pickupLocation || "Guntalpatty / Krishnagiri Hub"}
+                      dropoffLocation={dispatchRequests[0]?.dropLocation || "Dharmapuri Bus Stand"}
+                      customerInfo={{ name: dispatchRequests[0]?.customerName || "Shanu (Customer)", phone: dispatchRequests[0]?.customerPhone || "+91 98421 99887" }}
                     />
                   </div>
                 </div>
@@ -2216,6 +2485,20 @@ export default function DriverDashboard() {
                         </span>
                       )}
 
+                      {/* CASH COLLECTION BUTTON WITH CUSTOMER OTP */}
+                      <button
+                        onClick={() => handleOpenCashOtpModal(trip)}
+                        style={{
+                          fontSize: '0.8rem', padding: '0.45rem 1rem', background: trip.cashCollectedByDriver ? '#ecfdf5' : '#f59e0b',
+                          color: trip.cashCollectedByDriver ? '#047857' : '#ffffff',
+                          border: trip.cashCollectedByDriver ? '1px solid #a7f3d0' : 'none',
+                          borderRadius: '6px', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.35rem',
+                          boxShadow: trip.cashCollectedByDriver ? 'none' : '0 2px 8px rgba(245,158,11,0.3)'
+                        }}
+                      >
+                        {trip.cashCollectedByDriver ? '✓ Cash Collected (OTP Verified)' : '💵 Confirm Cash Collection (Customer OTP)'}
+                      </button>
+
                       <a href={`tel:${trip.customerPhone}`} className="btn btn-secondary" style={{ fontSize: '0.8rem', padding: '0.45rem 1rem', textDecoration: 'none', fontWeight: 700 }}>
                         📞 Call Customer
                       </a>
@@ -2276,10 +2559,8 @@ export default function DriverDashboard() {
                           zoom={13}
                           showRoute={true}
                           driverCoords={gpsCoords}
-                          pickupCoords={{ lat: 13.0827, lng: 80.2707 }}
-                          dropoffCoords={{ lat: 11.9416, lng: 79.8083 }}
-                          pickupLocation={trip.pickupLocation}
-                          dropoffLocation={trip.dropLocation}
+                          pickupLocation={trip.pickupLocation || "Guntalpatty, Krishnagiri"}
+                          dropoffLocation={trip.dropLocation || "Dharmapuri Town Center"}
                           customerInfo={{ name: trip.customerName, phone: trip.customerPhone }}
                         />
                       </div>
@@ -2831,6 +3112,173 @@ export default function DriverDashboard() {
                     Close
                   </button>
                 </div>
+              </div>
+            </div>
+          )}
+
+          {/* 💵 CASH COLLECTION WITH CUSTOMER OTP MODAL */}
+          {selectedCashTrip && (
+            <div onClick={() => setSelectedCashTrip(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.75)', backdropFilter: 'blur(5px)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 99999, animation: 'fadeIn 0.2s ease-out' }}>
+              <div onClick={e => e.stopPropagation()} style={{ background: '#ffffff', width: '92%', maxWidth: '480px', borderRadius: '20px', padding: '1.75rem', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)', border: '1px solid #cbd5e1' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', borderBottom: '1px solid #f1f5f9', paddingBottom: '0.75rem' }}>
+                  <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 900, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    💵 Confirm Customer Cash Payment
+                  </h3>
+                  <button onClick={() => setSelectedCashTrip(null)} style={{ background: 'none', border: 'none', fontSize: '1.2rem', cursor: 'pointer', color: '#64748b' }}>✕</button>
+                </div>
+
+                <div style={{ background: '#fffbe6', border: '1px solid #ffe58f', padding: '0.85rem', borderRadius: '12px', marginBottom: '1.25rem', fontSize: '0.82rem', color: '#b45309' }}>
+                  <strong>🔒 Anti-Fake Security Rule:</strong> Ask customer for the 4-digit Cash OTP shown on their booking confirmation screen to verify cash collection.
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.85rem', marginBottom: '1.25rem', background: '#f8fafc', padding: '1rem', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                  <div><strong>Booking ID:</strong> #{selectedCashTrip.id}</div>
+                  <div><strong>Customer:</strong> {selectedCashTrip.customerName} ({selectedCashTrip.customerPhone})</div>
+                  <div><strong>Vehicle:</strong> 🚗 {selectedCashTrip.vehicleName}</div>
+                  <div><strong>Cash Amount to Collect:</strong> <span style={{ color: '#059669', fontWeight: 900, fontSize: '1.1rem' }}>₹{selectedCashTrip.totalPrice || selectedCashTrip.allowance || 4000}</span></div>
+                </div>
+
+                <div style={{ background: '#eff6ff', padding: '0.85rem', borderRadius: '12px', border: '1px solid #bfdbfe', marginBottom: '1.25rem', textAlign: 'center' }}>
+                  <div style={{ fontSize: '0.85rem', color: '#1e40af', fontWeight: 800 }}>
+                    📩 OTP has been sent to the customer's registered email.
+                  </div>
+                  <div style={{ fontSize: '0.72rem', color: '#3b82f6', marginTop: '4px' }}>
+                    Ask customer for the 6-digit OTP code received in their email inbox.
+                  </div>
+                </div>
+
+                <form onSubmit={handleConfirmCashCollection} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  <div>
+                    <label style={{ fontSize: '0.8rem', fontWeight: 800, color: '#334155', display: 'block', marginBottom: '4px' }}>
+                      Enter 6-Digit Customer Cash OTP *
+                    </label>
+                    <input
+                      type="text"
+                      maxLength={6}
+                      required
+                      value={driverOtpInput}
+                      onChange={e => setDriverOtpInput(e.target.value)}
+                      placeholder="e.g. 482913"
+                      style={{ width: '100%', padding: '0.75rem', borderRadius: '10px', border: '2px solid #2563eb', fontSize: '1.3rem', fontWeight: 900, textAlign: 'center', letterSpacing: '6px', fontFamily: 'monospace' }}
+                    />
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '0.75rem' }}>
+                    <button
+                      type="submit"
+                      disabled={isCashOtpVerifying}
+                      style={{ flex: 1, background: 'linear-gradient(135deg, #10b981, #059669)', color: '#fff', border: 'none', padding: '0.85rem', borderRadius: '10px', fontWeight: 900, fontSize: '0.9rem', cursor: 'pointer', boxShadow: '0 4px 12px rgba(16,185,129,0.3)' }}
+                    >
+                      {isCashOtpVerifying ? 'Verifying...' : '✓ Verify OTP'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedCashTrip(null)}
+                      style={{ background: '#f1f5f9', color: '#334155', border: '1px solid #cbd5e1', padding: '0.85rem 1.25rem', borderRadius: '10px', fontWeight: 700, cursor: 'pointer' }}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+
+          {/* 🚀 TRIP START WITH CUSTOMER OTP MODAL */}
+          {selectedTripStart && (
+            <div onClick={() => setSelectedTripStart(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.75)', backdropFilter: 'blur(5px)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 99999, animation: 'fadeIn 0.2s ease-out' }}>
+              <div onClick={e => e.stopPropagation()} style={{ background: '#ffffff', width: '92%', maxWidth: '480px', borderRadius: '20px', padding: '1.75rem', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)', border: '1px solid #cbd5e1' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', borderBottom: '1px solid #f1f5f9', paddingBottom: '0.75rem' }}>
+                  <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 900, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    🚀 Start Trip Verification
+                  </h3>
+                  <button onClick={() => setSelectedTripStart(null)} style={{ background: 'none', border: 'none', fontSize: '1.2rem', cursor: 'pointer', color: '#64748b' }}>✕</button>
+                </div>
+
+                <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', padding: '0.85rem', borderRadius: '12px', marginBottom: '1.25rem', fontSize: '0.82rem', color: '#1e40af' }}>
+                  <strong>🔒 Trip Start Security Rule:</strong> Ask customer for the 4-digit Booking OTP shown on their customer booking screen before starting journey.
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.85rem', marginBottom: '1.25rem', background: '#f8fafc', padding: '1rem', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                  <div><strong>Booking ID:</strong> #{selectedTripStart.id}</div>
+                  <div><strong>Customer:</strong> {selectedTripStart.customerName} ({selectedTripStart.customerPhone})</div>
+                  <div><strong>Vehicle:</strong> 🚗 {selectedTripStart.vehicleName}</div>
+                </div>
+
+                <div style={{ background: '#eff6ff', padding: '0.85rem', borderRadius: '12px', border: '1px solid #bfdbfe', marginBottom: '1.25rem', textAlign: 'center' }}>
+                  <div style={{ fontSize: '0.85rem', color: '#1e40af', fontWeight: 800 }}>
+                    📩 OTP has been sent to the customer's registered email.
+                  </div>
+                  <div style={{ fontSize: '0.72rem', color: '#3b82f6', marginTop: '4px' }}>
+                    Ask customer for the 6-digit OTP code received in their email inbox.
+                  </div>
+                </div>
+
+                <form onSubmit={async (e) => {
+                  e.preventDefault();
+                  if (!tripStartOtpInput || tripStartOtpInput.trim().length !== 6) {
+                    alert('❌ Please enter the full 6-digit Trip Start OTP provided by the customer.');
+                    return;
+                  }
+
+                  setIsTripOtpVerifying(true);
+                  const customerEmail = selectedTripStart.customerEmail || 'vaideeswari8@gmail.com';
+                  const tripId = selectedTripStart.id;
+
+                  try {
+                    const res = await fetch(`${apiBase}/api/auth/booking/verify-otp`, {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ email: customerEmail, purpose: 'TRIP_START', bookingId: tripId, otp: tripStartOtpInput.trim() })
+                    });
+                    const data = await res.json();
+
+                    if (res.ok && data.success) {
+                      setTripStatus('In Trip');
+                      setSelectedTripStart(null);
+                      showNotification('🟢 Trip Verified & Started Successfully!');
+                      alert(`🚀 TRIP STARTED SUCCESSFULLY!\n\nBooking ID: #${tripId}\nStatus: Trip Started (In Progress)`);
+                    } else {
+                      alert(`❌ ${data.message || 'Incorrect Trip Start OTP code.'}`);
+                    }
+                  } catch (err) {
+                    alert(`Error verifying OTP: ${err.message}`);
+                  } finally {
+                    setIsTripOtpVerifying(false);
+                  }
+                }} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  <div>
+                    <label style={{ fontSize: '0.8rem', fontWeight: 800, color: '#334155', display: 'block', marginBottom: '4px' }}>
+                      Enter 6-Digit Customer Trip OTP *
+                    </label>
+                    <input
+                      type="text"
+                      maxLength={6}
+                      required
+                      value={tripStartOtpInput}
+                      onChange={e => setTripStartOtpInput(e.target.value)}
+                      placeholder="e.g. 482913"
+                      style={{ width: '100%', padding: '0.75rem', borderRadius: '10px', border: '2px solid #2563eb', fontSize: '1.3rem', fontWeight: 900, letterSpacing: '6px', textAlign: 'center', fontFamily: 'monospace' }}
+                    />
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '0.75rem' }}>
+                    <button
+                      type="submit"
+                      disabled={isTripOtpVerifying}
+                      style={{ flex: 1, background: 'linear-gradient(135deg, #10b981, #059669)', color: '#ffffff', border: 'none', padding: '0.85rem', borderRadius: '12px', fontWeight: 900, fontSize: '0.92rem', cursor: 'pointer' }}
+                    >
+                      {isTripOtpVerifying ? 'Verifying...' : '✓ Verify OTP & Start Trip'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedTripStart(null)}
+                      style={{ background: '#f1f5f9', color: '#475569', border: '1px solid #cbd5e1', padding: '0.85rem 1.25rem', borderRadius: '12px', fontWeight: 700, cursor: 'pointer' }}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </form>
               </div>
             </div>
           )}

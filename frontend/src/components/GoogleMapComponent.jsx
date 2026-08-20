@@ -9,6 +9,50 @@ import React, { useState, useEffect, useRef, useId } from 'react';
  * - 🛣️ Live Route Directions & Navigation Polyline (Driver ➔ Pickup Client ➔ Dropoff).
  * - 🌐 Dual-Engine: Google Maps + Leaflet / OpenStreetMap fallback (100% visible always).
  */
+
+export const KNOWN_LOCATIONS_MAP = {
+  'guntalpatty': { lat: 12.5200, lng: 78.2100 },
+  'gundalapatti': { lat: 12.5200, lng: 78.2100 },
+  'guntalpatti': { lat: 12.5200, lng: 78.2100 },
+  'krishnagiri': { lat: 12.5186, lng: 78.2138 },
+  'dharmapuri': { lat: 12.1211, lng: 78.1582 },
+  'salem': { lat: 11.6643, lng: 78.1460 },
+  'hosur': { lat: 12.7409, lng: 77.8253 },
+  'bangalore': { lat: 12.9716, lng: 77.5946 },
+  'bengaluru': { lat: 12.9716, lng: 77.5946 },
+  'chennai': { lat: 13.0827, lng: 80.2707 },
+  'pondicherry': { lat: 11.9416, lng: 79.8083 },
+  'puducherry': { lat: 11.9416, lng: 79.8083 },
+  'coimbatore': { lat: 11.0168, lng: 76.9558 },
+  'madurai': { lat: 9.9252, lng: 78.1198 }
+};
+
+export const resolveLocationCoords = (locationStr, fallbackCoords = null) => {
+  if (!locationStr || typeof locationStr !== 'string') return fallbackCoords;
+  const str = locationStr.toLowerCase();
+  for (const [key, coords] of Object.entries(KNOWN_LOCATIONS_MAP)) {
+    if (str.includes(key)) {
+      return coords;
+    }
+  }
+  return fallbackCoords;
+};
+
+// Helper to safely parse coordinate objects or arrays
+const parseCoords = (c) => {
+  if (!c) return null;
+  if (typeof c === 'object') {
+    if (Array.isArray(c) && c.length >= 2) {
+      const lat = Number(c[0]), lng = Number(c[1]);
+      return (!isNaN(lat) && !isNaN(lng)) ? { lat, lng } : null;
+    }
+    const lat = Number(c.lat ?? c.latitude);
+    const lng = Number(c.lng ?? c.longitude);
+    if (!isNaN(lat) && !isNaN(lng)) return { lat, lng };
+  }
+  return null;
+};
+
 export default function GoogleMapComponent({
   pickupLocation = '',
   pickupCoords = null, // { lat: number, lng: number }
@@ -32,28 +76,17 @@ export default function GoogleMapComponent({
   const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '';
   const isKeyConfigured = Boolean(apiKey && apiKey !== 'YOUR_API_KEY' && apiKey.trim() !== '');
 
-  // Helper to safely parse coordinate objects or arrays
-  const parseCoords = (c) => {
-    if (!c) return null;
-    if (typeof c === 'object') {
-      if (Array.isArray(c) && c.length >= 2) {
-        const lat = Number(c[0]), lng = Number(c[1]);
-        return (!isNaN(lat) && !isNaN(lng)) ? { lat, lng } : null;
-      }
-      const lat = Number(c.lat ?? c.latitude);
-      const lng = Number(c.lng ?? c.longitude);
-      if (!isNaN(lat) && !isNaN(lng)) return { lat, lng };
-    }
-    return null;
-  };
-
-  const pCoords = parseCoords(pickupCoords);
-  const dCoords = parseCoords(dropoffCoords);
-  const cCoords = parseCoords(center);
+  const parsedPickupCoords = parseCoords(pickupCoords) || resolveLocationCoords(pickupLocation, null);
+  const parsedDropoffCoords = parseCoords(dropoffCoords) || resolveLocationCoords(dropoffLocation, null);
+  const cCoords = parseCoords(center) || resolveLocationCoords(pickupLocation, null);
   const drvCoords = parseCoords(driverCoords);
 
-  // Default Coordinates
-  const defaultCenter = cCoords || drvCoords || pCoords || { lat: 12.1211, lng: 78.1582 };
+  // Smart resolution: if location string specifies a known place like Guntalpatty / Krishnagiri, prioritize it over hardcoded defaults
+  const pCoords = resolveLocationCoords(pickupLocation, parsedPickupCoords) || parsedPickupCoords || { lat: 12.5200, lng: 78.2100 };
+  const dCoords = resolveLocationCoords(dropoffLocation, parsedDropoffCoords) || parsedDropoffCoords || { lat: 12.1211, lng: 78.1582 };
+
+  // Default Center Coordinates (Guntalpatty / Krishnagiri / Dharmapuri region by default)
+  const defaultCenter = cCoords || drvCoords || pCoords || { lat: 12.5200, lng: 78.2100 };
 
   const mapContainerRef = useRef(null);
   const googleMapRef = useRef(null);
@@ -374,15 +407,9 @@ export default function GoogleMapComponent({
       }
 
       // 🏎️ Available Cars (Custom Car SVG Badges)
-      const baseLat = initialCenter.lat || 12.1211;
-      const baseLng = initialCenter.lng || 78.1582;
-      const sampleCars = cars.length > 0 ? cars : [
-        { id: 'c1', name: 'Mahindra Thar 4x4', price: 2999, category: 'SUV', fuel: 'Diesel', transmission: 'Manual', lat: baseLat + 0.008, lng: baseLng + 0.006, locationName: 'Gundalapatti Hub' },
-        { id: 'c2', name: 'Hyundai Creta SX', price: 2499, category: 'SUV', fuel: 'Petrol', transmission: 'Automatic', lat: baseLat - 0.007, lng: baseLng - 0.008, locationName: 'City Center' },
-        { id: 'c3', name: 'Maruti Swift ZXi', price: 1499, category: 'Hatchback', fuel: 'Petrol', transmission: 'Manual', lat: baseLat + 0.005, lng: baseLng - 0.009, locationName: 'Station Square' },
-      ];
+      const activeCars = cars;
 
-      sampleCars.forEach((car, idx) => {
+      activeCars.forEach((car, idx) => {
         const carPos = parseCoords(car) || (car.lat && car.lng ? { lat: Number(car.lat), lng: Number(car.lng) } : null);
         if (!carPos) return;
 
@@ -443,11 +470,32 @@ export default function GoogleMapComponent({
           scrollWheelZoom: true
         });
 
-        // OpenStreetMap Tile Layer
-        window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          maxZoom: 19,
-          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(map);
+        // Official Google Maps Vector Tile Layers
+        const googleStreets = window.L.tileLayer('https://mt{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+          maxZoom: 20,
+          subdomains: ['0', '1', '2', '3'],
+          attribution: '&copy; Google Maps'
+        });
+
+        const googleSatellite = window.L.tileLayer('https://mt{s}.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
+          maxZoom: 20,
+          subdomains: ['0', '1', '2', '3'],
+          attribution: '&copy; Google Maps Satellite'
+        });
+
+        const googleTerrain = window.L.tileLayer('https://mt{s}.google.com/vt/lyrs=p&x={x}&y={y}&z={z}', {
+          maxZoom: 20,
+          subdomains: ['0', '1', '2', '3'],
+          attribution: '&copy; Google Maps Terrain'
+        });
+
+        googleStreets.addTo(map);
+
+        window.L.control.layers({
+          '🗺️ Google Maps Roadmap': googleStreets,
+          '🛰️ Google Satellite Hybrid': googleSatellite,
+          '⛰️ Google Terrain': googleTerrain
+        }, null, { position: 'topright' }).addTo(map);
 
         map.on('click', async (e) => {
           if (!e || !e.latlng) return;
@@ -578,15 +626,9 @@ export default function GoogleMapComponent({
         }
 
         // 🏎️ Available Cars (Visual 3D Car Badges)
-        const baseLat = initialCenter.lat || 12.1211;
-        const baseLng = initialCenter.lng || 78.1582;
-        const sampleCars = cars.length > 0 ? cars : [
-          { id: 'c1', name: 'Mahindra Thar 4x4', price: 2999, category: 'SUV', fuel: 'Diesel', transmission: 'Manual', lat: baseLat + 0.008, lng: baseLng + 0.006, locationName: 'Gundalapatti Hub' },
-          { id: 'c2', name: 'Hyundai Creta SX', price: 2499, category: 'SUV', fuel: 'Petrol', transmission: 'Automatic', lat: baseLat - 0.007, lng: baseLng - 0.008, locationName: 'City Center' },
-          { id: 'c3', name: 'Maruti Swift ZXi', price: 1499, category: 'Hatchback', fuel: 'Petrol', transmission: 'Manual', lat: baseLat + 0.005, lng: baseLng - 0.009, locationName: 'Station Square' },
-        ];
+        const activeCars = cars;
 
-        sampleCars.forEach(car => {
+        activeCars.forEach(car => {
           const carPos = parseCoords(car) || (car.lat && car.lng ? { lat: Number(car.lat), lng: Number(car.lng) } : null);
           if (!carPos) return;
 
@@ -718,7 +760,7 @@ export default function GoogleMapComponent({
         pointerEvents: 'none'
       }}>
         <span>🗺️</span>
-        <span>{useFallback ? 'OpenStreetMap Live Map' : 'Google Maps Live'}</span>
+        <span>Google Maps Live HD Engine</span>
         {showRoute && <span style={{ color: '#38bdf8', marginLeft: '4px' }}>• 🛣️ Route Active</span>}
       </div>
 

@@ -4,6 +4,7 @@ import LiveTrackingComponent from '../components/LiveTrackingComponent';
 
 export default function CarOwnerDashboard() {
   const { user, logout } = useAuth();
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
   const [notice, setNotice] = useState('');
   const [acceptedTermsCheckbox, setAcceptedTermsCheckbox] = useState(false);
@@ -800,59 +801,98 @@ export default function CarOwnerDashboard() {
   // SCREEN 4: FULL ACTIVE VEHICLE OWNER DASHBOARD
   // -------------------------------------------------------------
   return (
-    <div className="dashboard-layout" style={{ display: 'flex', height: '100vh', background: '#f8fafc', fontFamily: 'Inter, system-ui, sans-serif' }}>
-      
-      {/* SIDEBAR */}
-      <aside className="dashboard-sidebar" style={{ width: '260px', background: '#0f172a', color: '#ffffff', display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
-        
-        {/* Brand */}
-        <div style={{ padding: '1.5rem', borderBottom: '1px solid #1e293b' }}>
-          <h1 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 900, color: '#38bdf8', letterSpacing: '-0.5px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: '#f8fafc' }}>
+      {/* Mobile Header Bar */}
+      <div style={{ height: '58px', background: '#0f172a', padding: '0 1rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #1e293b' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <button
+            onClick={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
+            className="dashboard-mobile-toggle-btn"
+            aria-label="Toggle Navigation Drawer"
+          >
+            {isMobileSidebarOpen ? '✕' : '☰'}
+          </button>
+          <span style={{ color: '#38bdf8', fontWeight: 900, fontSize: '1.05rem', letterSpacing: '-0.5px' }}>
             Vehicle Owner Hub
-          </h1>
-          <p style={{ margin: '0.2rem 0 0 0', fontSize: '0.75rem', color: '#94a3b8' }}>
-            Fixed ₹500/Day Partner Console
-          </p>
+          </span>
         </div>
+        <button
+          onClick={logout}
+          style={{ background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)', color: '#ef4444', padding: '0.35rem 0.75rem', borderRadius: '6px', fontSize: '0.78rem', fontWeight: 800, cursor: 'pointer' }}
+        >
+          Exit
+        </button>
+      </div>
 
-        {/* User Card */}
-        <div style={{ padding: '1rem 1.5rem', background: '#1e293b', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <div style={{ width: '38px', height: '38px', borderRadius: '50%', background: '#059669', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '1rem' }}>
-            {profileData.name.charAt(0).toUpperCase()}
-          </div>
-          <div style={{ overflow: 'hidden' }}>
-            <div style={{ fontWeight: 800, fontSize: '0.88rem', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>
-              {profileData.name}
+      <div className="dashboard-layout" style={{ display: 'flex', flex: 1, position: 'relative' }}>
+        {/* Mobile Drawer Overlay Backdrop */}
+        {isMobileSidebarOpen && (
+          <div 
+            className="dashboard-sidebar-backdrop"
+            onClick={() => setIsMobileSidebarOpen(false)}
+          />
+        )}
+      
+        {/* SIDEBAR */}
+        <aside className={`dashboard-sidebar ${isMobileSidebarOpen ? 'mobile-drawer-active' : ''}`} style={{ width: '260px', background: '#0f172a', color: '#ffffff', display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
+          
+          {/* Brand */}
+          <div style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid #1e293b', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div>
+              <h1 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 900, color: '#38bdf8', letterSpacing: '-0.5px' }}>
+                Vehicle Owner Hub
+              </h1>
+              <p style={{ margin: '0.2rem 0 0 0', fontSize: '0.75rem', color: '#94a3b8' }}>
+                Fixed ₹500/Day Partner Console
+              </p>
             </div>
-            <div style={{ fontSize: '0.72rem', color: '#34d399', fontWeight: 800 }}>
-              🟢 Active Vehicle Partner
-            </div>
+            <button 
+              onClick={() => setIsMobileSidebarOpen(false)}
+              className="dashboard-sidebar-close-btn"
+              aria-label="Close Navigation Drawer"
+            >
+              ✕
+            </button>
           </div>
-        </div>
 
-        {/* Navigation Tabs (8 TABS ONLY - NO EMOJI ICONS - CLEAN LABELS) */}
-        <nav style={{ flex: 1, padding: '1rem 0', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-          {[
-            { id: 'overview', label: 'Overview' },
-            { id: 'vehicles', label: 'My Vehicle' },
-            { id: 'earnings', label: 'Daily Earnings' },
-            { id: 'payments', label: 'Payments / Settlements' },
-            { id: 'documents', label: 'Documents' },
-            { id: 'profile', label: 'Profile' },
-            { id: 'support', label: 'Support' },
-            { id: 'terms', label: 'Terms & Conditions' }
-          ].map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.75rem',
-                padding: '0.85rem 1.5rem',
-                border: 'none',
-                background: activeTab === tab.id ? '#2563eb' : 'transparent',
-                color: activeTab === tab.id ? '#ffffff' : '#94a3b8',
+          {/* User Card */}
+          <div style={{ padding: '1rem 1.5rem', background: '#1e293b', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <div style={{ width: '38px', height: '38px', borderRadius: '50%', background: '#059669', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '1rem' }}>
+              {profileData.name.charAt(0).toUpperCase()}
+            </div>
+            <div style={{ overflow: 'hidden' }}>
+              <div style={{ fontWeight: 800, fontSize: '0.88rem', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>
+                {profileData.name}
+              </div>
+              <div style={{ fontSize: '0.72rem', color: '#34d399', fontWeight: 800 }}>
+                🟢 Active Vehicle Partner
+              </div>
+            </div>
+          </div>
+
+          {/* Navigation Tabs (8 TABS ONLY - NO EMOJI ICONS - CLEAN LABELS) */}
+          <nav style={{ flex: 1, padding: '1rem 0', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+            {[
+              { id: 'overview', label: 'Overview' },
+              { id: 'vehicles', label: 'My Vehicle' },
+              { id: 'earnings', label: 'Daily Earnings' },
+              { id: 'payments', label: 'Payments / Settlements' },
+              { id: 'documents', label: 'Documents' },
+              { id: 'profile', label: 'Profile' },
+              { id: 'support', label: 'Support' },
+              { id: 'terms', label: 'Terms & Conditions' }
+            ].map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => { setActiveTab(tab.id); setIsMobileSidebarOpen(false); }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.75rem',
+                  padding: '0.85rem 1.5rem',
+                  border: 'none',
+                  background: activeTab === tab.id ? '#2563eb' : 'transparent',
+                  color: activeTab === tab.id ? '#ffffff' : '#94a3b8',
                 fontWeight: activeTab === tab.id ? 800 : 600,
                 fontSize: '0.88rem',
                 textAlign: 'left',
@@ -868,29 +908,30 @@ export default function CarOwnerDashboard() {
         </nav>
 
         {/* Footer Logout */}
-        <div style={{ padding: '1rem 1.5rem', borderTop: '1px solid #1e293b' }}>
+        <div style={{ padding: '1rem 1.5rem', borderTop: '1px solid #1e293b', flexShrink: 0, marginTop: 'auto' }}>
           <button
             onClick={logout}
             style={{
               width: '100%',
-              padding: '0.65rem',
-              borderRadius: '8px',
-              border: '1px solid #334155',
-              background: 'transparent',
-              color: '#f8fafc',
-              fontWeight: 700,
-              fontSize: '0.82rem',
+              padding: '0.75rem 1rem',
+              borderRadius: '10px',
+              border: 'none',
+              background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+              color: '#ffffff',
+              fontWeight: 800,
+              fontSize: '0.9rem',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '0.5rem'
+              gap: '0.6rem',
+              boxShadow: '0 4px 14px rgba(239,68,68,0.35)'
             }}
           >
-            🚪 Logout Session
+            <span>🚪</span>
+            <span>Logout / Sign Out</span>
           </button>
         </div>
-
       </aside>
 
       {/* MAIN CONTENT AREA */}
@@ -1841,6 +1882,7 @@ export default function CarOwnerDashboard() {
         </div>
       )}
 
+      </div>
     </div>
   );
 }

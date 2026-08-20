@@ -468,6 +468,37 @@ export default function LandingPage() {
 
   const [popularLocations, setPopularLocations] = useState([]);
 
+  const [platformReviews, setPlatformReviews] = useState(() => {
+    try {
+      const savedComp = JSON.parse(localStorage.getItem('platform_company_reviews') || '[]');
+      const savedDriver = JSON.parse(localStorage.getItem('customer_driver_reviews') || '[]');
+      const combined = [...savedComp, ...savedDriver];
+      if (combined.length > 0) return combined;
+    } catch {}
+    return [
+      { id: 'rev_1', name: 'John D.', city: 'Chennai Hub', rating: 5, text: 'Amazing service from Royal Car Rentals! The vehicle was immaculate, on time and the booking process was super smooth.', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80', companyName: 'Royal Car Rentals' },
+      { id: 'rev_2', name: 'Sarah M.', city: 'Bangalore Hub', rating: 5, text: 'Best car rental experience I have ever had. Great pricing, transparent billing, and excellent customer support.', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80', companyName: 'SpeedRent Cars' },
+      { id: 'rev_3', name: 'Michael R.', city: 'Dharmapuri Hub', rating: 5, text: 'The car quality and chauffeur driving service was top notch! Driver Ramesh was extremely polite and punctual. Will definitely choose Royal Drive again!', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80', companyName: 'InDrive Rentals' }
+    ];
+  });
+
+  useEffect(() => {
+    const syncReviews = () => {
+      try {
+        const savedComp = JSON.parse(localStorage.getItem('platform_company_reviews') || '[]');
+        const savedDriver = JSON.parse(localStorage.getItem('customer_driver_reviews') || '[]');
+        const combined = [...savedComp, ...savedDriver];
+        if (combined.length > 0) setPlatformReviews(combined);
+      } catch {}
+    };
+    window.addEventListener('storage', syncReviews);
+    window.addEventListener('reviews_updated', syncReviews);
+    return () => {
+      window.removeEventListener('storage', syncReviews);
+      window.removeEventListener('reviews_updated', syncReviews);
+    };
+  }, []);
+
   useEffect(() => {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 4000);
@@ -1035,8 +1066,8 @@ export default function LandingPage() {
   ];
 
   const getCompanyLogoForVehicle = (v) => {
-    const email = (v.companyOwnerEmail || v.companyEmail || v.company?.ownerEmail || v.company?.email || (v.companyName?.toLowerCase().includes('vaidee') ? 'vaidee@gmail.com' : 'pooja@gmail.com')).trim().toLowerCase();
-    const companyKey = email.replace(/[^a-z0-9]/g, '_');
+    const email = (v.companyOwnerEmail || v.companyEmail || v.company?.ownerEmail || v.company?.email || '').trim().toLowerCase();
+    const companyKey = email ? email.replace(/[^a-z0-9]/g, '_') : 'guest';
 
     const savedLogo = localStorage.getItem(`company_logo_${companyKey}`);
     if (savedLogo) return savedLogo;
@@ -1044,7 +1075,7 @@ export default function LandingPage() {
     if (v.companyLogo && !v.companyLogo.includes('unsplash')) return v.companyLogo;
     if (v.company?.logo && !v.company.logo.includes('unsplash')) return v.company.logo;
 
-    const name = v.companyName || v.company?.name || (email.includes('vaidee') ? 'Vaidee Cars' : 'Pooja Cars');
+    const name = v.companyName || v.company?.name || 'Rental Agency';
     const firstChar = name.charAt(0).toUpperCase();
 
     return `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100%" height="100%" rx="20" fill="%232563eb"/><text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" fill="%23ffffff" font-size="52" font-family="sans-serif" font-weight="bold">${firstChar}</text></svg>`;
@@ -1095,7 +1126,7 @@ export default function LandingPage() {
   const combinedVehicles = [...searchResults, ...localVehicles, ...carOwnerVehicles];
 
   // Show actual cars added by rental companies & vehicle partners
-  const displayedFleet = combinedVehicles.length > 0 ? combinedVehicles : INITIAL_PUBLISHED_FLEET;
+  const displayedFleet = combinedVehicles;
 
   return (
     <div style={{ background: '#ffffff', color: '#0f172a', fontFamily: 'Inter, system-ui, sans-serif', minHeight: '100vh', width: '100%', overflowX: 'hidden', boxSizing: 'border-box' }}>
@@ -1592,49 +1623,43 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* 7. TOP LOCATIONS */}
+      {/* 7. TOP LOCATIONS (DYNAMICALLY MANAGED BY SUPER ADMIN) */}
       <section id="locations" className="reveal-on-scroll" style={{ padding: '0 4%' }}>
         <div className="rd-section-header">
-          <h2 className="rd-section-title">Top Locations</h2>
-          <a href="#locations" className="rd-section-link">View all locations ➔</a>
+          <h2 className="rd-section-title">📍 Top Locations & Hub Terminals</h2>
+          <a href="#locations" onClick={() => navigate('/cars')} className="rd-section-link">View all locations ➔</a>
         </div>
 
         <div className="rd-locations-grid">
-          <div className="rd-location-card" onClick={() => navigate('/cars')}>
-            <img src="https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?auto=format&fit=crop&w=800&q=80" alt="New York" />
-            <div className="rd-location-overlay">
-              <div className="rd-location-title">📍 New York</div>
-              <div className="rd-location-price">From $29 / day</div>
+          {popularLocations.length > 0 ? (
+            popularLocations.map((loc) => (
+              <div 
+                key={loc._id || loc.name} 
+                className="rd-location-card" 
+                onClick={() => { 
+                  setSearchLocation(loc.name); 
+                  navigate('/cars'); 
+                }}
+                style={{ cursor: 'pointer' }}
+              >
+                <img 
+                  src={getValidImageUrl(loc.imageUrl, 'location')} 
+                  alt={loc.name} 
+                  onError={(e) => handleImageError(e, 'location')}
+                />
+                <div className="rd-location-overlay">
+                  <div className="rd-location-title">📍 {loc.name}</div>
+                  <div className="rd-location-price">
+                    {loc.carsCount ? `🚗 ${loc.carsCount} Cars Available` : `📍 ${loc.state}, ${loc.country}`}
+                  </div>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div style={{ gridColumn: '1 / -1', padding: '2rem', textAlign: 'center', color: '#64748b', background: '#f8fafc', borderRadius: '12px' }}>
+              📍 Regional Hub Locations added by Super Admin will appear here.
             </div>
-          </div>
-
-          <div className="rd-location-card" onClick={() => navigate('/cars')}>
-            <img src="https://images.unsplash.com/photo-1580655653885-65763b2597d0?auto=format&fit=crop&w=800&q=80" alt="Los Angeles" />
-            <div className="rd-location-overlay">
-              <div className="rd-location-title">📍 Los Angeles</div>
-              <div className="rd-location-price">From $35 / day</div>
-            </div>
-          </div>
-
-          <div className="rd-location-card" onClick={() => navigate('/cars')}>
-            <img 
-              src="/chicago-skyline.jpg" 
-              alt="Chicago" 
-              onError={(e) => { e.target.onerror = null; e.target.src = "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=800&q=80"; }} 
-            />
-            <div className="rd-location-overlay">
-              <div className="rd-location-title">📍 Chicago</div>
-              <div className="rd-location-price">From $52 / day</div>
-            </div>
-          </div>
-
-          <div className="rd-location-card" onClick={() => navigate('/cars')}>
-            <img src="https://images.unsplash.com/photo-1506966953602-c20cc11f75e3?auto=format&fit=crop&w=800&q=80" alt="Miami" />
-            <div className="rd-location-overlay">
-              <div className="rd-location-title">📍 Miami</div>
-              <div className="rd-location-price">From $48 / day</div>
-            </div>
-          </div>
+          )}
         </div>
       </section>
 
@@ -1645,53 +1670,41 @@ export default function LandingPage() {
         </div>
 
         <div className="rd-testimonials-grid">
-          <div className="rd-testimonial-card">
-            <div>
-              <div className="rd-stars">★★★★★</div>
-              <p className="rd-testimonial-text">
-                "Amazing service! The car was clean, on time and the booking process was super easy."
-              </p>
-            </div>
-            <div className="rd-user-row">
-              <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80" alt="John D." className="rd-avatar" />
+          {platformReviews.map((rev, idx) => (
+            <div key={rev.id || idx} className="rd-testimonial-card">
               <div>
-                <div className="rd-user-name">— John D.</div>
-                <div className="rd-user-city">New York</div>
+                <div className="rd-stars" style={{ color: '#f59e0b', fontSize: '1.15rem' }}>
+                  {'★'.repeat(rev.rating || 5)}{'☆'.repeat(5 - (rev.rating || 5))}
+                </div>
+                <p className="rd-testimonial-text">
+                  "{rev.text || rev.comment || 'Great experience!'}"
+                </p>
+                {rev.companyName && (
+                  <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#2563eb', marginTop: '0.3rem' }}>
+                    🏢 Partner: {rev.companyName}
+                  </div>
+                )}
+                {rev.driverName && (
+                  <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#059669', marginTop: '0.3rem' }}>
+                    👨‍✈️ Driver: {rev.driverName} ({rev.carName || 'Vehicle'})
+                  </div>
+                )}
+              </div>
+              <div className="rd-user-row" style={{ marginTop: '1rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <img 
+                  src={getValidImageUrl(rev.avatar || rev.companyLogo, 'logo')} 
+                  alt={rev.name || rev.customerName || 'Customer'} 
+                  onError={(e) => handleImageError(e, 'logo')}
+                  className="rd-avatar" 
+                  style={{ width: '42px', height: '42px', borderRadius: '50%', objectFit: 'cover' }}
+                />
+                <div>
+                  <div className="rd-user-name" style={{ fontWeight: 800 }}>— {rev.name || rev.customerName || 'Verified Customer'}</div>
+                  <div className="rd-user-city" style={{ fontSize: '0.75rem', color: '#64748b' }}>📍 {rev.city || 'Verified Rental Review'}</div>
+                </div>
               </div>
             </div>
-          </div>
-
-          <div className="rd-testimonial-card">
-            <div>
-              <div className="rd-stars">★★★★★</div>
-              <p className="rd-testimonial-text">
-                "Best car rental experience I've ever had. Great pricing and excellent customer support."
-              </p>
-            </div>
-            <div className="rd-user-row">
-              <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80" alt="Sarah M." className="rd-avatar" />
-              <div>
-                <div className="rd-user-name">— Sarah M.</div>
-                <div className="rd-user-city">Los Angeles</div>
-              </div>
-            </div>
-          </div>
-
-          <div className="rd-testimonial-card">
-            <div>
-              <div className="rd-stars">★★★★★</div>
-              <p className="rd-testimonial-text">
-                "The car quality was top notch. Will definitely choose Royal Drive again!"
-              </p>
-            </div>
-            <div className="rd-user-row">
-              <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80" alt="Michael R." className="rd-avatar" />
-              <div>
-                <div className="rd-user-name">— Michael R.</div>
-                <div className="rd-user-city">Chicago</div>
-              </div>
-            </div>
-          </div>
+          ))}
         </div>
       </section>
 
@@ -1715,7 +1728,7 @@ export default function LandingPage() {
       {/* 10. DYNAMIC FLEET CATALOG & INTERACTIVE GOOGLE MAP (INTEGRATED SYSTEM) */}
       <section id="fleets" className="reveal-on-scroll" style={{ padding: '0 4%', marginBottom: '4rem' }}>
         <div className="rd-section-header">
-          <h2 className="rd-section-title">Available Fleet & Real-Time Tracking</h2>
+          <h2 className="rd-section-title">🏎️ Verified Company Fleet & Real-Time Tracking</h2>
           <button className="rd-btn-gold" style={{ fontSize: '0.85rem' }} onClick={() => setShowAiModal(true)}>
             ✨ AI Fleet Matcher
           </button>
@@ -1753,35 +1766,74 @@ export default function LandingPage() {
           />
         </div>
 
-        <div className="fleet-v2-car-grid">
-          {displayedFleet.slice(0, 6).map((v, idx) => (
-            <div key={v._id ? `${v._id}-${idx}` : `fleet-${idx}`} className="fleet-v2-car-card" onClick={() => setDetailVehicle(v)}>
-              <div style={{ position: 'relative' }}>
-                <span className="fleet-v2-car-badge">🔥 {98 - (idx % 5)}% Match</span>
-                <img src={getValidImageUrl(v.imageUrl, 'vehicle')} onError={e => handleImageError(e, 'vehicle')} alt={v.model} className="fleet-v2-car-img" />
-              </div>
-              <div style={{ padding: '0.5rem 0 0 0', display: 'flex', flexDirection: 'column', flex: 1 }}>
-                <div className="fleet-v2-car-title">{v.make} {v.model}</div>
-                <div className="fleet-v2-car-specs">
-                  <span>💺 {v.seats || 5} Seats</span>
-                  <span>⛽ {v.fuelType || 'Petrol'}</span>
-                  <span>⚙️ {v.transmission || 'Auto'}</span>
-                </div>
-                <div className="fleet-v2-car-price-row" style={{ marginTop: 'auto' }}>
-                  <div>
-                    <span className="fleet-v2-price">₹{v.pricePerDay}</span>
-                    <span style={{ fontSize: '0.74rem', color: '#64748b' }}> / day</span>
+        {displayedFleet.length > 0 ? (
+          <>
+            <div className="fleet-v2-car-grid">
+              {displayedFleet.slice(0, 5).map((v, idx) => (
+                <div key={v._id ? `${v._id}-${idx}` : `fleet-${idx}`} className="fleet-v2-car-card" onClick={() => setDetailVehicle(v)}>
+                  <div style={{ position: 'relative' }}>
+                    <span className="fleet-v2-car-badge">🔥 {98 - (idx % 5)}% Match</span>
+                    <img src={getValidImageUrl(v.imageUrl, 'vehicle')} onError={e => handleImageError(e, 'vehicle')} alt={v.model} className="fleet-v2-car-img" />
                   </div>
-                  <div className="fleet-v2-rating">⭐ 4.8 ({120 + idx * 7})</div>
+                  <div style={{ padding: '0.5rem 0 0 0', display: 'flex', flexDirection: 'column', flex: 1 }}>
+                    <div className="fleet-v2-car-title">{v.make} {v.model}</div>
+                    <div className="fleet-v2-car-specs">
+                      <span>💺 {v.seats || 5} Seats</span>
+                      <span>⛽ {v.fuelType || 'Petrol'}</span>
+                      <span>⚙️ {v.transmission || 'Auto'}</span>
+                    </div>
+                    <div className="fleet-v2-car-price-row" style={{ marginTop: 'auto' }}>
+                      <div>
+                        <span className="fleet-v2-price">₹{v.pricePerDay}</span>
+                        <span style={{ fontSize: '0.74rem', color: '#64748b' }}> / day</span>
+                      </div>
+                      <div className="fleet-v2-rating">⭐ 4.8 ({120 + idx * 7})</div>
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.45rem', marginTop: '0.65rem' }}>
+                      <button onClick={(e) => { e.stopPropagation(); setDetailVehicle(v); }} className="fleet-v2-btn-outline" style={{ padding: '0.45rem', fontSize: '0.76rem', borderRadius: '8px' }}>Details</button>
+                      <button onClick={(e) => { e.stopPropagation(); setBookingVehicle(v); }} className="rd-btn-gold" style={{ padding: '0.45rem', fontSize: '0.76rem', borderRadius: '8px', justifyContent: 'center' }}>Book Now</button>
+                    </div>
+                  </div>
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.45rem', marginTop: '0.65rem' }}>
-                  <button onClick={(e) => { e.stopPropagation(); setDetailVehicle(v); }} className="fleet-v2-btn-outline" style={{ padding: '0.45rem', fontSize: '0.76rem', borderRadius: '8px' }}>Details</button>
-                  <button onClick={(e) => { e.stopPropagation(); setBookingVehicle(v); }} className="rd-btn-gold" style={{ padding: '0.45rem', fontSize: '0.76rem', borderRadius: '8px', justifyContent: 'center' }}>Book Now</button>
-                </div>
-              </div>
+              ))}
             </div>
-          ))}
-        </div>
+
+            {/* VIEW ALL CARS BUTTON FOR > 5 CARS */}
+            {displayedFleet.length > 5 && (
+              <div style={{ textAlign: 'center', marginTop: '2.5rem' }}>
+                <button
+                  onClick={() => navigate('/cars')}
+                  style={{
+                    background: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
+                    color: '#ffffff',
+                    border: 'none',
+                    padding: '0.9rem 2.5rem',
+                    borderRadius: '30px',
+                    fontWeight: 900,
+                    fontSize: '0.95rem',
+                    cursor: 'pointer',
+                    boxShadow: '0 8px 24px rgba(37,99,235,0.4)',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.6rem',
+                    transition: 'all 0.25s ease'
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.04)'}
+                  onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+                >
+                  <span>🚀 View All Registered Vehicles ({displayedFleet.length} Cars Available)</span>
+                  <span>➔</span>
+                </button>
+              </div>
+            )}
+          </>
+        ) : (
+          <div style={{ background: '#f8fafc', border: '1.5px dashed #cbd5e1', borderRadius: '16px', padding: '3.5rem 2rem', textAlign: 'center' }}>
+            <div style={{ fontSize: '2.8rem', marginBottom: '0.5rem' }}>🚘</div>
+            <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#1e293b', margin: '0 0 0.4rem 0' }}>No Registered Fleet Vehicles Found</h3>
+            <p style={{ fontSize: '0.9rem', color: '#64748b', margin: 0 }}>Registered Company Admins & Super Admin can add cars to display them in the live fleet catalogue.</p>
+          </div>
+        )}
       </section>
 
       {/* 11. FOOTER (DARK THEME SCREENSHOT MATCH) */}

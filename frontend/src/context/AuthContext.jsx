@@ -132,7 +132,7 @@ export const AuthProvider = ({ children }) => {
 
     // 1. SUPER ADMIN LOGIN (Strict single entry point: admin@forgeindia.com)
     if (cleanEmail === 'admin@forgeindia.com' || cleanEmail === 'superadmin@rentos.com') {
-      if (cleanPass === 'password123' || cleanPass === 'admin123' || cleanPass === 'super123') {
+      if (cleanPass === 'password123') {
         const superAdminUser = {
           _id: 'sa_root_001',
           name: 'Forge India Super Admin',
@@ -148,7 +148,7 @@ export const AuthProvider = ({ children }) => {
         setUser(superAdminUser);
         return { success: true, user: superAdminUser };
       } else {
-        return { success: false, message: 'Invalid email or password.' };
+        return { success: false, message: 'Invalid credentials. Incorrect password for Super Admin.' };
       }
     }
 
@@ -178,13 +178,18 @@ export const AuthProvider = ({ children }) => {
         setUser(data.user);
         localStorage.removeItem('company_pending_approval');
         localStorage.setItem('company_status', 'active');
+        localStorage.setItem('company_owner_email', cleanEmail);
         return { success: true, user: data.user };
+      } else if (!data.success && data.message) {
+        if (data.message.includes('not approved') || data.message.includes('pending') || data.message.includes('Approval')) {
+          return { success: false, message: data.message };
+        }
       }
     } catch (error) {
-      console.warn('Backend API login error, checking approved registry list:', error);
+      console.warn('Backend API login error, checking local registries:', error);
     }
 
-    // 3. Check PENDING registries -> BLOCK LOGIN ONLY IF STILL UNAPPROVED
+    // 3. Check PENDING registries -> BLOCK LOGIN IF UNAPPROVED
     const pendingCompanies = (() => { try { return JSON.parse(localStorage.getItem('pending_companies') || '[]'); } catch { return []; } })();
     const pendingCarOwners = (() => { try { return JSON.parse(localStorage.getItem('pending_car_owners') || '[]'); } catch { return []; } })();
     const pendingDrivers   = (() => { try { return JSON.parse(localStorage.getItem('pending_drivers') || '[]'); } catch { return []; } })();
@@ -212,7 +217,7 @@ export const AuthProvider = ({ children }) => {
       };
     }
 
-    // 4. Check APPROVED registries (Strict role resolution priority)
+    // 4. Check APPROVED registries (Strict match only)
     const approvedCompanies = (() => { try { return JSON.parse(localStorage.getItem('approved_companies') || '[]'); } catch { return []; } })();
     const approvedCarOwners = (() => { try { return JSON.parse(localStorage.getItem('approved_car_owners') || '[]'); } catch { return []; } })();
     const approvedDrivers   = (() => { try { return JSON.parse(localStorage.getItem('approved_drivers') || '[]'); } catch { return []; } })();
@@ -220,18 +225,14 @@ export const AuthProvider = ({ children }) => {
     const companyDrivers    = (() => { try { return JSON.parse(localStorage.getItem('company_drivers_registry') || '[]'); } catch { return []; } })();
     const companyInfo       = (() => { try { return JSON.parse(localStorage.getItem('company_info_details') || '{}'); } catch { return {}; } })();
 
-    // PRIORITY 1: Check Driver Roster (company_drivers_registry, approved_drivers, pending_drivers, driver keywords)
-    const isDriverMatch = cleanEmail.includes('thirsha') || cleanEmail.includes('trisha') || cleanEmail.includes('driver') || cleanEmail.includes('ramesh') || cleanEmail.includes('suresh') || cleanEmail.includes('kumar') || cleanEmail.includes('lokee') || cleanEmail.includes('oviii') || cleanEmail.includes('oviya');
-
+    // Check Driver Roster
     const matchedApprovedDriver = companyDrivers.find(d => getCleanEmail(d) === cleanEmail || (cleanEmail.length > 5 && getCleanPhone(d) === cleanEmail)) ||
-                                  approvedDrivers.find(d => getCleanEmail(d) === cleanEmail || (cleanEmail.length > 5 && getCleanPhone(d) === cleanEmail)) ||
-                                  pendingDrivers.find(d => getCleanEmail(d) === cleanEmail || (cleanEmail.length > 5 && getCleanPhone(d) === cleanEmail)) ||
-                                  (isDriverMatch ? { name: cleanEmail.includes('thirsha') || cleanEmail.includes('trisha') ? 'Thirsha (Chauffeur Driver)' : 'Fleet Driver', email: cleanEmail, phone: '+91 98765 11111' } : null);
+                                  approvedDrivers.find(d => getCleanEmail(d) === cleanEmail || (cleanEmail.length > 5 && getCleanPhone(d) === cleanEmail));
 
     if (matchedApprovedDriver) {
       const driverUser = {
         _id: matchedApprovedDriver.id || matchedApprovedDriver._id || 'drv_' + cleanEmail.replace(/[^a-z0-9]/gi, '_'),
-        name: matchedApprovedDriver.name || 'Thirsha (Chauffeur Driver)',
+        name: matchedApprovedDriver.name || 'Fleet Driver',
         email: cleanEmail,
         role: 'driver',
         status: 'Approved'
@@ -245,7 +246,7 @@ export const AuthProvider = ({ children }) => {
       return { success: true, user: driverUser };
     }
 
-    // PRIORITY 2: Check Staff Employee
+    // Check Staff Employee
     const matchedStaff = staffList.find(s =>
       getCleanEmail(s) === cleanEmail || (cleanEmail.length > 5 && getCleanPhone(s) === cleanEmail)
     );
@@ -267,34 +268,9 @@ export const AuthProvider = ({ children }) => {
       return { success: true, user: staffUser };
     }
 
-    // PRIORITY 3: Check Car Owner Partner (e.g. sathya@gmail.com, approved_car_owners, pending_car_owners)
-    const matchedApprovedOwner = approvedCarOwners.find(co => getCleanEmail(co) === cleanEmail || (cleanEmail.length > 5 && getCleanPhone(co) === cleanEmail)) ||
-                                 pendingCarOwners.find(co => getCleanEmail(co) === cleanEmail || (cleanEmail.length > 5 && getCleanPhone(co) === cleanEmail)) ||
-                                 (cleanEmail === 'sathya@gmail.com' || cleanEmail.includes('sathya') || cleanEmail.includes('owner') || cleanEmail.includes('car_owner') ? { name: 'Sathya (Car Owner Partner)', email: cleanEmail } : null);
-
-    if (matchedApprovedOwner) {
-      const ownerName = typeof matchedApprovedOwner === 'object' ? (matchedApprovedOwner.name || 'Sathya Partner') : 'Car Owner Partner';
-      const ownerUser = {
-        _id: typeof matchedApprovedOwner === 'object' ? (matchedApprovedOwner.id || matchedApprovedOwner._id || 'co_' + Date.now()) : 'co_' + Date.now(),
-        name: ownerName,
-        email: cleanEmail,
-        role: 'car-owner',
-        status: 'Approved'
-      };
-      const mockToken = 'mock_owner_token_' + Date.now();
-      sessionStorage.setItem('token', mockToken);
-      localStorage.setItem('car_owner_user', JSON.stringify(ownerUser));
-      localStorage.removeItem('token');
-      setToken(mockToken);
-      setUser(ownerUser);
-      return { success: true, user: ownerUser };
-    }
-
-    // PRIORITY 4: Check Company Admin Owner (pooja@gmail.com, deepu@gmail.com, company owners)
+    // Check Company Admin Owner
     const isMatchedCompany = (companyInfo.ownerEmail && companyInfo.ownerEmail.trim().toLowerCase() === cleanEmail) ||
-                             approvedCompanies.some(c => getCleanEmail(c) === cleanEmail || (c.ownerEmail && c.ownerEmail.trim().toLowerCase() === cleanEmail)) ||
-                             pendingCompanies.some(c => getCleanEmail(c) === cleanEmail || (c.ownerEmail && c.ownerEmail.trim().toLowerCase() === cleanEmail)) ||
-                             cleanEmail === 'deepu@gmail.com' || cleanEmail === 'pooja@gmail.com' || cleanEmail.includes('company') || cleanEmail.includes('admin');
+                             approvedCompanies.some(c => getCleanEmail(c) === cleanEmail || (c.ownerEmail && c.ownerEmail.trim().toLowerCase() === cleanEmail));
 
     if (isMatchedCompany) {
       const compUser = {
@@ -316,18 +292,11 @@ export const AuthProvider = ({ children }) => {
       return { success: true, user: compUser };
     }
 
-    // PRIORITY 5: Universal Fallback for any valid email login (Customer / General user)
-    const customerUser = {
-      _id: 'usr_' + Date.now(),
-      name: email.includes('@') ? email.split('@')[0] : 'User Account',
-      email: cleanEmail,
-      role: 'customer',
-      status: 'active'
+    // If credentials do not exist in database or registries, REJECT LOGIN!
+    return {
+      success: false,
+      message: 'Invalid credentials. User account not found or password incorrect.'
     };
-    const mockCustToken = 'mock_user_token_' + Date.now();
-    sessionStorage.setItem('token', mockCustToken);
-    localStorage.setItem('token', mockCustToken);
-    setToken(mockCustToken);
     setUser(customerUser);
     return { success: true, user: customerUser };
   };

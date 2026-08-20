@@ -6,6 +6,7 @@ import GoogleMapComponent from '../components/GoogleMapComponent';
 
 export default function StaffDashboard() {
   const { token, logout, user } = useAuth();
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [activeNav, setActiveNav] = useState('dashboard');
   const [logoHasError, setLogoHasError] = useState(false);
 
@@ -517,9 +518,16 @@ export default function StaffDashboard() {
       {/* HEADER */}
       <header style={{
         height: '62px', background: '#ffffff', borderBottom: '1px solid #e2e8f0',
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 1.75rem', flexShrink: 0
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 1.25rem', flexShrink: 0
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+          <button
+            onClick={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
+            className="dashboard-mobile-toggle-btn"
+            aria-label="Toggle Dashboard Navigation"
+          >
+            {isMobileSidebarOpen ? '✕' : '☰'}
+          </button>
           {renderCompanyLogo(32, '8px')}
           <div style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '1.2rem', color: '#1e3a8a' }}>
             {user?.company?.name || localStorage.getItem('company_name') || 'Company'} Operations Desk
@@ -637,13 +645,29 @@ export default function StaffDashboard() {
       )}
 
       {/* MAIN LAYOUT */}
-      <div className="dashboard-layout" style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
+      <div className="dashboard-layout" style={{ display: 'flex', flex: 1, overflow: 'hidden', position: 'relative' }}>
+        {/* Mobile Drawer Overlay Backdrop */}
+        {isMobileSidebarOpen && (
+          <div 
+            className="dashboard-sidebar-backdrop"
+            onClick={() => setIsMobileSidebarOpen(false)}
+          />
+        )}
         
         {/* SIDEBAR NAVIGATION */}
-        <aside className="dashboard-sidebar" style={{ width: '230px', background: '#ffffff', borderRight: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
-          <div style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid #f1f5f9' }}>
-            <div style={{ fontWeight: 800, color: '#1e293b', fontSize: '0.85rem' }}>Clerk Desk</div>
-            <div style={{ fontSize: '0.72rem', color: '#64748b', marginTop: '2px' }}>logged in: {user?.name || 'Amit Patel'}</div>
+        <aside className={`dashboard-sidebar ${isMobileSidebarOpen ? 'mobile-drawer-active' : ''}`} style={{ width: '230px', background: '#ffffff', borderRight: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
+          <div style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div>
+              <div style={{ fontWeight: 800, color: '#1e293b', fontSize: '0.85rem' }}>Clerk Desk</div>
+              <div style={{ fontSize: '0.72rem', color: '#64748b', marginTop: '2px' }}>logged in: {user?.name || 'Amit Patel'}</div>
+            </div>
+            <button 
+              onClick={() => setIsMobileSidebarOpen(false)}
+              className="dashboard-sidebar-close-btn"
+              aria-label="Close Navigation Drawer"
+            >
+              ✕
+            </button>
           </div>
 
           <nav style={{ flex: 1, padding: '0.75rem 0', overflowY: 'auto' }}>
@@ -652,7 +676,7 @@ export default function StaffDashboard() {
               return (
                 <button
                   key={item.id}
-                  onClick={() => { setActiveNav(item.id); closeModal(); }}
+                  onClick={() => { setActiveNav(item.id); setIsMobileSidebarOpen(false); closeModal(); }}
                   style={{
                     width: '100%', display: 'flex', alignItems: 'center', gap: '0.75rem',
                     padding: '0.65rem 1.5rem', border: 'none', background: isActive ? 'rgba(37,99,235,0.06)' : 'transparent',

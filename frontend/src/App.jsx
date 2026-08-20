@@ -257,6 +257,91 @@ function ProtectedRoute({ children, allowedRoles }) {
     return <Navigate to="/" replace />;
   }
 
+  // Block unapproved companies from accessing Company Dashboard directly via URL
+  if (location.pathname.startsWith('/company-admin')) {
+    const userRole = user?.role;
+    if (userRole !== 'super-admin' && userRole !== 'super_admin') {
+      const companyStatus = localStorage.getItem('company_status');
+      const isPendingStorage = localStorage.getItem('company_pending_approval') === 'true';
+      const userCompanyStatus = user?.companyStatus || user?.status;
+
+      if (
+        isPendingStorage ||
+        companyStatus === 'pending_approval' ||
+        companyStatus === 'pending' ||
+        companyStatus === 'Not Approved' ||
+        userCompanyStatus === 'pending_approval' ||
+        userCompanyStatus === 'pending' ||
+        userCompanyStatus === 'Not Approved'
+      ) {
+        return (
+          <div style={{
+            minHeight: '100vh',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: '#f8fafc',
+            fontFamily: 'var(--font-body)',
+            padding: '2rem'
+          }}>
+            <div style={{
+              maxWidth: '520px',
+              width: '100%',
+              background: '#ffffff',
+              borderRadius: '24px',
+              padding: '2.5rem',
+              boxShadow: '0 20px 50px rgba(0,0,0,0.1)',
+              border: '1px solid #e2e8f0',
+              textAlign: 'center'
+            }}>
+              <div style={{
+                width: '80px',
+                height: '80px',
+                borderRadius: '50%',
+                background: 'rgba(217,119,6,0.12)',
+                color: '#d97706',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '2.5rem',
+                margin: '0 auto 1.5rem auto'
+              }}>
+                ⏳
+              </div>
+              <h2 style={{ fontSize: '1.4rem', fontWeight: 900, color: '#0f172a', marginBottom: '0.75rem' }}>
+                Not Approved – Waiting for Admin Approval
+              </h2>
+              <p style={{ color: '#64748b', fontSize: '0.95rem', lineHeight: 1.6, marginBottom: '1.75rem' }}>
+                Your company account is not approved yet. Please wait for Admin approval.
+              </p>
+              <button
+                onClick={() => {
+                  localStorage.removeItem('token');
+                  sessionStorage.removeItem('token');
+                  window.location.href = '/auth?mode=login';
+                }}
+                style={{
+                  width: '100%',
+                  padding: '0.85rem',
+                  background: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '12px',
+                  fontWeight: 800,
+                  fontSize: '0.95rem',
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 14px rgba(37,99,235,0.35)'
+                }}
+              >
+                ← Return to Login
+              </button>
+            </div>
+          </div>
+        );
+      }
+    }
+  }
+
   return children;
 }
 

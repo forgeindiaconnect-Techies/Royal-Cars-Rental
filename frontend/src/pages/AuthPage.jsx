@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import AnimatedAuthBackground from '../components/AnimatedAuthBackground';
+import { fileToDataURL } from '../utils/imageUtils';
 
 export default function AuthPage() {
   const { login, register, user, setUser } = useAuth();
@@ -27,6 +28,7 @@ export default function AuthPage() {
   const [ownerName, setOwnerName] = useState('');
   const [mobile, setMobile] = useState('');
   const [compEmail, setCompEmail] = useState('');
+  const [compLogo, setCompLogo] = useState('');
   const [gstNumber, setGstNumber] = useState('');
   const [address, setAddress] = useState('');
   const [city, setCity] = useState('');
@@ -205,11 +207,33 @@ export default function AuthPage() {
           state,
           pincode,
           password: compPassword,
+          logoUrl: compLogo,
+          logo: compLogo,
         }),
       });
 
       const data = await res.json();
       if (data.success) {
+        // Save to pending companies local storage
+        const newCompanyObj = {
+          id: data.companyId || 'cmp_' + Date.now(),
+          name: compName,
+          ownerName,
+          ownerEmail: compEmail,
+          mobile,
+          gstNumber,
+          address,
+          city,
+          state,
+          pincode,
+          logo: compLogo || '',
+          logoUrl: compLogo || '',
+          status: 'pending_approval',
+          createdAt: new Date().toISOString()
+        };
+        const existingPending = JSON.parse(localStorage.getItem('pending_companies') || '[]');
+        localStorage.setItem('pending_companies', JSON.stringify([...existingPending, newCompanyObj]));
+
         // Step 8 Success State
         setActiveStep(8);
       } else {
@@ -473,6 +497,35 @@ export default function AuthPage() {
                 <div className="form-group">
                   <label className="form-label">GST Number (Optional)</label>
                   <input type="text" className="form-control" value={gstNumber} onChange={(e) => setGstNumber(e.target.value)} placeholder="e.g. 07AAAAA1111A1Z1" />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Company Brand Logo (Upload Image)</label>
+                  <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                    {compLogo && (
+                      <img 
+                        src={compLogo} 
+                        alt="Logo Preview" 
+                        style={{ width: '48px', height: '48px', objectFit: 'cover', borderRadius: '8px', border: '1.5px solid var(--accent-blue)', background: '#fff' }} 
+                      />
+                    )}
+                    <input 
+                      type="file" 
+                      accept="image/*" 
+                      className="form-control" 
+                      style={{ fontSize: '0.8rem' }}
+                      onChange={async (e) => {
+                        const file = e.target.files[0];
+                        if (file) {
+                          try {
+                            const dataUrl = await fileToDataURL(file);
+                            setCompLogo(dataUrl);
+                          } catch (err) {
+                            console.error('Error converting logo to data URL:', err);
+                          }
+                        }
+                      }}
+                    />
+                  </div>
                 </div>
                 <button type="button" className="btn btn-primary" style={{ width: '100%', marginTop: '1rem' }} onClick={() => validateStep1() && setActiveStep(2)}>
                   Continue to Address →

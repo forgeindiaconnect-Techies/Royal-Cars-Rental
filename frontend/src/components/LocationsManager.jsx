@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { getValidImageUrl, fileToDataURL, handleImageError } from '../utils/imageUtils';
 
 const LocationsManager = () => {
   const [locations, setLocations] = useState([]);
@@ -39,9 +40,16 @@ const LocationsManager = () => {
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
+    let finalValue = type === 'checkbox' ? checked : value;
+
+    // Automatically parse Google Images link if pasted in imageUrl field
+    if (name === 'imageUrl' && typeof finalValue === 'string' && (finalValue.includes('google.com/imgres') || finalValue.includes('imgurl='))) {
+      finalValue = getValidImageUrl(finalValue, 'location');
+    }
+
     setFormData(prev => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: finalValue
     }));
   };
 
@@ -123,8 +131,33 @@ const LocationsManager = () => {
 
   return (
     <div style={{ background: '#fff', borderRadius: '16px', boxShadow: '0 2px 16px rgba(0,0,0,0.05)', padding: '2rem' }}>
+      
+      {/* TOP LOCATIONS METRIC SUMMARY BANNER */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.25rem', marginBottom: '2rem' }}>
+        <div style={{ background: 'linear-gradient(135deg, #eff6ff, #dbeafe)', border: '1px solid #bfdbfe', borderRadius: '14px', padding: '1.25rem' }}>
+          <div style={{ fontSize: '0.78rem', fontWeight: 800, color: '#1e40af', textTransform: 'uppercase' }}>📍 Active Regional Hubs</div>
+          <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#1d4ed8', marginTop: '4px' }}>{locations.length} Operating Hubs</div>
+          <div style={{ fontSize: '0.72rem', color: '#3b82f6', marginTop: '2px' }}>Tamil Nadu, Karnataka & Pondicherry Hubs</div>
+        </div>
+
+        <div style={{ background: 'linear-gradient(135deg, #f0fdf4, #dcfce7)', border: '1px solid #bbf7d0', borderRadius: '14px', padding: '1.25rem' }}>
+          <div style={{ fontSize: '0.78rem', fontWeight: 800, color: '#166534', textTransform: 'uppercase' }}>⭐ Featured Hubs</div>
+          <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#15803d', marginTop: '4px' }}>{locations.filter(l => l.featured).length} Featured Destinations</div>
+          <div style={{ fontSize: '0.72rem', color: '#16a34a', marginTop: '2px' }}>Promoted on Customer Landing & Search</div>
+        </div>
+
+        <div style={{ background: 'linear-gradient(135deg, #fff7ed, #ffedd5)', border: '1px solid #fed7aa', borderRadius: '14px', padding: '1.25rem' }}>
+          <div style={{ fontSize: '0.78rem', fontWeight: 800, color: '#9a3412', textTransform: 'uppercase' }}>🚗 Fleet Vehicles Deployed</div>
+          <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#c2410c', marginTop: '4px' }}>{locations.reduce((acc, l) => acc + (l.carsCount || 0), 0)} Cars Assigned</div>
+          <div style={{ fontSize: '0.72rem', color: '#ea580c', marginTop: '2px' }}>Active Fleet vehicles across operating hubs</div>
+        </div>
+      </div>
+
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
-        <h2 style={{ fontSize: '1.4rem', fontWeight: 900, color: 'var(--text-primary)', margin: 0 }}>📍 Popular Locations</h2>
+        <div>
+          <h2 style={{ fontSize: '1.4rem', fontWeight: 900, color: 'var(--text-primary)', margin: 0 }}>📍 Popular Locations & Hub Management</h2>
+          <p style={{ margin: '4px 0 0 0', fontSize: '0.85rem', color: '#64748b' }}>Configure regional pickup hubs, active vehicle allocations, and featured destinations.</p>
+        </div>
         <div style={{ display: 'flex', gap: '1rem' }}>
           <input 
             type="text" 
@@ -159,8 +192,21 @@ const LocationsManager = () => {
               <input type="text" name="country" value={formData.country} onChange={handleInputChange} required style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--border-color)' }} />
             </div>
             <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600, fontSize: '0.9rem' }}>Image URL *</label>
-              <input type="text" name="imageUrl" value={formData.imageUrl} onChange={handleInputChange} required placeholder="https://..." style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--border-color)' }} />
+              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600, fontSize: '0.9rem' }}>Image URL or Upload Photo *</label>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <input type="text" name="imageUrl" value={formData.imageUrl} onChange={handleInputChange} required placeholder="https://..." style={{ flex: 1, padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--border-color)' }} />
+                <label style={{ background: '#2563eb', color: '#fff', padding: '0.65rem 1rem', borderRadius: '8px', fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', fontSize: '0.8rem' }}>
+                  📁 Upload Photo
+                  <input type="file" accept="image/*" style={{ display: 'none' }} onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    try {
+                      const dataUrl = await fileToDataURL(file);
+                      setFormData(prev => ({ ...prev, imageUrl: dataUrl }));
+                    } catch (err) { console.error(err); }
+                  }} />
+                </label>
+              </div>
             </div>
             <div style={{ gridColumn: '1 / -1' }}>
               <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600, fontSize: '0.9rem' }}>Short Description</label>
@@ -212,7 +258,12 @@ const LocationsManager = () => {
               {filteredLocations.map(loc => (
                 <tr key={loc._id} style={{ borderBottom: '1px solid var(--border-color)' }}>
                   <td style={{ padding: '1rem' }}>
-                    <img src={loc.imageUrl || 'https://via.placeholder.com/100x60'} alt={loc.name} style={{ width: '80px', height: '50px', objectFit: 'cover', borderRadius: '6px' }} />
+                    <img 
+                      src={getValidImageUrl(loc.imageUrl, 'location')} 
+                      alt={loc.name} 
+                      onError={(e) => handleImageError(e, 'location')}
+                      style={{ width: '80px', height: '50px', objectFit: 'cover', borderRadius: '6px' }} 
+                    />
                   </td>
                   <td style={{ padding: '1rem' }}>
                     <div style={{ fontWeight: 800, color: 'var(--text-primary)' }}>{loc.name}</div>

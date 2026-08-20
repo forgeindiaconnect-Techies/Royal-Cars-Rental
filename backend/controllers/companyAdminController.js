@@ -6,18 +6,27 @@ const Transaction = require('../models/transaction');
 const Offer = require('../models/offer');
 const Company = require('../models/company');
 
+// Helper to reliably find companyId for authenticated request without cross-tenant leaks
+const getCompanyIdForUser = async (req) => {
+  if (req.user?.companyId) return req.user.companyId;
+  if (req.user?.email) {
+    const cleanEmail = req.user.email.trim().toLowerCase();
+    const company = await Company.findOne({ ownerEmail: cleanEmail });
+    if (company) return company._id;
+  }
+  return null;
+};
+
 // @desc    Add a vehicle
 // @route   POST /api/company-admin/vehicles
 // @access  Private/CompanyAdmin
 exports.addVehicle = async (req, res) => {
   try {
     const { make, model, year, category, pricePerDay, regNumber, specs, features, imageUrl, location } = req.body;
-    let companyId = req.user.companyId;
+    const companyId = await getCompanyIdForUser(req);
 
     if (!companyId) {
-      const User = require('../models/user');
-      const anyCompanyAdmin = await User.findOne({ role: 'company-admin' });
-      companyId = anyCompanyAdmin?.companyId || req.user._id;
+      return res.status(400).json({ success: false, message: 'Company account not found' });
     }
 
     const formattedSpecs = {
@@ -38,7 +47,7 @@ exports.addVehicle = async (req, res) => {
       specs: formattedSpecs,
       features: features || [],
       imageUrl: imageUrl || 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&q=80&w=400',
-      location: location || 'Chennai Main Branch',
+      location: location || 'Branch Office',
     });
 
     res.status(201).json({ success: true, message: 'Vehicle added successfully', vehicle });
@@ -53,7 +62,10 @@ exports.addVehicle = async (req, res) => {
 // @access  Private/CompanyAdmin
 exports.getCompanyVehicles = async (req, res) => {
   try {
-    const companyId = req.user.companyId;
+    const companyId = await getCompanyIdForUser(req);
+    if (!companyId) {
+      return res.status(200).json({ success: true, count: 0, vehicles: [] });
+    }
     const vehicles = await Vehicle.find({ companyId });
     res.status(200).json({ success: true, count: (vehicles || []).length, vehicles: vehicles || [] });
   } catch (error) {
@@ -66,23 +78,31 @@ exports.getCompanyVehicles = async (req, res) => {
 // @access  Private/CompanyAdmin
 exports.updateVehicle = async (req, res) => {
   try {
-    const companyId = req.user.companyId;
+    const companyId = await getCompanyIdForUser(req);
     let vehicle = await Vehicle.findById(req.params.id);
 
     if (!vehicle) {
       return res.status(404).json({ success: false, message: 'Vehicle not found' });
     }
 
-    // Secure database: verify ownership
-    if (vehicle.companyId.toString() !== companyId.toString()) {
+    if (companyId && vehicle.companyId && vehicle.companyId.toString() !== companyId.toString()) {
       return res.status(403).json({ success: false, message: 'Not authorized to update this vehicle' });
     }
 
-    vehicle = await Vehicle.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    });
+    const { make, model, year, category, pricePerDay, regNumber, specs, features, imageUrl, location, status } = req.body;
+    if (make) vehicle.make = make;
+    if (model) vehicle.model = model;
+    if (year) vehicle.year = Number(year);
+    if (category) vehicle.category = category;
+    if (pricePerDay) vehicle.pricePerDay = Number(pricePerDay);
+    if (regNumber) vehicle.regNumber = regNumber;
+    if (specs) vehicle.specs = { ...vehicle.specs, ...specs };
+    if (features) vehicle.features = features;
+    if (imageUrl) vehicle.imageUrl = imageUrl;
+    if (location) vehicle.location = location;
+    if (status) vehicle.status = status;
 
+    await vehicle.save();
     res.status(200).json({ success: true, message: 'Vehicle updated successfully', vehicle });
   } catch (error) {
     res.status(200).json({ success: false, message: error.message });
@@ -94,15 +114,14 @@ exports.updateVehicle = async (req, res) => {
 // @access  Private/CompanyAdmin
 exports.deleteVehicle = async (req, res) => {
   try {
-    const companyId = req.user.companyId;
+    const companyId = await getCompanyIdForUser(req);
     const vehicle = await Vehicle.findById(req.params.id);
 
     if (!vehicle) {
       return res.status(404).json({ success: false, message: 'Vehicle not found' });
     }
 
-    // Secure database: verify ownership
-    if (vehicle.companyId.toString() !== companyId.toString()) {
+    if (companyId && vehicle.companyId && vehicle.companyId.toString() !== companyId.toString()) {
       return res.status(403).json({ success: false, message: 'Not authorized to delete this vehicle' });
     }
 
@@ -113,53 +132,52 @@ exports.deleteVehicle = async (req, res) => {
   }
 };
 
-// @desc    Add staff/employee
+// @desc    Add a staff member / employee
 // @route   POST /api/company-admin/staff
 // @access  Private/CompanyAdmin
 exports.addStaff = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
-    const companyId = req.user.companyId;
+    const { name, email, password, phone, role } = req.body;
+    const companyId = await getCompanyIdForUser(req);
+
+    if (!companyId) {
+      return res.status(400).json({ success: false, message: 'Company ID required' });
+    }
 
     const userExists = await User.findOne({ email });
     if (userExists) {
-      return res.status(400).json({ success: false, message: 'Email already registered' });
+      return res.status(400).json({ success: false, message: 'Staff email already registered' });
     }
 
-    const employee = await User.create({
+    const staffUser = await User.create({
+      companyId,
       name,
       email,
-      password,
-      role: 'employee',
-      companyId,
+      password: password || 'staff123',
+      role: role === 'driver' ? 'driver' : 'employee',
+      phone: phone || '',
+      status: 'active',
     });
 
-    res.status(201).json({
-      success: true,
-      message: 'Staff account created successfully',
-      employee: {
-        id: employee._id,
-        name: employee.name,
-        email: employee.email,
-        role: employee.role,
-        status: employee.status,
-      },
-    });
+    res.status(201).json({ success: true, message: 'Staff member added successfully', staff: staffUser });
   } catch (error) {
     res.status(200).json({ success: false, message: error.message });
   }
 };
 
-// @desc    Get all company staff
+// @desc    Get company staff members & drivers
 // @route   GET /api/company-admin/staff
 // @access  Private/CompanyAdmin
 exports.getCompanyStaff = async (req, res) => {
   try {
-    const companyId = req.user.companyId;
-    const staff = await User.find({ companyId, role: 'employee' });
+    const companyId = await getCompanyIdForUser(req);
+    if (!companyId) {
+      return res.status(200).json({ success: true, count: 0, staff: [] });
+    }
+    const staff = await User.find({ companyId, role: { $in: ['employee', 'driver'] } }).select('-password');
     res.status(200).json({ success: true, count: staff.length, staff });
   } catch (error) {
-    res.status(200).json({ success: true, count: 0, staff: [], message: error.message });
+    res.status(200).json({ success: true, count: 0, staff: [] });
   }
 };
 
@@ -168,60 +186,57 @@ exports.getCompanyStaff = async (req, res) => {
 // @access  Private/CompanyAdmin
 exports.getCompanyDashboard = async (req, res) => {
   try {
-    let companyId = req.user?.companyId;
+    const companyId = await getCompanyIdForUser(req);
 
     if (!companyId) {
-      const Company = require('../models/company');
-      const defaultComp = await Company.findOne();
-      companyId = defaultComp ? defaultComp._id : req.user?._id;
+      return res.status(200).json({
+        success: true,
+        company: null,
+        stats: {
+          totalVehicles: 0, rentedVehicles: 0, availableVehicles: 0, occupancyRate: 0,
+          totalRevenue: 0, commissionPaid: 0, netRevenue: 0, totalBookings: 0
+        },
+        bookings: [],
+        activeBookings: []
+      });
     }
 
-    const totalVehicles = companyId ? await Vehicle.countDocuments({ companyId }) : 0;
-    const rentedVehicles = companyId ? await Vehicle.countDocuments({ companyId, status: 'rented' }) : 0;
-    const availableVehicles = companyId ? await Vehicle.countDocuments({ companyId, status: 'available' }) : 0;
+    const totalVehicles = await Vehicle.countDocuments({ companyId });
+    const rentedVehicles = await Vehicle.countDocuments({ companyId, status: 'rented' });
+    const availableVehicles = await Vehicle.countDocuments({ companyId, status: 'available' });
 
     let bookings = [];
     try {
-      if (companyId) {
-        bookings = await Booking.find({ companyId }).populate('vehicleId').populate('customerId', 'name email') || [];
-      }
+      bookings = await Booking.find({ companyId }).populate('vehicleId').populate('customerId', 'name email') || [];
     } catch (e) {}
 
     let totalRevenue = 0;
     let commissionPaid = 0;
 
     try {
-      if (companyId) {
-        const txs = await Transaction.find({ companyId, type: 'commission', status: 'success' });
-        (txs || []).forEach(tx => {
-          commissionPaid += (tx.amount || 0);
-        });
+      const txs = await Transaction.find({ companyId, type: 'commission', status: 'success' });
+      (txs || []).forEach(tx => { commissionPaid += (tx.amount || 0); });
 
-        const bookingTxs = await Transaction.find({ companyId, type: 'booking_payment', status: 'success' });
-        (bookingTxs || []).forEach(tx => {
-          totalRevenue += (tx.amount || 0);
-        });
-      }
+      const bookingTxs = await Transaction.find({ companyId, type: 'booking_payment', status: 'success' });
+      (bookingTxs || []).forEach(tx => { totalRevenue += (tx.amount || 0); });
     } catch (e) {}
 
     let activeBookings = [];
     try {
-      if (companyId) {
-        activeBookings = await Booking.find({ companyId, status: 'active' })
-          .populate('vehicleId')
-          .populate('customerId', 'name')
-          .limit(5) || [];
-      }
+      activeBookings = await Booking.find({ companyId, status: 'active' })
+        .populate('vehicleId')
+        .populate('customerId', 'name')
+        .limit(5) || [];
     } catch (e) {}
 
     let company = null;
     try {
-      if (companyId) company = await Company.findById(companyId);
+      company = await Company.findById(companyId);
     } catch (e) {}
 
     res.status(200).json({
       success: true,
-      company: company || { name: 'Royal Car Rentals', status: 'active' },
+      company: company || null,
       stats: {
         totalVehicles: totalVehicles || 0,
         rentedVehicles: rentedVehicles || 0,
@@ -239,7 +254,7 @@ exports.getCompanyDashboard = async (req, res) => {
     console.error('getCompanyDashboard note:', error.message);
     res.status(200).json({
       success: true,
-      company: { name: 'Royal Car Rentals', status: 'active' },
+      company: null,
       stats: { totalVehicles: 0, rentedVehicles: 0, availableVehicles: 0, occupancyRate: 0, totalRevenue: 0, commissionPaid: 0, netRevenue: 0, totalBookings: 0 },
       bookings: [],
       activeBookings: []
@@ -252,18 +267,11 @@ exports.getCompanyDashboard = async (req, res) => {
 // @access  Private/CompanyAdmin
 exports.getCompanyBookings = async (req, res) => {
   try {
-    const mongoose = require('mongoose');
-    let companyId = req.user?.companyId;
-
-    if (!companyId || !mongoose.Types.ObjectId.isValid(companyId)) {
-      const defaultCompany = await Company.findOne();
-      companyId = defaultCompany ? defaultCompany._id : null;
+    const companyId = await getCompanyIdForUser(req);
+    if (!companyId) {
+      return res.status(200).json({ success: true, count: 0, bookings: [] });
     }
-
-    const bookings = companyId 
-      ? await Booking.find({ companyId }).populate('vehicleId').populate('customerId', 'name email mobile')
-      : await Booking.find().limit(20).populate('vehicleId').populate('customerId', 'name email mobile');
-
+    const bookings = await Booking.find({ companyId }).populate('vehicleId').populate('customerId', 'name email mobile');
     res.status(200).json({ success: true, count: bookings.length, bookings });
   } catch (error) {
     res.status(200).json({ success: true, count: 0, bookings: [] });

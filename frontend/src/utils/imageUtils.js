@@ -6,6 +6,8 @@ export const DEFAULT_VEHICLE_IMAGE = 'https://images.unsplash.com/photo-15493995
 export const DEFAULT_DRIVER_IMAGE = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80';
 export const DEFAULT_LICENSE_FRONT = 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=400&q=80';
 export const DEFAULT_LICENSE_BACK = 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=400&q=80';
+export const DEFAULT_COMPANY_LOGO = 'https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=200&auto=format&fit=crop&q=80';
+export const DEFAULT_LOCATION_IMAGE = 'https://images.unsplash.com/photo-1432405972618-c60b0225b8f9?auto=format&fit=crop&w=800&q=80';
 
 export const REAL_HUMAN_FACE_PORTRAITS = [
   'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
@@ -21,9 +23,33 @@ export const REAL_HUMAN_FACE_PORTRAITS = [
  */
 export function getValidImageUrl(url, type = 'vehicle') {
   if (!url || typeof url !== 'string' || !url.trim() || url === 'undefined' || url === 'null' || url.length < 5) {
-    return type === 'driver' ? DEFAULT_DRIVER_IMAGE : type === 'license' ? DEFAULT_LICENSE_FRONT : DEFAULT_VEHICLE_IMAGE;
+    return type === 'driver'
+      ? DEFAULT_DRIVER_IMAGE
+      : type === 'license'
+      ? DEFAULT_LICENSE_FRONT
+      : type === 'company' || type === 'logo'
+      ? DEFAULT_COMPANY_LOGO
+      : type === 'location'
+      ? DEFAULT_LOCATION_IMAGE
+      : DEFAULT_VEHICLE_IMAGE;
   }
-  const cleanUrl = url.trim();
+  let cleanUrl = url.trim();
+
+  // If broken bus image was stored, replace with default scenic location image
+  if (type === 'location' && cleanUrl.includes('photo-1570125909232-eb263c188f7e')) {
+    return DEFAULT_LOCATION_IMAGE;
+  }
+
+  // Automatically extract target direct image URL from Google Images imgres / imgurl links
+  if (cleanUrl.includes('google.com/imgres') || cleanUrl.includes('imgurl=')) {
+    try {
+      const match = cleanUrl.match(/imgurl=([^&]+)/);
+      if (match && match[1]) {
+        cleanUrl = decodeURIComponent(match[1]);
+      }
+    } catch (e) {}
+  }
+
   if (cleanUrl.startsWith('data:image/') || cleanUrl.startsWith('blob:') || cleanUrl.startsWith('http://') || cleanUrl.startsWith('https://')) {
     return cleanUrl;
   }
@@ -54,5 +80,13 @@ export function fileToDataURL(file) {
  */
 export function handleImageError(e, type = 'vehicle') {
   e.target.onerror = null; // Prevent infinite loop
-  e.target.src = type === 'driver' ? DEFAULT_DRIVER_IMAGE : type === 'license' ? DEFAULT_LICENSE_FRONT : DEFAULT_VEHICLE_IMAGE;
+  e.target.src = type === 'driver'
+    ? DEFAULT_DRIVER_IMAGE
+    : type === 'license'
+    ? DEFAULT_LICENSE_FRONT
+    : type === 'company' || type === 'logo'
+    ? DEFAULT_COMPANY_LOGO
+    : type === 'location'
+    ? DEFAULT_LOCATION_IMAGE
+    : DEFAULT_VEHICLE_IMAGE;
 }

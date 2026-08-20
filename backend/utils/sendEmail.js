@@ -275,8 +275,74 @@ const sendSubscriptionExpiryEmail = async ({ companyName, ownerEmail, planName, 
   });
 };
 
+/**
+ * Send Purpose-Specific OTP Verification Email Template via Brevo API
+ */
+const sendOTPEmail = async ({ to, otp, purpose = 'BOOKING_VERIFICATION', userType = 'Customer', bookingId = '' }) => {
+  let subject = `Your Verification OTP - Royal Car Rentals`;
+  let title = `Security Verification OTP`;
+  let subtitle = `Use the 6-digit OTP code below to complete your verification request.`;
+
+  if (purpose === 'BOOKING_VERIFICATION') {
+    subject = `Booking Verification OTP: ${bookingId ? `#${bookingId}` : ''} - Royal Car Rentals`;
+    title = `Customer Booking Verification`;
+    subtitle = `Your booking request was placed. Enter the 6-digit OTP code in your Customer Dashboard to confirm your booking.`;
+  } else if (purpose === 'CASH_COLLECTION') {
+    subject = `Cash Payment Verification OTP: ${bookingId ? `#${bookingId}` : ''} - Royal Car Rentals`;
+    title = `Cash Payment Verification`;
+    subtitle = `Your driver requested cash collection. Share this 6-digit OTP code with your driver to confirm cash payment.`;
+  } else if (purpose === 'TRIP_START') {
+    subject = `Trip Start Security OTP: ${bookingId ? `#${bookingId}` : ''} - Royal Car Rentals`;
+    title = `Trip Start Security OTP`;
+    subtitle = `Your driver is ready to start the journey. Share this 6-digit OTP code with your driver to authorize trip start.`;
+  }
+
+  const text = `Your OTP is: ${otp}\n\nThis OTP is valid for 5 minutes.\nPlease do not share this OTP with anyone.`;
+
+  const html = `
+    <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 540px; margin: 0 auto; background: #ffffff; color: #0f172a; border-radius: 16px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 10px 25px rgba(0,0,0,0.08);">
+      <div style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); padding: 1.75rem; text-align: center;">
+        <h1 style="color: #ffffff; margin: 0; font-size: 1.5rem; letter-spacing: -0.5px;">👑 ROYAL CAR RENTALS</h1>
+        <p style="color: #94a3b8; margin-top: 0.3rem; font-size: 0.85rem;">${title} (${userType})</p>
+      </div>
+
+      <div style="padding: 2rem; background: #ffffff; text-align: center;">
+        <h2 style="color: #0f172a; margin-top: 0; font-size: 1.25rem;">Your Verification OTP Code</h2>
+        <p style="color: #475569; font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
+          ${subtitle}
+        </p>
+
+        <div style="background: #f1f5f9; border: 2px dashed #2563eb; padding: 1.25rem; border-radius: 14px; margin: 0 auto 1.5rem auto; max-width: 280px;">
+          <div style="font-size: 2.2rem; font-weight: 900; letter-spacing: 8px; color: #1e40af; font-family: 'Courier New', Courier, monospace;">
+            ${otp}
+          </div>
+        </div>
+
+        <p style="color: #e11d48; font-weight: 700; font-size: 0.85rem; margin-bottom: 0.5rem;">
+          ⏱️ This OTP is valid for 5 minutes.
+        </p>
+        <p style="color: #64748b; font-size: 0.8rem; margin: 0;">
+          Please do not share this OTP with unauthorized persons.
+        </p>
+      </div>
+
+      <div style="background: #f8fafc; padding: 1rem; text-align: center; color: #94a3b8; font-size: 0.75rem; border-top: 1px solid #e2e8f0;">
+        © 2026 Royal Car Rentals Platform • Brevo Automated Email Service
+      </div>
+    </div>
+  `;
+
+  return sendEmail({
+    to,
+    subject,
+    text,
+    html
+  });
+};
+
 module.exports = {
   sendEmail,
   sendKYCStatusEmail,
-  sendSubscriptionExpiryEmail
+  sendSubscriptionExpiryEmail,
+  sendOTPEmail
 };

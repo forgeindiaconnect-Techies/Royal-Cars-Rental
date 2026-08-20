@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import BookingChatModal from '../components/BookingChatModal';
 import GoogleMapComponent from '../components/GoogleMapComponent';
+import BrevoEmailOtpVerification from '../components/BrevoEmailOtpVerification';
 
 export default function CustomerDashboard() {
   const { token, logout, user } = useAuth();
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedChatBooking, setSelectedChatBooking] = useState(null);
@@ -396,72 +398,101 @@ export default function CustomerDashboard() {
   });
 
   return (
-    <div className="dashboard-layout" style={{ display: 'flex', minHeight: '100vh', background: '#f8fafc', color: '#0f172a', fontFamily: 'Inter, system-ui, sans-serif' }}>
-      
-      {/* ========================================== */}
-      {/* LEFT SIDEBAR NAVIGATION */}
-      {/* ========================================== */}
-      <aside className="dashboard-sidebar" style={{
-        width: sidebarCollapsed ? '75px' : '260px',
-        background: '#ffffff',
-        borderRight: '1px solid #e2e8f0',
-        display: 'flex',
-        flexDirection: 'column',
-        transition: 'width 0.25s ease',
-        position: 'sticky',
-        top: 0,
-        height: '100vh',
-        zIndex: 100,
-        boxShadow: '4px 0 20px rgba(0, 0, 0, 0.03)'
-      }}>
-        {/* Sidebar Header */}
-        <div style={{ padding: '1.25rem 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #e2e8f0' }}>
-          {!sidebarCollapsed && (
-            <div style={{ fontSize: '1.25rem', fontWeight: 900, background: 'linear-gradient(90deg, #2563eb, #7c3aed)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-              ⚡ RentOS Portal
-            </div>
-          )}
-          <button 
-            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-            style={{ background: '#f1f5f9', border: 'none', color: '#64748b', padding: '0.4rem', borderRadius: '6px', cursor: 'pointer' }}
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: '#f8fafc', color: '#0f172a', fontFamily: 'Inter, system-ui, sans-serif' }}>
+      {/* Mobile Top Header */}
+      <div style={{ height: '58px', background: '#ffffff', borderBottom: '1px solid #e2e8f0', padding: '0 1rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', zIndex: 99 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <button
+            onClick={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
+            className="dashboard-mobile-toggle-btn"
+            aria-label="Toggle Dashboard Navigation"
           >
-            {sidebarCollapsed ? '➡️' : '⬅️'}
+            {isMobileSidebarOpen ? '✕' : '☰'}
           </button>
+          <div style={{ fontSize: '1.15rem', fontWeight: 900, background: 'linear-gradient(90deg, #2563eb, #7c3aed)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+            ⚡ RentOS Portal
+          </div>
         </div>
+      </div>
 
-        {/* User Role Profile Card */}
-        {!sidebarCollapsed && (
-          <div style={{ padding: '1rem 1.25rem', borderBottom: '1px solid #e2e8f0', background: '#f8fafc', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <div style={{ width: '42px', height: '42px', borderRadius: '50%', background: '#2563eb', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, color: '#fff', boxShadow: '0 4px 10px rgba(37,99,235,0.3)' }}>
-              {profileData.name.charAt(0)}
-            </div>
-            <div style={{ overflow: 'hidden' }}>
-              <div style={{ fontWeight: 800, fontSize: '0.88rem', color: '#0f172a', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>{profileData.name}</div>
-              <div style={{ fontSize: '0.72rem', color: '#059669', fontWeight: 700 }}>{getUserRoleLabel()}</div>
+      <div className="dashboard-layout" style={{ display: 'flex', flex: 1, position: 'relative' }}>
+        {/* Mobile Drawer Overlay Backdrop */}
+        {isMobileSidebarOpen && (
+          <div 
+            className="dashboard-sidebar-backdrop"
+            onClick={() => setIsMobileSidebarOpen(false)}
+          />
+        )}
+      
+        {/* ========================================== */}
+        {/* LEFT SIDEBAR NAVIGATION */}
+        {/* ========================================== */}
+        <aside className={`dashboard-sidebar ${isMobileSidebarOpen ? 'mobile-drawer-active' : ''}`} style={{
+          width: sidebarCollapsed ? '75px' : '260px',
+          background: '#ffffff',
+          borderRight: '1px solid #e2e8f0',
+          display: 'flex',
+          flexDirection: 'column',
+          transition: 'width 0.25s ease',
+          boxShadow: '4px 0 20px rgba(0, 0, 0, 0.03)'
+        }}>
+          {/* Sidebar Header */}
+          <div style={{ padding: '1.25rem 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #e2e8f0' }}>
+            {!sidebarCollapsed && (
+              <div style={{ fontSize: '1.25rem', fontWeight: 900, background: 'linear-gradient(90deg, #2563eb, #7c3aed)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                ⚡ RentOS Portal
+              </div>
+            )}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <button 
+                onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+                style={{ background: '#f1f5f9', border: 'none', color: '#64748b', padding: '0.4rem', borderRadius: '6px', cursor: 'pointer' }}
+              >
+                {sidebarCollapsed ? '➡️' : '⬅️'}
+              </button>
+              <button 
+                onClick={() => setIsMobileSidebarOpen(false)}
+                className="dashboard-sidebar-close-btn"
+                aria-label="Close Navigation Drawer"
+              >
+                ✕
+              </button>
             </div>
           </div>
-        )}
 
-        {/* 9 Sidebar Nav Items */}
-        <nav style={{ flex: 1, overflowY: 'auto', padding: '0.75rem 0.6rem', display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-          {[
-            { id: 'dashboard', label: 'Dashboard' },
-            { id: 'browse', label: 'Browse Vehicles' },
-            { id: 'bookings', label: 'My Bookings' },
-            { id: 'live-tracking', label: 'Live Trip Tracking', highlight: true },
-            { id: 'payments', label: 'Payments & Invoices' },
-            { id: 'reviews', label: 'Reviews & Ratings' },
-            { id: 'notifications', label: 'Notifications', badge: unreadCount > 0 ? unreadCount : null },
-            { id: 'profile', label: 'My Profile' },
-            { id: 'settings', label: 'Settings' }
-          ].map(item => (
-            <button
-              key={item.id}
-              onClick={() => handleTabChange(item.id)}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justify: sidebarCollapsed ? 'center' : 'space-between',
+          {/* User Role Profile Card */}
+          {!sidebarCollapsed && (
+            <div style={{ padding: '1rem 1.25rem', borderBottom: '1px solid #e2e8f0', background: '#f8fafc', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <div style={{ width: '42px', height: '42px', borderRadius: '50%', background: '#2563eb', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, color: '#fff', boxShadow: '0 4px 10px rgba(37,99,235,0.3)' }}>
+                {profileData.name.charAt(0)}
+              </div>
+              <div style={{ overflow: 'hidden' }}>
+                <div style={{ fontWeight: 800, fontSize: '0.88rem', color: '#0f172a', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>{profileData.name}</div>
+                <div style={{ fontSize: '0.72rem', color: '#059669', fontWeight: 700 }}>{getUserRoleLabel()}</div>
+              </div>
+            </div>
+          )}
+
+          {/* 9 Sidebar Nav Items */}
+          <nav style={{ flex: 1, overflowY: 'auto', padding: '0.75rem 0.6rem', display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+            {[
+              { id: 'dashboard', label: 'Dashboard' },
+              { id: 'browse', label: 'Browse Vehicles' },
+              { id: 'bookings', label: 'My Bookings' },
+              { id: 'live-tracking', label: 'Live Trip Tracking', highlight: true },
+              { id: 'payments', label: 'Payments & Invoices' },
+              { id: 'reviews', label: 'Reviews & Ratings' },
+              { id: 'notifications', label: 'Notifications', badge: unreadCount > 0 ? unreadCount : null },
+              { id: 'profile', label: 'My Profile' },
+              { id: 'settings', label: 'Settings' }
+            ].map(item => (
+              <button
+                key={item.id}
+                onClick={() => { handleTabChange(item.id); setIsMobileSidebarOpen(false); }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: sidebarCollapsed ? 'center' : 'space-between',
                 padding: '0.75rem 0.9rem',
                 borderRadius: '10px',
                 border: 'none',
@@ -486,17 +517,22 @@ export default function CustomerDashboard() {
           ))}
         </nav>
 
-        {/* Sidebar Footer Logout */}
-        <div style={{ padding: '1rem', borderTop: '1px solid #e2e8f0' }}>
-          <button
-            onClick={() => { logout(); }}
-            style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: sidebarCollapsed ? 'center' : 'flex-start', gap: '0.65rem', background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca', padding: '0.65rem 0.85rem', borderRadius: '8px', fontWeight: 800, fontSize: '0.85rem', cursor: 'pointer' }}
-          >
-            <span>🚪</span>
-            {!sidebarCollapsed && <span>Log Out</span>}
-          </button>
-        </div>
-      </aside>
+          {/* Sidebar Footer Logout */}
+          <div style={{ padding: '1rem', borderTop: '1px solid #e2e8f0', flexShrink: 0, marginTop: 'auto' }}>
+            <button
+              onClick={() => { logout(); }}
+              style={{
+                width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.65rem',
+                background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)', color: '#ffffff',
+                border: 'none', padding: '0.75rem 0.85rem', borderRadius: '10px', fontWeight: 800, fontSize: '0.88rem', cursor: 'pointer',
+                boxShadow: '0 4px 14px rgba(239,68,68,0.35)'
+              }}
+            >
+              <span>🚪</span>
+              {!sidebarCollapsed && <span>Log Out / Sign Out</span>}
+            </button>
+          </div>
+        </aside>
 
       {/* ========================================== */}
       {/* MAIN CONTENT AREA */}
@@ -656,9 +692,26 @@ export default function CustomerDashboard() {
                           <span 
                             key={star} 
                             onClick={() => {
-                              alert(`Rated ${star} Stars! Thank you for reviewing Tata Nexon EV.`);
+                              const newDriverRev = {
+                                id: 'drev_' + Date.now(),
+                                bookingId: 'BK-2026-3310',
+                                customerName: profileData.name || 'Shanu',
+                                driverName: 'Karthik S.',
+                                carName: 'Tata Nexon EV Max',
+                                rating: star,
+                                driverBehaviorScore: star,
+                                drivingSafetyScore: star,
+                                comment: `Rated ${star} stars! Excellent driving and behavior.`,
+                                date: new Date().toISOString().split('T')[0]
+                              };
+                              const currentDrvRevs = JSON.parse(localStorage.getItem('customer_driver_reviews') || '[]');
+                              const updatedDrvRevs = [newDriverRev, ...currentDrvRevs];
+                              localStorage.setItem('customer_driver_reviews', JSON.stringify(updatedDrvRevs));
+                              window.dispatchEvent(new Event('reviews_updated'));
+
+                              alert(`Rated ${star} Stars! Thank you for reviewing Tata Nexon EV & Driver Karthik S.`);
                               setDemoBookingsList(prev => prev.map(b => b.bookingId === 'BK-2026-3310' ? { ...b, rated: true } : b));
-                              triggerNewNotification('Review Submitted ⭐', `Thank you for rating Tata Nexon EV ${star} stars!`);
+                              triggerNewNotification('Review Submitted ⭐', `Thank you for rating Tata Nexon EV & Driver Karthik S. ${star} stars!`);
                             }}
                             style={{ color: star <= 5 ? '#f59e0b' : '#cbd5e1', transition: 'transform 0.15s ease' }}
                           >
@@ -670,9 +723,26 @@ export default function CustomerDashboard() {
 
                     <button 
                       onClick={() => {
-                        alert('Review submitted! Thank you for rating your trip.');
+                        const newDriverRev = {
+                          id: 'drev_' + Date.now(),
+                          bookingId: 'BK-2026-3310',
+                          customerName: profileData.name || 'Shanu',
+                          driverName: 'Karthik S.',
+                          carName: 'Tata Nexon EV Max',
+                          rating: 5,
+                          driverBehaviorScore: 5,
+                          drivingSafetyScore: 5,
+                          comment: 'Exceptional driving experience! Smooth EV ride and very professional chauffeur.',
+                          date: new Date().toISOString().split('T')[0]
+                        };
+                        const currentDrvRevs = JSON.parse(localStorage.getItem('customer_driver_reviews') || '[]');
+                        const updatedDrvRevs = [newDriverRev, ...currentDrvRevs];
+                        localStorage.setItem('customer_driver_reviews', JSON.stringify(updatedDrvRevs));
+                        window.dispatchEvent(new Event('reviews_updated'));
+
+                        alert('Review submitted! Thank you for rating your driver and driving experience.');
                         setDemoBookingsList(prev => prev.map(b => b.bookingId === 'BK-2026-3310' ? { ...b, rated: true } : b));
-                        triggerNewNotification('Review Submitted ⭐', 'Thank you for rating Tata Nexon EV 5 stars!');
+                        triggerNewNotification('Review Submitted ⭐', 'Thank you for rating Tata Nexon EV & Driver Karthik S. 5 stars!');
                       }}
                       style={{ background: '#d97706', color: '#fff', border: 'none', padding: '0.75rem 1.25rem', borderRadius: '10px', fontWeight: 900, fontSize: '0.88rem', cursor: 'pointer', boxShadow: '0 4px 12px rgba(217,119,6,0.3)' }}
                     >
@@ -887,6 +957,9 @@ export default function CustomerDashboard() {
                             🔑 Self-Drive Rental • Documents: DL, Aadhaar, PAN & Face Scan Submitted
                           </div>
                         )}
+
+                        {/* CUSTOMER BOOKING OTP VERIFICATION BOX (OTP HIDDEN, SENT VIA BREVO EMAIL) */}
+                        <CustomerBookingOtpBox booking={b} userEmail={profileData.email || user?.email} />
                       </div>
 
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
@@ -1203,6 +1276,17 @@ export default function CustomerDashboard() {
                   <div><label style={{ fontSize: '0.75rem', color: '#475569', fontWeight: 700 }}>Address</label><input type="text" value={profileData.address} onChange={e => setProfileData({ ...profileData, address: e.target.value })} style={{ width: '100%', background: '#f8fafc', border: '1px solid #cbd5e1', color: '#0f172a', padding: '0.65rem', borderRadius: '8px' }} /></div>
                   <button onClick={() => alert('Profile updated successfully!')} style={{ background: '#2563eb', color: '#fff', border: 'none', padding: '0.75rem', borderRadius: '8px', fontWeight: 800, cursor: 'pointer', marginTop: '0.5rem' }}>Save Profile Changes</button>
                 </div>
+              </div>
+
+              {/* CUSTOMER BREVO OTP EMAIL SECURITY VERIFICATION CARD */}
+              <div style={{ maxWidth: '600px' }}>
+                <BrevoEmailOtpVerification
+                  role="customer"
+                  defaultEmail={profileData.email || user?.email || 'vaideeswari8@gmail.com'}
+                  onVerified={(res) => {
+                    alert(`✅ Customer Email ${res.email} successfully verified via Brevo OTP!`);
+                  }}
+                />
               </div>
             </div>
           )}
@@ -1878,7 +1962,142 @@ export default function CustomerDashboard() {
         />
       )}
 
+      </div>
     </div>
   );
 }
+
+// 🔐 CUSTOMER BOOKING OTP VERIFICATION BOX (OTP HIDDEN, SENT VIA BREVO EMAIL)
+function CustomerBookingOtpBox({ booking, userEmail }) {
+  const [otpInput, setOtpInput] = useState('');
+  const [isVerified, setIsVerified] = useState(booking.status === 'Confirmed' || booking.isOtpVerified);
+  const [isSending, setIsSending] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [statusMsg, setStatusMsg] = useState('A 6-digit OTP has been sent to your registered email address.');
+  const [errorMsg, setErrorMsg] = useState('');
+  const [cooldown, setCooldown] = useState(0);
+
+  useEffect(() => {
+    let t;
+    if (cooldown > 0) t = setInterval(() => setCooldown(c => c - 1), 1000);
+    return () => clearInterval(t);
+  }, [cooldown]);
+
+  const email = userEmail || booking.customerEmail || 'vaideeswari8@gmail.com';
+  const apiBase = window.location.origin.includes('localhost') ? 'http://localhost:5000' : '';
+
+  const handleResend = async () => {
+    setIsSending(true);
+    setErrorMsg('');
+    try {
+      const res = await fetch(`${apiBase}/api/auth/booking/send-otp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, purpose: 'BOOKING_VERIFICATION', bookingId: booking.bookingId || booking.id })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setCooldown(30);
+        setStatusMsg('📩 A new 6-digit OTP has been sent to your registered email address.');
+      } else {
+        setErrorMsg(data.message || 'Failed to send OTP.');
+      }
+    } catch (e) {
+      setErrorMsg(`Error: ${e.message}`);
+    } finally {
+      setIsSending(false);
+    }
+  };
+
+  const handleVerify = async (e) => {
+    e.preventDefault();
+    if (!otpInput || otpInput.trim().length !== 6) {
+      setErrorMsg('Please enter the full 6-digit OTP code received in your email.');
+      return;
+    }
+    setIsVerifying(true);
+    setErrorMsg('');
+    try {
+      const res = await fetch(`${apiBase}/api/auth/booking/verify-otp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, purpose: 'BOOKING_VERIFICATION', bookingId: booking.bookingId || booking.id, otp: otpInput.trim() })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setIsVerified(true);
+        setStatusMsg('🎉 OTP Verified → Booking Confirmed');
+        alert('🎉 OTP VERIFIED SUCCESSFULLY!\n\nStatus: OTP Verified → Booking Confirmed');
+      } else {
+        setErrorMsg(data.message || 'Incorrect or expired OTP.');
+      }
+    } catch (e) {
+      setErrorMsg(`Verification error: ${e.message}`);
+    } finally {
+      setIsVerifying(false);
+    }
+  };
+
+  if (isVerified) {
+    return (
+      <div style={{ marginTop: '0.65rem', background: '#f0fdf4', border: '1.5px solid #16a34a', padding: '0.65rem 0.85rem', borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        <span style={{ fontSize: '1.2rem', color: '#16a34a' }}>✓</span>
+        <div>
+          <div style={{ fontSize: '0.82rem', fontWeight: 900, color: '#14532d' }}>OTP Verified → Booking Confirmed</div>
+          <div style={{ fontSize: '0.7rem', color: '#166534' }}>Your booking security verification is active.</div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ marginTop: '0.65rem', background: '#eff6ff', border: '1.5px solid #3b82f6', padding: '0.85rem', borderRadius: '12px' }}>
+      <div style={{ fontSize: '0.78rem', fontWeight: 800, color: '#1e40af', marginBottom: '0.35rem' }}>
+        🔐 Customer Booking Verification
+      </div>
+      <div style={{ fontSize: '0.75rem', color: '#2563eb', fontWeight: 700, marginBottom: '0.65rem' }}>
+        {statusMsg}
+      </div>
+
+      <form onSubmit={handleVerify} style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <input
+            type="text"
+            maxLength={6}
+            value={otpInput}
+            onChange={e => setOtpInput(e.target.value)}
+            placeholder="Enter 6-Digit OTP"
+            style={{ flex: 1, padding: '0.55rem', borderRadius: '8px', border: '2px solid #2563eb', fontSize: '1rem', fontWeight: 900, fontFamily: 'monospace', letterSpacing: '4px', textAlign: 'center' }}
+          />
+          <button
+            type="submit"
+            disabled={isVerifying || otpInput.trim().length !== 6}
+            style={{ padding: '0.55rem 1rem', background: 'linear-gradient(135deg, #2563eb, #1d4ed8)', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 800, fontSize: '0.78rem', cursor: 'pointer' }}
+          >
+            {isVerifying ? 'Verifying...' : 'Verify OTP'}
+          </button>
+        </div>
+
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <button
+            type="button"
+            onClick={handleResend}
+            disabled={isSending || cooldown > 0}
+            style={{ background: 'none', border: 'none', color: cooldown > 0 ? '#94a3b8' : '#2563eb', fontSize: '0.72rem', fontWeight: 800, cursor: cooldown > 0 ? 'not-allowed' : 'pointer', padding: 0 }}
+          >
+            {isSending ? 'Sending...' : cooldown > 0 ? `Resend OTP in ${cooldown}s` : '🔄 Resend OTP'}
+          </button>
+          <span style={{ fontSize: '0.68rem', color: '#64748b' }}>⏱️ Expires in 5 minutes</span>
+        </div>
+
+        {errorMsg && (
+          <div style={{ fontSize: '0.72rem', color: '#dc2626', fontWeight: 700, marginTop: '2px' }}>
+            ❌ {errorMsg}
+          </div>
+        )}
+      </form>
+    </div>
+  );
+}
+
 
